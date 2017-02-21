@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/index.js"],"names":["console","log"],"mappings":";;AAAA;;;;;;AAEAA,QAAQC,GAAR,CAAY,CAAZ","file":"index.js","sourcesContent":["import yargs from 'yargs';\n\nconsole.log(1);"]}
