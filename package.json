@@ -1,0 +1,9 @@
+{
+  "name": "rung-cli",
+  "version": "0.1.0",
+  "description": "Command line interface for Rung",
+  "main": "index.js",
+  "repository": "https://github.com/nginformatica/rung-cli.git",
+  "author": "Marcelo Camargo <marcelocamargo@linuxmail.org>",
+  "license": "MIT"
+}
