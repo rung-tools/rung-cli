@@ -5,5 +5,8 @@
   "main": "index.js",
   "repository": "https://github.com/nginformatica/rung-cli.git",
   "author": "Marcelo Camargo <marcelocamargo@linuxmail.org>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "yargs": "^6.6.0"
+  }
 }
