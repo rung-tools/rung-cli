@@ -11,6 +11,7 @@
     "compile": "babel ./src -d ./dist --source-maps"
   },
   "dependencies": {
+    "ramda": "^0.23.0",
     "yargs": "^6.6.0"
   },
   "devDependencies": {
