@@ -1,8 +1,6 @@
-import readline from 'readline';
-import { promisify } from 'bluebird';
-import { cond, keys, mergeAll, T as True } from 'ramda';
-import 'colors';
+import types from './types';
+import input from './input';
 
 module.exports = {
-
+    types
 };

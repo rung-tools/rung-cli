@@ -82,5 +82,5 @@ const valueOrNothing = {
     Url: input => isURL(input) ? Just(input) : Nothing()
 };
 
-export const convertType = (input, type, def = null) =>
+export const cast = (input, type, def = null) =>
     valueOrNothing[type.name](input, type).getOrElse(def);
