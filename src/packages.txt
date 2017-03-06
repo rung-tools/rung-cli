@@ -1,4 +1,0 @@
-ramda
-bluebird
-superagent
-superagent-promise
