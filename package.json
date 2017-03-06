@@ -14,10 +14,10 @@
   "dependencies": {
     "bluebird": "^3.5.0",
     "colors": "^1.1.2",
+    "commander": "^2.9.0",
     "data.maybe": "^1.2.2",
     "ramda": "^0.23.0",
-    "validator": "^7.0.0",
-    "yargs": "^6.6.0"
+    "validator": "^7.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
