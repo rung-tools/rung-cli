@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node ./dist/index.js",
-    "compile": "babel ./src -d ./dist --source-maps",
+    "compile": "babel ./src -d ./dist --source-maps && cp ./src/packages.txt ./dist",
     "lint": "xo src/"
   },
   "dependencies": {
