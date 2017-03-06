@@ -1,20 +1,8 @@
-#!/usr/bin/env node
 import readline from 'readline';
-import { argv } from 'yargs';
-import { cond, contains } from 'ramda';
+import { promisify } from 'bluebird';
+import { cond, keys, mergeAll, T as True } from 'ramda';
+import 'colors';
 
-function init() {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        terminal: false
-    });
+module.exports = {
 
-    rl.on('line', l => console.log(l));
-}
-
-const executeAction = cond([
-    [contains('init'), init]
-]);
-
-executeAction(argv._);
+};

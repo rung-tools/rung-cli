@@ -11,6 +11,9 @@
     "compile": "babel ./src -d ./dist --source-maps"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
+    "colors": "^1.1.2",
+    "data.maybe": "^1.2.2",
     "ramda": "^0.23.0",
     "yargs": "^6.6.0"
   },
