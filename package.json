@@ -5,19 +5,23 @@
   "main": "./dist/rung.js",
   "repository": "https://github.com/nginformatica/rung-cli.git",
   "author": "Marcelo Camargo <marcelocamargo@linuxmail.org>",
+  "bin": {
+    "rung": "./dist/rung.js"
+  },
   "license": "MIT",
   "scripts": {
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps && cp ./packages.txt ./dist",
-    "lint": "xo src/"
+    "lint": "xo src/",
+    "install-globally": "yarn compile && npm pack && npm install -g rung-cli-0.1.0.tgz"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "colors": "^1.1.2",
-    "commander": "^2.9.0",
-    "data.maybe": "^1.2.2",
-    "ramda": "^0.23.0",
-    "validator": "^7.0.0"
+    "bluebird": "3.5.0",
+    "colors": "1.1.2",
+    "commander": "2.9.0",
+    "data.maybe": "1.2.2",
+    "ramda": "0.23.0",
+    "validator": "7.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
