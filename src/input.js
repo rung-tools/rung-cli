@@ -48,16 +48,15 @@ export function ask(questions) {
             const [head, ...tail] = remaining;
             const { description, type, default: def } = questions[head];
 
-            io.read(`(${getTypeName(type).red}) ${description.blue}`)
-                .done(answer => {
-                    const value = cast(answer, type, def);
+            io.read(`(${getTypeName(type).red}) ${description.blue}`).done(answer => {
+                const value = cast(answer, type, def);
 
-                    const args = value === null
-                        ? [remaining, answered, callback]
-                        : [tail, concat(answered, [{ [head]: value }]), callback];
+                const args = value === null
+                    ? [remaining, answered, callback]
+                    : [tail, concat(answered, [{ [head]: value }]), callback];
 
-                   return recur(...args);
-                })
+                return recur(...args);
+            })
         } else {
             io.close();
             callback(answered);
