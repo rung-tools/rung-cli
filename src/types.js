@@ -30,6 +30,13 @@ export const Checkbox = { name: 'Checkbox' };
 export const OneOf = values => ({ name: 'OneOf', values });
 export const Url = { name: 'Url' };
 
+/**
+ * Returns the human-readable name of a type
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String} type {anonymous}
+ * @return {String} {anonymous}
+ */
 export const getTypeName = cond([
     [propEq('name', 'Char'), t => `Char(${t.length})`],
     [propEq('name', 'IntegerRange'), t => `IntegerRange(${t.from}, ${t.to})`],
@@ -82,5 +89,14 @@ const valueOrNothing = {
     Url: input => isURL(input) ? Just(input) : Nothing()
 };
 
+/**
+ * Returns the literal value by receiving the string input, the type and the
+ * default value
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String} input - The original string value
+ * @param {Object} type - Type of the value to be casted
+ * @param {Mixed} def - The value that may be taken in case of error. Null on error
+ */
 export const cast = (input, type, def = null) =>
     valueOrNothing[type.name](input, type).getOrElse(def);
