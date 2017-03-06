@@ -2,3 +2,4 @@ ramda
 bluebird
 superagent
 superagent-promise
+rung-sdk

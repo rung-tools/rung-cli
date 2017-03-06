@@ -98,9 +98,11 @@ export const __require = curry((whitelist, module) => {
     );
     const isValidModule = either(moduleIs, moduleMatch);
 
-    return isValidModule(whitelist)
-        ? require(module)
-        : reject('Disallowed module');
+    if (isValidModule(whitelist)) {
+        return require(module);
+    }
+
+    throw new Error('Disallowed module');
 });
 
 /**
