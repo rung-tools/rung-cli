@@ -1,7 +1,6 @@
-import path from 'path';
 import yargs from 'yargs';
-import { head, pipe, cond, equals, prop, T, pick } from 'ramda';
-import { resolve, reject, promisifyAll } from 'bluebird';
+import { head, pipe, cond, equals, prop } from 'ramda';
+import { reject } from 'bluebird';
 import { build } from './build';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
@@ -21,11 +20,11 @@ function cli(args) {
         });
 }
 
-function init(args) {
+function init(/* args */) {
     return reject('Not implemented yet!');
 }
 
-function run(args) {
+function run(/* args */) {
     return reject('Not implemented yet!');
 }
 

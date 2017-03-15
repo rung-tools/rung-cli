@@ -1,21 +1,14 @@
 import path from 'path';
-import yargs from 'yargs';
 import Zip from 'jszip';
 import {
     __,
-    T,
-    cond,
     curry,
-    equals,
-    head,
     map,
-    pick,
     pipe,
-    prop,
-    tryCatch,
     without
 } from 'ramda';
-import Promise, { resolve, promisifyAll, promisify } from 'bluebird';
+import Promise, { promisifyAll } from 'bluebird';
+
 const fs = promisifyAll(require('fs'));
 
 const requiredFiles = ['package.json', 'index.js'];
@@ -43,8 +36,11 @@ const extractProjectInfo = curry((dir, files) => {
         .then(pipe(
             validatePackage,
             projectInfo => [files, projectInfo]));
-})
+});
 
+/**
+ * customPath can be an target fileName or an exisiting directory
+ */
 function resolveOutputTarget(customPath, fileName) {
     const realPath = path.resolve('.', customPath);
     try {
@@ -52,7 +48,7 @@ function resolveOutputTarget(customPath, fileName) {
         if (lstat.isDirectory()) {
             return path.join(realPath, fileName);
         }
-    } catch (_) { /* Everything is fine... */ }
+    } catch (err) { /* Everything is fine... */ }
 
     return realPath;
 }
