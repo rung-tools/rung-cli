@@ -2,6 +2,7 @@ import path from 'path';
 import yargs from 'yargs';
 import Zip from 'jszip';
 import {
+    __,
     T,
     cond,
     curry,
@@ -44,14 +45,28 @@ const extractProjectInfo = curry((dir, files) => {
             projectInfo => [files, projectInfo]));
 })
 
-function saveZip(zip, projectInfo) {
+function resolveOutputTarget(customPath, fileName) {
+    const realPath = path.resolve('.', customPath);
+    try {
+        const lstat = fs.lstatSync(realPath);
+        if (lstat.isDirectory()) {
+            return path.join(realPath, fileName);
+        }
+    } catch (_) { /* Everything is fine... */ }
+
+    return realPath;
+}
+
+const saveZip = curry((zip, projectInfo, customPath = '.') => {
+    const target = resolveOutputTarget(customPath, `${projectInfo.name}.rung`);
+
     return new Promise((resolve, reject) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-            .pipe(fs.createWriteStream(`${projectInfo.name}.rung`))
+            .pipe(fs.createWriteStream(target))
             .on('end', resolve)
             .on('error', reject);
     });
-}
+});
 
 const createZip = curry((dir, files, projectInfo) => {
     const zip = new Zip();
@@ -88,5 +103,5 @@ export function build(args) {
         .then(ignoreUnwantedFiles)
         .then(extractProjectInfo(dir))
         .spread(createZip(dir))
-        .spread(saveZip);
+        .spread(saveZip(__, __, args.output));
 }
