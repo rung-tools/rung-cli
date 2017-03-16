@@ -13,7 +13,8 @@
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps && cp ./packages.txt ./dist",
     "lint": "xo src/",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "preinstall": "npm run compile"
   },
   "dependencies": {
     "bluebird": "3.5.0",
