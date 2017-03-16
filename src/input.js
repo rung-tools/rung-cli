@@ -1,14 +1,11 @@
 import readline from 'readline';
 import Promise, { promisify } from 'bluebird';
 import {
-    T as True,
     concat,
-    cond,
     curry,
-    keys,
-    mergeAll
+    keys
 } from 'ramda';
-import 'colors';
+import c from 'colors';
 import { getTypeName, cast } from './types';
 
 /**
@@ -48,7 +45,7 @@ export function ask(questions) {
             const [head, ...tail] = remaining;
             const { description, type, default: def } = questions[head];
 
-            io.read(`(${getTypeName(type).red}) ${description.blue}`).done(answer => {
+            io.read(`(${c.red(getTypeName(type))}) ${c.blue(description)}`).done(answer => {
                 const value = cast(answer, type, def);
 
                 const args = value === null

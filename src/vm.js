@@ -1,7 +1,7 @@
 import fs from 'fs';
 import vm from 'vm';
 import path from 'path';
-import Promise, { promisify, resolve, reject } from 'bluebird';
+import Promise, { promisify, resolve } from 'bluebird';
 import {
     __,
     contains,
@@ -9,7 +9,6 @@ import {
     either,
     isEmpty,
     map,
-    merge,
     path as getIn,
     pipe,
     reject as rejectWhere,
