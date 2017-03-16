@@ -13,7 +13,7 @@
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps && cp ./packages.txt ./dist",
     "lint": "xo src/",
-    "install-globally": "yarn compile && npm pack && npm install -g rung-cli-0.1.0.tgz"
+    "prepublish": "npm run compile"
   },
   "dependencies": {
     "bluebird": "3.5.0",
