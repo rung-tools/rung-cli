@@ -43,4 +43,5 @@ cli(yargs
     .strict()
     .demandCommand(1)
     .recommendCommands()
+    .version()
     .argv);
