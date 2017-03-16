@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
 import { reject } from 'bluebird';
@@ -41,4 +43,5 @@ cli(yargs
     .strict()
     .demandCommand(1)
     .recommendCommands()
+    .version()
     .argv);
