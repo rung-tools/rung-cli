@@ -38,7 +38,7 @@ function IO() {
  *
  * @author Marcelo Haskell Camargo
  * @param {Object} questions
- * @return {Object} answers for the questions by key
+ * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
     const io = IO();
