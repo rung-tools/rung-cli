@@ -3,7 +3,7 @@
 import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
 import { reject } from 'bluebird';
-import { build } from './build';
+import build from './build';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
