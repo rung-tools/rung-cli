@@ -4,13 +4,14 @@ import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
 import { reject } from 'bluebird';
 import build from './build';
+import run from './run';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
 const executeCommand = cond([
     [commandEquals('init'), init],
     [commandEquals('build'), build],
-    [commandEquals('rung'), run]
+    [commandEquals('run'), run]
 ]);
 
 function cli(args) {
@@ -23,10 +24,6 @@ function cli(args) {
 }
 
 function init(/* args */) {
-    return reject('Not implemented yet!');
-}
-
-function run(/* args */) {
     return reject('Not implemented yet!');
 }
 
