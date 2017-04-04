@@ -91,7 +91,7 @@ function addToZip(zip, dir, fileName) {
     throw new Error(`Invalid file type for ${filePath}`);
 }
 
-export function build(args) {
+export default function build(args) {
     const dir = path.resolve('.', args._[1] || '');
 
     return fs.readdirAsync(dir)
