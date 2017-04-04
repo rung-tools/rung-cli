@@ -18,7 +18,7 @@ function cli(args) {
     executeCommand(args)
         .catch(err => {
             console.log('Ooooops, something went wrong...');
-            console.log(err.message);
+            console.log(new String(err).valueOf());
             process.exit(1);
         });
 }
