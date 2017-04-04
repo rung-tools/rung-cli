@@ -5,6 +5,7 @@ import { head, pipe, cond, equals, prop } from 'ramda';
 import { reject } from 'bluebird';
 import build from './build';
 import run from './run';
+import init from './init';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
@@ -21,10 +22,6 @@ function cli(args) {
             console.log(new String(err).valueOf());
             process.exit(1);
         });
-}
-
-function init(/* args */) {
-    return reject('Not implemented yet!');
 }
 
 cli(yargs
