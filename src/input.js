@@ -15,7 +15,7 @@ import { getTypeName, cast } from './types';
  * @author Marcelo Haskell Camargo
  * @return {Object}
  */
-function IO() {
+export function IO() {
     const io = readline.createInterface({
         input: process.stdin,
         output: process.stdout
