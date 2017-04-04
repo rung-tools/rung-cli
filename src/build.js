@@ -79,7 +79,7 @@ function addToZip(zip, dir, fileName) {
     const lstat = fs.lstatSync(filePath);
 
     if (lstat.isFile()) {
-        return zip.file(fileName, filePath);
+        return zip.file(fileName, fs.readFileSync(filePath));
     }
 
     if (lstat.isDirectory()) {
