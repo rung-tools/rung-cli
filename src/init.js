@@ -1,15 +1,25 @@
 import fs from 'fs';
 import { reject, resolve, promisify } from 'bluebird';
-import { keys, last, merge, split } from 'ramda';
+import {
+    keys,
+    last,
+    merge,
+    split,
+    assoc,
+    pick,
+    head,
+    mapObjIndexed
+} from 'ramda';
 import { gray } from 'colors';
 import { IO } from './input';
 
 const writeFile = promisify(fs.writeFile);
+const io = IO();
+const workingDirectory = last(split('/', process.cwd()));
 
 /**
  * Creates a package.json file with provided data
  *
- * @author Marcelo Haskell Camargo
  * @param {Object} answers - The answers provided by the programmer
  * @return {Promise}
  */
@@ -18,36 +28,55 @@ function createPackage(answers) {
         return reject('package.json already exists');
     }
 
-    return writeFile('package.json', JSON.stringify(answers, null, 2));
+    const packageFields = ['name', 'version', 'description', 'license', 'main'];
+    const rungFields = ['title'];
+
+    const packageObject = assoc(
+        'rung',
+        pick(rungFields, answers),
+        pick(packageFields, answers));
+
+    return writeFile('package.json', JSON.stringify(packageObject, null, 2));
+}
+
+/**
+ * Generate the answers from the stdin.
+ *
+ * @return {Promise}
+ */
+function askQuestions() {
+    // key: [Question description, Default value]
+    const questions = {
+        name:        ['Project name', workingDirectory],
+        version:     ['Version',      '1.0.0'],
+        title:       ['Title',        ''],
+        description: ['Description',  ''],
+        main:        ['Entry point',  'index.js'],
+        license:     ['License',      'MIT']
+    };
+
+    // We chain the blocking promises and they return the fulfilled answers
+    return keys(questions).reduce((promise, key) =>
+        promise.then(prevAnswers => {
+            const questionDescription = head(questions[key]);
+            const defaultValue = last(questions[key]);
+            return io.read(gray(`${questionDescription} (${defaultValue})`))
+                .then(value => merge(
+                    prevAnswers,
+                    value.trim() === ''
+                        ? {}
+                        : { [key]: value }));
+        }),
+        resolve(mapObjIndexed(last, questions)));
 }
 
 /**
  * Initializes a blank extension with data provided by the programmer
  *
- * @author Marcelo Haskell Camargo
  * @return {Promise}
  */
 export default function init() {
-    const workingDirectory = last(split('/', process.cwd()));
-    const io = IO();
-
-    const questions = {
-        name: workingDirectory,
-        version: '1.0.0',
-        description: '',
-        'entry point': 'index.js',
-        license: 'MIT'
-    };
-
-    // We chain the blocking promises and they return the fulfilled answers
-    const ask = questions => keys(questions).reduce((promise, key) =>
-        promise.then(prevAnswers =>
-            io.read(gray(`${key} (${questions[key]})`))
-                .then(answer => merge(prevAnswers, answer.trim() === '' ? {} : {
-                    [key]: answer
-                }))), resolve(questions));
-
-    return ask(questions)
+    return askQuestions()
         .then(createPackage)
         .then(() => io.print('package.json created'))
         .finally(io.close.bind(io));
