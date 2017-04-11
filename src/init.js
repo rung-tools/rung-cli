@@ -14,7 +14,6 @@ import { gray } from 'colors';
 import { IO } from './input';
 
 const writeFile = promisify(fs.writeFile);
-const io = IO();
 const workingDirectory = last(split('/', process.cwd()));
 
 /**
@@ -44,7 +43,7 @@ function createPackage(answers) {
  *
  * @return {Promise}
  */
-function askQuestions() {
+function askQuestions(io) {
     // key: [Question description, Default value]
     const questions = {
         name:        ['Project name', workingDirectory],
@@ -58,9 +57,8 @@ function askQuestions() {
     // We chain the blocking promises and they return the fulfilled answers
     return keys(questions).reduce((promise, key) =>
         promise.then(prevAnswers => {
-            const questionDescription = head(questions[key]);
-            const defaultValue = last(questions[key]);
-            return io.read(gray(`${questionDescription} (${defaultValue})`))
+            const [description, defaultValue] = questions[key];
+            return io.read(gray(`${description} (${defaultValue})`))
                 .then(value => merge(
                     prevAnswers,
                     value.trim() === ''
@@ -76,7 +74,8 @@ function askQuestions() {
  * @return {Promise}
  */
 export default function init() {
-    return askQuestions()
+    const io = IO();
+    return askQuestions(io)
         .then(createPackage)
         .then(() => io.print('package.json created'))
         .finally(io.close.bind(io));
