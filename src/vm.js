@@ -101,7 +101,7 @@ export const __require = curry((whitelist, module) => {
         return require(module);
     }
 
-    throw new Error('Disallowed module');
+    throw new Error(`Disallowed dependency: ${module}`);
 });
 
 /**
