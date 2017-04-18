@@ -6,6 +6,7 @@ import {
     curry,
     map,
     pipe,
+    sort,
     without
 } from 'ramda';
 import Promise, { promisifyAll } from 'bluebird';
@@ -98,6 +99,7 @@ export default function build(args) {
     return fs.readdirAsync(dir)
         .then(assertRequiredFiles)
         .then(filterProjectFiles)
+        .then(sort)
         .then(extractProjectInfo(dir))
         .spread(createZip(dir))
         .spread(saveZip(__, __, args.output));
