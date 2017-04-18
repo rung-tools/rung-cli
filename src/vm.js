@@ -9,8 +9,8 @@ import {
     either,
     isEmpty,
     map,
-    path as getIn,
     pipe,
+    propOr,
     reject as rejectWhere,
     split,
     test
@@ -135,9 +135,9 @@ function runInSandbox(name, source) {
  * @param {Object} extension
  * @return {Promise}
  */
-export function runAndGetParameters(extension) {
+export function getParametersFromSource(extension) {
     return runInSandbox(extension.name, extension.source)
-        .then(getIn(['config', 'params']));
+        .then(propOr({}, 'config'));
 }
 
 /**
