@@ -2,9 +2,11 @@ import path from 'path';
 import Zip from 'jszip';
 import {
     __,
+    concat,
     curry,
     map,
     pipe,
+    sort,
     without
 } from 'ramda';
 import Promise, { promisifyAll } from 'bluebird';
@@ -12,7 +14,7 @@ import Promise, { promisifyAll } from 'bluebird';
 const fs = promisifyAll(require('fs'));
 
 const requiredFiles = ['package.json', 'index.js'];
-const ignoredFiles = ['node_modules', '.git'];
+const projectFiles = concat(requiredFiles, ['icon.png', 'yarn.lock']);
 
 function assertRequiredFiles(files) {
     const missingFiles = without(files, requiredFiles);
@@ -22,7 +24,7 @@ function assertRequiredFiles(files) {
     return files;
 }
 
-const ignoreUnwantedFiles = without(ignoredFiles);
+const filterProjectFiles = filter(contains(__, projectFiles));
 
 function validatePackage(rungPackage) {
     // TODO: implement package validation
@@ -96,7 +98,8 @@ export default function build(args) {
 
     return fs.readdirAsync(dir)
         .then(assertRequiredFiles)
-        .then(ignoreUnwantedFiles)
+        .then(filterProjectFiles)
+        .then(sort)
         .then(extractProjectInfo(dir))
         .spread(createZip(dir))
         .spread(saveZip(__, __, args.output));
