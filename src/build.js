@@ -3,15 +3,19 @@ import Zip from 'jszip';
 import {
     __,
     concat,
+    contains,
     curry,
+    filter,
     map,
     pipe,
     sort,
+    subtract,
     without
 } from 'ramda';
 import Promise, { promisifyAll } from 'bluebird';
 
 const fs = promisifyAll(require('fs'));
+const defaultFileOptions = { date: new Date(1149562800000) };
 
 const requiredFiles = ['package.json', 'index.js'];
 const projectFiles = concat(requiredFiles, ['icon.png', 'yarn.lock']);
@@ -81,7 +85,10 @@ function addToZip(zip, dir, fileName) {
     const lstat = fs.lstatSync(filePath);
 
     if (lstat.isFile()) {
-        return zip.file(fileName, fs.readFileSync(filePath));
+        return zip.file(
+            fileName,
+            fs.readFileSync(filePath),
+            defaultFileOptions);
     }
 
     if (lstat.isDirectory()) {
@@ -99,7 +106,7 @@ export default function build(args) {
     return fs.readdirAsync(dir)
         .then(assertRequiredFiles)
         .then(filterProjectFiles)
-        .then(sort)
+        .then(sort(subtract))
         .then(extractProjectInfo(dir))
         .spread(createZip(dir))
         .spread(saveZip(__, __, args.output));
