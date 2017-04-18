@@ -135,7 +135,7 @@ function runInSandbox(name, source) {
  * @param {Object} extension
  * @return {Promise}
  */
-export function getParametersFromSource(extension) {
+export function getProperties(extension) {
     return runInSandbox(extension.name, extension.source)
         .then(propOr({}, 'config'));
 }
