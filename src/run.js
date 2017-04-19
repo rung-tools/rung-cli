@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { promisify } from 'bluebird';
-import { mergeAll } from 'ramda';
-import { runAndGetAlerts, runAndGetParameters } from './vm';
+import { mergeAll, prop } from 'ramda';
+import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
 
 const readFile = promisify(fs.readFile);
@@ -15,7 +15,8 @@ export default function run() {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
         .then(readSourceFile)
-        .then(source => runAndGetParameters({ name: 'get-parameters', source })
+        .then(source => getProperties({ name: 'get-parameters', source })
+            .then(prop('params'))
             .then(ask)
             .then(mergeAll)
             .then(params =>
