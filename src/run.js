@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { promisify } from 'bluebird';
-import { mergeAll } from 'ramda';
+import { mergeAll, prop } from 'ramda';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
 
@@ -16,6 +16,7 @@ export default function run() {
         .then(JSON.parse)
         .then(readSourceFile)
         .then(source => getProperties({ name: 'get-parameters', source })
+            .then(prop('params'))
             .then(ask)
             .then(mergeAll)
             .then(params =>
