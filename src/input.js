@@ -6,6 +6,7 @@ import {
     keys
 } from 'ramda';
 import c from 'colors';
+import read from 'read';
 import { getTypeName, cast } from './types';
 
 /**
@@ -29,7 +30,11 @@ export function IO() {
             io.write(`${text}\n`);
             callback();
         }),
-        close: io.close.bind(io)
+        close: io.close.bind(io),
+        password: promisify((text, callback) => {
+            io.close();
+            read({ prompt: `${text}: `, silent: true, replace: '*' }, callback);
+        })
     };
 }
 

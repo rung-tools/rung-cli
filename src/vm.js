@@ -76,7 +76,7 @@ function createSecureContext(globalVariables) {
  */
 const __console = name => ({
     log(content) {
-        console.log(`ext [${name}]: ${content}`);
+        console.log(`ext [${name}]: `, content);
     }
 });
 

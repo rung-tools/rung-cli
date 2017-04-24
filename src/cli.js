@@ -6,13 +6,15 @@ import { reject } from 'bluebird';
 import build from './build';
 import run from './run';
 import init from './init';
+import publish from './publish';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
 const executeCommand = cond([
     [commandEquals('init'), init],
     [commandEquals('build'), build],
-    [commandEquals('run'), run]
+    [commandEquals('run'), run],
+    [commandEquals('publish'), publish]
 ]);
 
 function cli(args) {
@@ -25,9 +27,10 @@ function cli(args) {
 }
 
 cli(yargs
-    .usage('Usage: $0 [init|build|run]')
+    .usage('Usage: $0 [init|build|run|publish]')
     .command('init', 'Initialize a blank extension project')
     .command('build', 'Generate a .rung package')
+    .command('publish', 'Publishes the extension to the Rung store')
     .command('run', 'Execute the current extension')
     .option('o', {
         alias: 'output',
