@@ -65,8 +65,8 @@ const saveZip = curry((zip, projectInfo, customPath = '.') => {
     return new Promise((resolve, reject) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
             .pipe(fs.createWriteStream(target))
-            .on('end', resolve)
-            .on('error', reject);
+            .on('error', reject)
+            .on('finish', () => resolve(target))
     });
 });
 
