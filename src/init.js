@@ -27,7 +27,7 @@ function createPackage(answers) {
         return reject('package.json already exists');
     }
 
-    const packageFields = ['name', 'version', 'description', 'license', 'main'];
+    const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
     const rungFields = ['title'];
 
     const packageObject = assoc(
@@ -50,8 +50,9 @@ function askQuestions(io) {
         version:     ['Version',      '1.0.0'],
         title:       ['Title',        ''],
         description: ['Description',  ''],
+        category:    ['Category', 'miscellaneous'],
         main:        ['Entry point',  'index.js'],
-        license:     ['License',      'MIT']
+        license:     ['License',      'MIT'],
     };
 
     // We chain the blocking promises and they return the fulfilled answers
