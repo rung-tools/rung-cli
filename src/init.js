@@ -41,9 +41,10 @@ function createPackage(answers) {
 /**
  * Generate the answers from the stdin.
  *
+ * @param {IO} io
  * @return {Promise}
  */
-function askQuestions(io) {
+export function askQuestions(io) {
     // key: [Question description, Default value]
     const questions = {
         name:        ['Project name', workingDirectory],
