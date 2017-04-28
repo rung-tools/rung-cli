@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { promisify, reject, resolve } from 'bluebird';
 import {
+    append,
     assoc,
     dropWhile,
     equals,
@@ -19,14 +20,15 @@ const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
 
 /**
- * Dedents a formatted String
+ * Formats a formatted String
  *
  * @param {String} source
  * @return {String}
  */
-const dedent = pipe(
-    replace(/\n +/g, '\n'),
+const format = pipe(
+    replace(/\n {8}/g, '\n'),
     dropWhile(equals('\n')),
+    append('\n'),
     join('')
 );
 
@@ -57,11 +59,11 @@ function createBoilerplateFolder(answers) {
 }
 
 /**
- * Returns an object in the format Promise<{ filename :: String, content :: String }>
+ * Returns an object in the format { filename :: String, content :: String }
  * containing meta-informations about the file
  *
  * @param {Object} answers
- * @return {Promise}
+ * @return {Object}
  */
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
@@ -81,19 +83,52 @@ function getPackageMetaFile(answers) {
  * Content about README.md file
  *
  * @param {Object} answers
- * @return {Promise}
+ * @return {Object}
  */
 function getReadMeMetaFile(answers) {
-    const content = dedent(`
+    const content = format(`
         # Rung ─ ${answers.title}
 
         # Development
 
-        Use \`rung run\` to start the CLI wizard
+        - Use \`yarn\` to install the dependencies
+        - Use \`rung run\` to start the CLI wizard
     `);
 
     return {
         filename: path.join(answers.name, 'README.md'),
+        content };
+}
+
+/**
+ * Content about index.js file
+ *
+ * @param {Object} answers
+ * @return {Object}
+ */
+function getIndexFile(answers) {
+    const content = format(`
+        const { create } = require('rung-sdk');
+        const { String: Text } = require('rung-sdk/dist/types');
+
+        function main(context) {
+            const { name } = context.params;
+            return [\`Hello, \${name}!\`];
+        }
+
+        const params = {
+            name: {
+                description: 'What is your name?',
+                type: Text
+            }
+        };
+
+        const app = create(main, { params });
+        module.exports = app;
+    `);
+
+    return {
+        filename: path.join(answers.name, 'index.js'),
         content };
 }
 
@@ -106,7 +141,7 @@ export default function boilerplate() {
     const io = IO();
     return askQuestions(io)
         .then(createBoilerplateFolder)
-        .then(juxt([getPackageMetaFile, getReadMeMetaFile]))
+        .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
         .map(writeFileFromObject)
         .finally(io.close.bind(io));
 }
