@@ -51,7 +51,7 @@ export function askQuestions(io) {
         version:     ['Version',      '1.0.0'],
         title:       ['Title',        ''],
         description: ['Description',  ''],
-        category:    ['Category', 'miscellaneous'],
+        category:    ['Category',     'miscellaneous'],
         main:        ['Entry point',  'index.js'],
         license:     ['License',      'MIT'],
     };
