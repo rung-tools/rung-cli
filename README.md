@@ -13,7 +13,8 @@ This will make the command `rung` available globally.
 - Create blank extensions
 - Generate `.rung` packages
 - Run extensions locally in CLI mode
-- [FUTURE] Publish extensions to Rung Store
+- Publish extensions to Rung Store
+- Generate boilerplate code for extension
 
 ## Usage
 
@@ -22,11 +23,13 @@ This will make the command `rung` available globally.
 ### Commands
 
 
-| Command | Description |
-|---------|-------------|
-| `init`  | Initialize a blank extension project |
-| `build` | Generate a .rung package |
-| `run`   | Execute the current extension |
+| Command       | Description |
+|---------------|-------------|
+| `init`        | Initialize a blank extension project |
+| `build`       | Generate a .rung package |
+| `run`         | Execute the current extension |
+| `publish`     | Publishes extension to store |
+| `boilerplate` | Generates boilerplate code for the extension |
 
 ### Options
 
