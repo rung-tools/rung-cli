@@ -1,12 +1,34 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify, reject, resolve } from 'bluebird';
-import { assoc, juxt, pick } from 'ramda';
+import {
+    assoc,
+    dropWhile,
+    equals,
+    join,
+    juxt,
+    merge,
+    pick,
+    pipe,
+    replace
+} from 'ramda';
 import { IO } from './input';
 import { askQuestions } from './init';
 
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
+
+/**
+ * Dedents a formatted String
+ *
+ * @param {String} source
+ * @return {String}
+ */
+const dedent = pipe(
+    replace(/\n +/g, '\n'),
+    dropWhile(equals('\n')),
+    join('')
+);
 
 /**
  * Creates a file with the passed content. Receives the format
@@ -38,21 +60,40 @@ function createBoilerplateFolder(answers) {
  * Returns an object in the format Promise<{ filename :: String, content :: String }>
  * containing meta-informations about the file
  *
- * @param {Object} answers - The answers provided by the programmer
+ * @param {Object} answers
  * @return {Promise}
  */
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
     const rungFields = ['title'];
 
-    const packageObject = assoc(
-        'rung',
-        pick(rungFields, answers),
-        pick(packageFields, answers));
+    const packageObject = merge(
+        assoc('rung', pick(rungFields, answers), pick(packageFields, answers)),
+        { dependencies: { 'rung-sdk': '^1.0.6' } });
 
-    return ({
-        filename: path.join(answers.name, 'pacokage.json'),
-        content: JSON.stringify(packageObject, null, 2) });
+    return {
+        filename: path.join(answers.name, 'package.json'),
+        content: JSON.stringify(packageObject, null, 2) };
+}
+
+/**
+ * Content about README.md file
+ *
+ * @param {Object} answers
+ * @return {Promise}
+ */
+function getReadMeMetaFile(answers) {
+    const content = dedent(`
+        # Rung ─ ${answers.title}
+
+        # Development
+
+        Use \`rung run\` to start the CLI wizard
+    `);
+
+    return {
+        filename: path.join(answers.name, 'README.md'),
+        content };
 }
 
 /**
@@ -64,7 +105,7 @@ export default function boilerplate() {
     const io = IO();
     return askQuestions(io)
         .then(createBoilerplateFolder)
-        .then(juxt([getPackageMetaFile]))
+        .then(juxt([getPackageMetaFile, getReadMeMetaFile]))
         .map(writeFileFromObject)
         .finally(io.close.bind(io));
 }
