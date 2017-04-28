@@ -68,7 +68,8 @@ function getPackageMetaFile(answers) {
     const rungFields = ['title'];
 
     const packageObject = merge(
-        assoc('rung', pick(rungFields, answers), pick(packageFields, answers)),
+        assoc('rung', merge(pick(rungFields, answers), {
+            preview: 'Hello, Trixie!' }), pick(packageFields, answers)),
         { dependencies: { 'rung-sdk': '^1.0.6' } });
 
     return {
