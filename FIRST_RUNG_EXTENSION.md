@@ -7,7 +7,7 @@ de terceiros para obter os valores. Vamos nomear nossa extensão como
 `money-quotation`. O objetivo será gerar alertas para quando a primeira moeda
 estiver valendo **mais** ou **menos** que o valor que especificarmos.
 
-[COLOCAR UM GIF MOSTRANDO O FUNCIONAMENTO DA EXTENSÃO]
+![](./resources/main.png)
 
 ## Como funcionam as extensões
 
@@ -42,7 +42,7 @@ trabalharemos muito com ele! Aceda à sua pasta e vamos criar um projeto vazio:
 
 `rung init`
 
-[IMAGEM DO RUNG INIT]
+![](./resources/init.png)
 
 Preenchemos as informações básicas. Isso irá apenas criar um `package.json`
 compatível com o utilizado pelo `npm`. O Rung utiliza o mesmo arquivo.
@@ -224,7 +224,7 @@ Contamos com o Rung Bot, um robozinho responsável por auxiliar o usuário nos
 alertas. Ele pode dar informações importantes detalhando um alerta, e suporta
 Markdown!
 
-[IMAGEM RUNG BOT]
+![](./resources/bot.png)
 
 Ao invés de usar uma _string_ como valor, você pode usar um objeto contendo
 `title` e `comment`, tal qual:
@@ -242,7 +242,7 @@ Ao invés de usar uma _string_ como valor, você pode usar um objeto contendo
 
 Os campos da barra lateral do Rung também são programáveis!
 
-[IMAGEM BARRA LATERAL]
+![](./resources/sidebar.png)
 
 Utilizamos a flag `sidebar` no objeto de configurações. Por padrão, todos os
 campos são habilitados. Se quiser desabilitar algum, pode passar
