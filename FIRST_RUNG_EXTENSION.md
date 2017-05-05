@@ -38,7 +38,7 @@ que são suportados pela ferramenta
 ## Iniciando o projeto
 
 Crie uma pasta para o seu projeto e abra o terminal. De agora em diante,
-trabalharemos muito com ele! Aceda à sua pasta e vamos criar um projeto vazio:
+trabalharemos muito com ele! Acesse a pasta para criar um projeto vazio:
 
 `rung init`
 
