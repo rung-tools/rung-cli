@@ -9,20 +9,18 @@
 
 {{description}}
 
-{{#if icon}}
-    <img align="left" width="256" src="./icon.png" />
-{{/if}}
-
-#### Dependencies
-
-{{#each dependecies}}
-- `{{name}}`: `{{version}}`
-{{/each}}
-
 #### Parameters
 
 |Parameter | Type | Description |
 |----------|------|-------------|
 {{#each parameters}}
 | `{{name}}` | `{{type}}` | {{description}} |
+{{/each}}
+
+<img align="left" width="256" src="./icon.png" />
+
+##### Dependencies
+
+{{#each dependencies}}
+- `{{name}}`: `{{version}}`
 {{/each}}
