@@ -15,6 +15,7 @@ This will make the command `rung` available globally.
 - Run extensions locally in CLI mode
 - Publish extensions to Rung Store
 - Generate boilerplate code for extension
+- Generate README.md file to publish
 
 ## Usage
 
@@ -30,6 +31,7 @@ This will make the command `rung` available globally.
 | `run`         | Execute the current extension |
 | `publish`     | Publishes extension to store |
 | `boilerplate` | Generates boilerplate code for the extension |
+| `readme`      | Generartes the README.md file to publish |
 
 ### Options
 
