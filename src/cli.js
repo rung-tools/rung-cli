@@ -8,6 +8,7 @@ import run from './run';
 import init from './init';
 import publish from './publish';
 import boilerplate from './boilerplate';
+import readme from './readme';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
@@ -16,7 +17,8 @@ const executeCommand = cond([
     [commandEquals('build'), build],
     [commandEquals('run'), run],
     [commandEquals('publish'), publish],
-    [commandEquals('boilerplate'), boilerplate]
+    [commandEquals('boilerplate'), boilerplate],
+    [commandEquals('readme'), readme]
 ]);
 
 function cli(args) {
@@ -35,6 +37,7 @@ cli(yargs
     .command('publish', 'Publishes the extension to the Rung store')
     .command('run', 'Execute the current extension')
     .command('boilerplate', 'Generates the boilerplate files for your extension')
+    .command('readme', 'Generates the README.md file to publish')
     .option('o', {
         alias: 'output',
         describe: 'Where to save the built package',
