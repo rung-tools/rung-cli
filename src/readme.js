@@ -16,6 +16,8 @@ import { readFile } from './run';
 import { getTypeName } from './types';
 import { version as rungCliVersion } from '../package';
 
+const createFile = promisify(fs.writeFile);
+
 /**
  * Returns the source Handlebars template as string
  *
@@ -78,5 +80,5 @@ export default function readme() {
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))
-        .tap(console.log.bind(console));
+        .then(content => createFile('README.md', content));
 }
