@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { all } from 'bluebird';
+import { all, promisify } from 'bluebird';
 import { compile } from 'handlebars';
 import {
     keys,
