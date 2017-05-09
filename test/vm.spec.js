@@ -41,6 +41,7 @@ describe('vm.js', () => {
 
                 module.exports = {
                     extension: (ctx, done) => {
+                        console.log('start');
                         delay(200).then(() => {
                             done(['It works!']);
                         });
