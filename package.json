@@ -15,7 +15,7 @@
     "lint": "xo src/**",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
-    "test": "mocha --compilers js:babel-core/register --recursive -s 0 test"
+    "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test"
   },
   "dependencies": {
     "bluebird": "3.5.0",
@@ -39,6 +39,7 @@
     "babel-preset-es2015": "^6.22.0",
     "chai": "^3.5.0",
     "mocha": "^3.3.0",
+    "nyc": "^10.3.2",
     "xo": "^0.17.1"
   },
   "xo": {
