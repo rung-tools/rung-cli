@@ -41,7 +41,7 @@ export const getTypeName = cond([
 ]);
 
 // Type validators
-const valueOrNothing = {
+export const valueOrNothing = {
     Integer: input => {
         const intValue = parseInt(input, 10);
         return isNaN(intValue) ? Nothing() : Just(intValue);
