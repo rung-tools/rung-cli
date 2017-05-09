@@ -4,13 +4,14 @@ node_js:
   - '6'
   - '5'
   - '4'
-  
+
 install:
   - yarn
   - yarn compile
 
 script:
   - yarn lint
+  - yarn test
 
 cache:
   yarn: true
