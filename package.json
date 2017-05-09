@@ -15,6 +15,8 @@
     "lint": "xo src/**",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile"
+    "prepublish": "npm run compile",
+    "test": "true"
   },
   "dependencies": {
     "bluebird": "3.5.0",

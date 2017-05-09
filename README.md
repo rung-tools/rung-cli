@@ -1,5 +1,7 @@
 # Rung CLI
 
+[![Build Status](https://travis-ci.org/rung-tools/rung-cli.svg?branch=master)](https://travis-ci.org/rung-tools/rung-cli)
+
 Command line tools for Rung
 
 ## Installation
