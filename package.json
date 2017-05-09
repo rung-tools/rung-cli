@@ -14,7 +14,6 @@
     "compile": "babel ./src -d ./dist --source-maps && cp ./packages.txt ./dist",
     "lint": "xo src/**",
     "fix-lint": "xo src/** --fix",
-    "prepublish": "npm run compile"
     "prepublish": "npm run compile",
     "test": "true"
   },
