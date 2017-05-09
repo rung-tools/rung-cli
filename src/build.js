@@ -15,6 +15,7 @@ import {
 import Promise, { promisifyAll } from 'bluebird';
 
 const fs = promisifyAll(require('fs'));
+
 const defaultFileOptions = { date: new Date(1149562800000) };
 
 const requiredFiles = ['package.json', 'index.js'];
@@ -66,7 +67,7 @@ const saveZip = curry((zip, projectInfo, customPath = '.') => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
             .pipe(fs.createWriteStream(target))
             .on('error', reject)
-            .on('finish', () => resolve(target))
+            .on('finish', () => resolve(target));
     });
 });
 

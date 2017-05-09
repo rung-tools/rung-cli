@@ -89,7 +89,7 @@ const __console = name => ({
  * @return {Function}
  */
 export const __require = curry((whitelist, module) => {
-    const toRegex = name => new RegExp(`^${name}(\/.*)?$`);
+    const toRegex = name => new RegExp(`^${name}(/.*)?$`);
     const moduleIs = contains(module);
     const moduleMatch = pipe(
         map(pipe(toRegex, test(__, module))),

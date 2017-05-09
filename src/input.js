@@ -48,7 +48,7 @@ export function IO() {
 export function ask(questions) {
     const io = IO();
     const recur = curry((remaining, answered, callback) => {
-        if (remaining.length) {
+        if (remaining.length > 0) {
             const [head, ...tail] = remaining;
             const { description, type, default: def } = questions[head];
 
@@ -60,7 +60,7 @@ export function ask(questions) {
                     : [tail, concat(answered, [{ [head]: value }]), callback];
 
                 return recur(...args);
-            })
+            });
         } else {
             io.close();
             callback(answered);

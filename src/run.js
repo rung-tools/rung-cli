@@ -4,9 +4,9 @@ import { mergeAll, prop } from 'ramda';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
 
-const readFile = promisify(fs.readFile);
+export const readFile = promisify(fs.readFile);
 
-function readSourceFile({ main }) {
+export function readSourceFile({ main }) {
     const index = main || 'index.js';
     return readFile(index, 'utf-8');
 }
