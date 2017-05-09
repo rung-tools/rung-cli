@@ -1,18 +1,13 @@
 import {
     T,
-    compose,
     cond,
     contains,
-    equals,
-    identity,
-    pipe,
     prop,
     propEq,
     replace,
-    take,
-    tryCatch
+    take
 } from 'ramda';
-import { Just, Nothing, fromNullable } from 'data.maybe';
+import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
 
 export const Integer = { name: 'Integer' };
@@ -48,7 +43,7 @@ export const getTypeName = cond([
 // Type validators
 const valueOrNothing = {
     Integer: input => {
-        const intValue = parseInt(input);
+        const intValue = parseInt(input, 10);
         return isNaN(intValue) ? Nothing() : Just(intValue);
     },
     Double: input => {
@@ -60,14 +55,14 @@ const valueOrNothing = {
         return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
     },
     Natural: input => {
-        const intValue = parseInt(input);
+        const intValue = parseInt(input, 10);
         return isNaN(intValue) || intValue < 0 ? Nothing() : Just(intValue);
     },
     Char: (input, { length }) => {
         return Just(take(length, input));
     },
     IntegerRange: (input, { from, to }) => {
-        const intValue = parseInt(input);
+        const intValue = parseInt(input, 10);
         return isNaN(intValue) || intValue < from || intValue > to ? Nothing() : Just(intValue);
     },
     DoubleRange: (input, { from, to }) => {

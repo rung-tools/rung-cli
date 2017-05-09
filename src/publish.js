@@ -1,5 +1,5 @@
-import Bluebird, { all, resolve, promisify } from 'bluebird';
 import fs from 'fs';
+import { all, resolve, promisify } from 'bluebird';
 import { pick, pipe } from 'ramda';
 import { gray } from 'colors';
 import superagent from 'superagent';
@@ -43,5 +43,5 @@ export default function publish(args) {
         .spread((email, password) => request.post(`${publicApi}/login`)
             .send({ email, password }))
         .then(() => build(args))
-        .then(publishPackage)
+        .then(publishPackage);
 }

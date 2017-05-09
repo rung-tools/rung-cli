@@ -4,17 +4,15 @@ import { all, promisify } from 'bluebird';
 import { compile } from 'handlebars';
 import {
     keys,
-    lensProp,
     merge,
-    over,
     replace,
     values,
     zipWith
 } from 'ramda';
+import { version as rungCliVersion } from '../package';
 import { getProperties } from './vm';
 import { readFile } from './run';
 import { getTypeName } from './types';
-import { version as rungCliVersion } from '../package';
 
 const createFile = promisify(fs.writeFile);
 
@@ -76,7 +74,7 @@ export default function readme() {
             readFile(main || 'index.js', 'utf-8')
                 .then(source => getProperties({ name: 'pre-compile', source }))]))
         .spread((partialContext, source) => merge(partialContext, {
-            parameters: parametersToArray(source.params),
+            parameters: parametersToArray(source.params)
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))

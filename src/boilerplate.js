@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { promisify, reject, resolve } from 'bluebird';
+import { promisify, reject } from 'bluebird';
 import {
     append,
     assoc,

@@ -7,7 +7,6 @@ import {
     split,
     assoc,
     pick,
-    head,
     mapObjIndexed
 } from 'ramda';
 import { gray } from 'colors';
@@ -47,13 +46,13 @@ function createPackage(answers) {
 export function askQuestions(io) {
     // key: [Question description, Default value]
     const questions = {
-        name:        ['Project name', workingDirectory],
-        version:     ['Version',      '1.0.0'],
-        title:       ['Title',        ''],
-        description: ['Description',  ''],
-        category:    ['Category',     'miscellaneous'],
-        main:        ['Entry point',  'index.js'],
-        license:     ['License',      'MIT'],
+        name: ['Project name', workingDirectory],
+        version: ['Version', '1.0.0'],
+        title: ['Title', ''],
+        description: ['Description', ''],
+        category: ['Category', 'miscellaneous'],
+        main: ['Entry point', 'index.js'],
+        license: ['License', 'MIT']
     };
 
     // We chain the blocking promises and they return the fulfilled answers

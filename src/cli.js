@@ -2,7 +2,6 @@
 
 import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
-import { reject } from 'bluebird';
 import build from './build';
 import run from './run';
 import init from './init';
@@ -25,7 +24,7 @@ function cli(args) {
     executeCommand(args)
         .catch(err => {
             console.log('Ooooops, something went wrong...');
-            console.log(new String(err).valueOf());
+            console.log(String(err));
             process.exit(1);
         });
 }
