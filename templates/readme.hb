@@ -2,7 +2,7 @@
 
 {{author}}
 
-[![Deploy to Rung](https://i.imgur.com/uijt57R.png)](https://app.rung.com.br/integrations/{{name}}/customize)
+[![Deploy to Rung](https://i.imgur.com/uijt57R.png)](https://app.rung.com.br/integration/{{name}}/customize)
 
 ![rung-cli {{rungCliVersion}}](https://img.shields.io/badge/rung--cli-{{rungCliVersion}}-blue.svg?style=flat-square)
 ![{{name}} {{version}}](https://img.shields.io/badge/{{escapedName}}-{{version}}-green.svg?style=flat-square)
