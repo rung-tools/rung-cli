@@ -3,10 +3,16 @@ import vm from 'vm';
 import path from 'path';
 import Promise, { all, promisify, resolve } from 'bluebird';
 import {
+    T,
     __,
+    cond,
     contains,
     curry,
     either,
+    equals,
+    has,
+    identity,
+    is,
     isEmpty,
     map,
     pipe,
@@ -116,10 +122,21 @@ function compile(source) {
     const result = transform(source, {
         comments: false,
         compact: true,
-        presets: ['es2015']
+        presets: ['es2015', 'react']
     });
 
     return resolve(result.code);
+}
+
+/**
+ * Generates HTML source code directly from JSX
+ *
+ * @param {Object} ast - Abstract syntax tree with React representation
+ * @return {String}
+ */
+function generateHTMLFromJSX(ast) {
+    // TODO: Write function to generate HTML code from JSX AST
+    console.log(JSON.stringify(ast, null, 2));
 }
 
 /**
@@ -140,7 +157,9 @@ function runInSandbox(name, source) {
                 module: __module,
                 exports: __exports,
                 console: __console(name),
-                require: __require(packages) });
+                require: __require(packages),
+                React: require('react'),
+                render: generateHTMLFromJSX });
             const script = new vm.Script(source, { filename: `${name}.js` });
             return resolve(script.runInNewContext(v8Context));
         });

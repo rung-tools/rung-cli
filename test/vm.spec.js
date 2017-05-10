@@ -58,20 +58,38 @@ describe('vm.js', () => {
 
         it('should compile ES6 features using Babel compiler', () => {
             const source = `
-                class HelloWorld {
+                class Programmer {
                     setName(name) { this.name = name; }
                     getName() { return this.name }
                     greet() { return \`Hello, I'm \${this.name}\`; }
                 }
 
                 export default { extension: () => {
-                    const hello = new HelloWorld();
+                    const hello = new Programmer();
                     hello.setName('Marcelo');
                     return hello.greet();
                 } };
             `;
 
             return runAndGetAlerts({ name: 'test-babel-comnpiler', source }, {})
+                .then(result => {
+                    expect(result).to.equals('Hello, I\'m Marcelo');
+                });
+        });
+
+        it('should compile JSX syntax', () => {
+            const source = `
+                export default { extension: () => {
+                    return render(
+                        <div>
+                            Você fala demais, acabei de me <b>Aborrecer</b>
+                            <br />
+                        </div>
+                    );
+                } }
+            `;
+
+            return runAndGetAlerts({ name: 'test-jsx-compiler', source }, {})
                 .then(result => {
                     console.log(result);
                 });
