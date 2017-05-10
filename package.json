@@ -19,6 +19,7 @@
     "coverage": "nyc --reporter=html yarn test"
   },
   "dependencies": {
+    "babel-core": "^6.24.1",
     "bluebird": "3.5.0",
     "colors": "1.1.2",
     "commander": "2.9.0",
