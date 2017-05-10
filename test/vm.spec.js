@@ -37,7 +37,7 @@ describe('vm.js', () => {
 
         it('should get the alerts of a asynchronous extension', () => {
             const source = `
-                const { delay } = require('bluebird');
+                const delay = require('bluebird').delay;
 
                 module.exports = {
                     extension: (ctx, done) => {
