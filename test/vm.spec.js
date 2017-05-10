@@ -39,6 +39,7 @@ describe('vm.js', () => {
             const source = `
                 const delay = require('bluebird').delay;
 
+                // Export extension
                 module.exports = {
                     extension: (ctx, done) => {
                         console.log('start');
@@ -52,6 +53,27 @@ describe('vm.js', () => {
             return runAndGetAlerts({ name: 'test-alerts', source }, { name: 'Marcelo' })
                 .then(alerts => {
                     expect(alerts).to.be.an('array');
+                });
+        });
+
+        it('should compile ES6 features using Babel compiler', () => {
+            const source = `
+                class HelloWorld {
+                    setName(name) { this.name = name; }
+                    getName() { return this.name }
+                    greet() { return \`Hello, I'm \${this.name}\`; }
+                }
+
+                export default { extension: () => {
+                    const hello = new HelloWorld();
+                    hello.setName('Marcelo');
+                    return hello.greet();
+                } };
+            `;
+
+            return runAndGetAlerts({ name: 'test-babel-comnpiler', source }, {})
+                .then(result => {
+                    console.log(result);
                 });
         });
     })

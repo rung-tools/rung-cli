@@ -1,7 +1,7 @@
 import fs from 'fs';
 import vm from 'vm';
 import path from 'path';
-import Promise, { promisify, resolve } from 'bluebird';
+import Promise, { all, promisify, resolve } from 'bluebird';
 import {
     __,
     contains,
@@ -15,6 +15,7 @@ import {
     split,
     test
 } from 'ramda';
+import { transform } from 'babel-core';
 
 const readFile = promisify(fs.readFile);
 
@@ -105,17 +106,34 @@ export const __require = curry((whitelist, module) => {
 });
 
 /**
+ * Precompiles ES6 source to ES5 in order to keep retrocompatibily
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String} source
+ * @return {Promise}
+ */
+function compile(source) {
+    const result = transform(source, {
+        comments: false,
+        compact: true,
+        presets: ['es2015']
+    });
+
+    return resolve(result.code);
+}
+
+/**
  * Runs an extension on a virtualized environment and returns its result as
  * native JS data
  *
  * @author Marcelo Haskell Camargo
  * @param {String} name - The unique identifier to track the extension
- * @param {String} source - ES5 source to run
+ * @param {String} source - ES6 source to run
  * @return {Promise}
  */
 function runInSandbox(name, source) {
-    return getPackagesWhitelist()
-        .then(packages => {
+    return all([getPackagesWhitelist(), compile(source)])
+        .spread((packages, source) => {
             const __module = createModule(name);
             const __exports = createExports();
             const v8Context = createSecureContext({
