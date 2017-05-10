@@ -56,6 +56,6 @@ describe('init.js', () => {
                     return next();
                 })
                 .finally(stream.close);
-        });
+        }).timeout(10000);
     });
 });
