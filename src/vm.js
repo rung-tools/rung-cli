@@ -3,26 +3,19 @@ import vm from 'vm';
 import path from 'path';
 import Promise, { all, promisify, resolve } from 'bluebird';
 import {
-    T,
     __,
-    always,
-    cond,
     contains,
     curry,
     either,
-    equals,
     isEmpty,
-    join,
     map,
     pipe,
     propOr,
     reject as rejectWhere,
     split,
-    test,
-    toPairs
+    test
 } from 'ramda';
-import dasherize from 'dasherize';
-import { transform } from 'babel-core';
+import { compile, compileHTML } from './compiler';
 
 const readFile = promisify(fs.readFile);
 
@@ -113,61 +106,6 @@ export const __require = curry((whitelist, module) => {
 });
 
 /**
- * Precompiles ES6 source to ES5 in order to keep retrocompatibily
- *
- * @author Marcelo Haskell Camargo
- * @param {String} source
- * @return {Promise}
- */
-function compile(source) {
-    const result = transform(source, {
-        comments: false,
-        compact: true,
-        presets: ['es2015', 'react'],
-        plugins: [
-            ['transform-react-jsx', { pragma: 'render' }]
-        ]
-    });
-
-    return resolve(result.code);
-}
-
-/**
- * Generates HTML string for element properties
- *
- * @param {Object} props
- * @return {String}
- */
-function compileProps(props) {
-    const transform = cond([
-        [equals('className'), always('class')],
-        [T, dasherize]
-    ]);
-    const stringify = pipe(
-        toPairs,
-        map(([key, value]) => `${transform(key)}=${JSON.stringify(value)}`),
-        join(' ')
-    );
-    const result = stringify(props);
-
-    return result.length === 0 ? '' : ` ${result}`;
-}
-
-/**
- * Generates HTML source code directly from JSX
- *
- * @param {String} tag - JSX component name
- * @param {Object} props - Element properties
- * @param {Array} children - Items to append to inner component
- * @return {String}
- */
-function generateHTMLFromJSX(tag, props, ...children) {
-    return children.length === 0
-        ? `<${tag}${compileProps(props)} />`
-        : `<${tag}${compileProps(props)}>${children.join('')}</${tag}>`;
-}
-
-/**
  * Runs an extension on a virtualized environment and returns its result as
  * native JS data
  *
@@ -176,7 +114,7 @@ function generateHTMLFromJSX(tag, props, ...children) {
  * @param {String} source - ES6 source to run
  * @return {Promise}
  */
-function runInSandbox(name, source) {
+export function runInSandbox(name, source) {
     return all([getPackagesWhitelist(), compile(source)])
         .spread((packages, source) => {
             const __module = createModule(name);
@@ -186,7 +124,7 @@ function runInSandbox(name, source) {
                 exports: __exports,
                 console: __console(name),
                 require: __require(packages),
-                render: generateHTMLFromJSX });
+                render: compileHTML });
             const script = new vm.Script(source, { filename: `${name}.js` });
             return resolve(script.runInNewContext(v8Context));
         });
