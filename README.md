@@ -21,7 +21,7 @@ This will make the command `rung` available globally.
 
 ## Usage
 
-`rung [init|build|run]`
+`rung [init|build|run|publish|boilerplate|readme]`
 
 ### Commands
 
