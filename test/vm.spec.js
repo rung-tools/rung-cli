@@ -39,6 +39,7 @@ describe('vm.js', () => {
             const source = `
                 const delay = require('bluebird').delay;
 
+                // Export extension
                 module.exports = {
                     extension: (ctx, done) => {
                         console.log('start');

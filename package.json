@@ -1,6 +1,6 @@
 {
   "name": "rung-cli",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "Command line interface for Rung",
   "main": "./dist/vm.js",
   "bin": {
@@ -19,9 +19,14 @@
     "coverage": "nyc --reporter=html yarn test"
   },
   "dependencies": {
+    "babel-core": "^6.24.1",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
     "bluebird": "3.5.0",
     "colors": "1.1.2",
     "commander": "2.9.0",
+    "dasherize": "^2.0.0",
     "data.maybe": "1.2.2",
     "handlebars": "^4.0.8",
     "jszip": "^3.1.3",
@@ -37,7 +42,6 @@
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
-    "babel-preset-es2015": "^6.22.0",
     "chai": "^3.5.0",
     "mocha": "^3.3.0",
     "nyc": "^10.3.2",
