@@ -50,5 +50,28 @@ describe('compiler.js', () => {
                     ].join(''));
                 });
         });
+
+        it('shouldn\'t allow script and style tags', () => {
+            const source = `
+                const annoy = <b>aborrecer</b>;
+                const style = {
+                    color: 'red',
+                    backgroundColor: 'blue'
+                };
+                const component = (
+                    <div>
+                        <script>alert();</script>
+                        Alerting?
+                    </div>
+                );
+
+                export default { extension: () => component };
+            `;
+
+            return runAndGetAlerts({ name: 'test-jsx-strip-tags', source }, {})
+                .then(result => {
+                    expect(result).to.equals('<div><span>alert();</span>Alerting?</div>');
+                });
+        })
     })
 });

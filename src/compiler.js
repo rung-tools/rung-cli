@@ -5,6 +5,7 @@ import {
     always,
     cond,
     equals,
+    identity,
     join,
     map,
     pipe,
@@ -60,9 +61,15 @@ function compileProps(props) {
  * @return {String}
  */
 export function compileHTML(tag, props, ...children) {
+    const filteredTag = cond([
+        [equals('script'), always('span')],
+        [equals('style'), always('span')],
+        [T, identity]
+    ])(tag);
+
     return children.length === 0
-        ? `<${tag}${compileProps(props)} />`
-        : `<${tag}${compileProps(props)}>${children.join('')}</${tag}>`;
+        ? `<${filteredTag}${compileProps(props)} />`
+        : `<${filteredTag}${compileProps(props)}>${children.join('')}</${filteredTag}>`;
 }
 
 /**
