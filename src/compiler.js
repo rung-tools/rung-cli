@@ -78,7 +78,7 @@ export function compileHTML(tag, props, ...children) {
  * @param {String} source
  * @return {Promise}
  */
-export function compile(source) {
+export function compileES6(source) {
     const result = transform(source, {
         comments: false,
         compact: true,
@@ -88,5 +88,5 @@ export function compile(source) {
         ]
     });
 
-    return resolve(result.code);
+    return result.code;
 }

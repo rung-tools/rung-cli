@@ -15,7 +15,7 @@ import {
     split,
     test
 } from 'ramda';
-import { compile, compileHTML } from './compiler';
+import { compileHTML } from './compiler';
 
 const readFile = promisify(fs.readFile);
 
@@ -114,9 +114,9 @@ export const __require = curry((whitelist, module) => {
  * @param {String} source - ES6 source to run
  * @return {Promise}
  */
-export function runInSandbox(name, source) {
-    return all([getPackagesWhitelist(), compile(source)])
-        .spread((packages, source) => {
+function runInSandbox(name, source) {
+    return getPackagesWhitelist()
+        .then(packages => {
             const __module = createModule(name);
             const __exports = createExports();
             const v8Context = createSecureContext({

@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import { runAndGetAlerts } from '../src/vm';
+import { compileES6 } from '../src/compiler';
 
 describe('compiler.js', () => {
     describe('Babel compiler and JSX', () => {
         it('should compile and run ES6 features using Babel compiler', () => {
-            const source = `
+            const source = compileES6(`
                 class Programmer {
                     setName(name) { this.name = name; }
                     getName() { return this.name }
@@ -16,7 +17,7 @@ describe('compiler.js', () => {
                     hello.setName('Marcelo');
                     return hello.greet();
                 } };
-            `;
+            `);
 
             return runAndGetAlerts({ name: 'test-babel-compiler', source }, {})
                 .then(result => {
@@ -25,7 +26,7 @@ describe('compiler.js', () => {
         });
 
         it('should compile JSX syntax down to HTML', () => {
-            const source = `
+            const source = compileES6(`
                 const annoy = <b>aborrecer</b>;
                 const style = {
                     color: 'red',
@@ -39,7 +40,7 @@ describe('compiler.js', () => {
                 );
 
                 export default { extension: () => component };
-            `;
+            `);
 
             return runAndGetAlerts({ name: 'test-jsx-compiler', source }, {})
                 .then(result => {
@@ -52,7 +53,7 @@ describe('compiler.js', () => {
         });
 
         it('shouldn\'t allow script and style tags', () => {
-            const source = `
+            const source = compileES6(`
                 const annoy = <b>aborrecer</b>;
                 const style = {
                     color: 'red',
@@ -66,7 +67,7 @@ describe('compiler.js', () => {
                 );
 
                 export default { extension: () => component };
-            `;
+            `);
 
             return runAndGetAlerts({ name: 'test-jsx-strip-tags', source }, {})
                 .then(result => {
