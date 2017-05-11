@@ -1,7 +1,7 @@
 import fs from 'fs';
 import vm from 'vm';
 import path from 'path';
-import Promise, { all, promisify, resolve } from 'bluebird';
+import Promise, { promisify, resolve } from 'bluebird';
 import {
     __,
     contains,

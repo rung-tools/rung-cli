@@ -1,5 +1,4 @@
 import dasherize from 'dasherize';
-import { resolve } from 'bluebird';
 import {
     T,
     always,
@@ -38,7 +37,7 @@ const compileCSS = pipe(
  */
 function compileProps(props) {
     const transformKey = when(equals('className'), always('class'));
-    const transformValue =  ifElse(item => type(item) === 'Object',
+    const transformValue = ifElse(item => type(item) === 'Object',
         compileCSS, unary(JSON.stringify));
 
     const stringify = pipe(
