@@ -5,11 +5,11 @@ import {
     always,
     cond,
     equals,
-    is,
     join,
     map,
     pipe,
-    toPairs
+    toPairs,
+    type
 } from 'ramda';
 import { transform } from 'babel-core';
 
@@ -19,9 +19,12 @@ import { transform } from 'babel-core';
  * @param {Object} obj
  * @return {String}
  */
-function compileCSS(obj) {
-    return obj;
-}
+const compileCSS = pipe(
+    toPairs,
+    map(([key, value]) => `${dasherize(key)}:${value}`),
+    join(';'),
+    JSON.stringify
+);
 
 /**
  * Generates HTML string for element properties
@@ -34,12 +37,10 @@ function compileProps(props) {
         [equals('className'), always('class')],
         [T, dasherize]
     ]);
-
     const transformValue = cond([
-        [is(Object), compileCSS],
+        [item => type(item) === 'Object', compileCSS],
         [T, JSON.stringify]
     ]);
-
     const stringify = pipe(
         toPairs,
         map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`),

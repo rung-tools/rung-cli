@@ -27,8 +27,12 @@ describe('compiler.js', () => {
         it('should compile JSX syntax down to HTML', () => {
             const source = `
                 const annoy = <b>aborrecer</b>;
+                const style = {
+                    color: 'red',
+                    backgroundColor: 'blue'
+                };
                 const component = (
-                    <div className="component" style={{color:'red'}}>
+                    <div className="component" style={ style }>
                         Você fala demais, acabei de me { annoy }
                         <br hue="land" />
                     </div>
@@ -40,7 +44,7 @@ describe('compiler.js', () => {
             return runAndGetAlerts({ name: 'test-jsx-compiler', source }, {})
                 .then(result => {
                     expect(result).to.equals([
-                        '<div class="component" style={"color":"red"}>',
+                        '<div class="component" style="color:red;background-color:blue">',
                         'Você fala demais, acabei de me ',
                         '<b>aborrecer</b><br hue="land" /></div>'
                     ].join(''));
