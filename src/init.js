@@ -10,6 +10,7 @@ import {
     mapObjIndexed
 } from 'ramda';
 import { gray } from 'colors';
+import { version as rungCliVersion } from '../package';
 import { IO } from './input';
 
 const writeFile = promisify(fs.writeFile);
@@ -29,10 +30,12 @@ function createPackage(answers) {
     const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
     const rungFields = ['title'];
 
-    const packageObject = assoc(
+    const packageObject = merge(assoc(
         'rung',
         pick(rungFields, answers),
-        pick(packageFields, answers));
+        pick(packageFields, answers)), {
+            devDependencies: { 'rung-cli': rungCliVersion }
+        });
 
     return writeFile('package.json', JSON.stringify(packageObject, null, 2));
 }

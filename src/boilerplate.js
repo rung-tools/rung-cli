@@ -13,6 +13,7 @@ import {
     pipe,
     replace
 } from 'ramda';
+import { version as rungCliVersion } from '../package';
 import { IO } from './input';
 import { askQuestions } from './init';
 
@@ -71,8 +72,9 @@ function getPackageMetaFile(answers) {
 
     const packageObject = merge(
         assoc('rung', merge(pick(rungFields, answers), {
-            preview: 'Hello, Trixie!' }), pick(packageFields, answers)),
-        { dependencies: { 'rung-sdk': '^1.0.6' } });
+            preview: 'Hello, Trixie!' }), pick(packageFields, answers)), {
+            dependencies: { 'rung-sdk': '^1.0.6' },
+            devDependencies: { 'rung-cli': rungCliVersion } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
