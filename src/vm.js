@@ -15,6 +15,7 @@ import {
     split,
     test
 } from 'ramda';
+import { compileHTML } from './compiler';
 
 const readFile = promisify(fs.readFile);
 
@@ -110,7 +111,7 @@ export const __require = curry((whitelist, module) => {
  *
  * @author Marcelo Haskell Camargo
  * @param {String} name - The unique identifier to track the extension
- * @param {String} source - ES5 source to run
+ * @param {String} source - ES6 source to run
  * @return {Promise}
  */
 function runInSandbox(name, source) {
@@ -122,7 +123,8 @@ function runInSandbox(name, source) {
                 module: __module,
                 exports: __exports,
                 console: __console(name),
-                require: __require(packages) });
+                require: __require(packages),
+                render: compileHTML });
             const script = new vm.Script(source, { filename: `${name}.js` });
             return resolve(script.runInNewContext(v8Context));
         });
