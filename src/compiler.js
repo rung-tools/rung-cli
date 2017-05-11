@@ -6,11 +6,14 @@ import {
     cond,
     equals,
     identity,
+    ifElse,
     join,
     map,
     pipe,
     toPairs,
-    type
+    type,
+    unary,
+    when
 } from 'ramda';
 import { transform } from 'babel-core';
 
@@ -34,14 +37,10 @@ const compileCSS = pipe(
  * @return {String}
  */
 function compileProps(props) {
-    const transformKey = cond([
-        [equals('className'), always('class')],
-        [T, dasherize]
-    ]);
-    const transformValue = cond([
-        [item => type(item) === 'Object', compileCSS],
-        [T, JSON.stringify]
-    ]);
+    const transformKey = when(equals('className'), always('class'));
+    const transformValue =  ifElse(item => type(item) === 'Object',
+        compileCSS, unary(JSON.stringify));
+
     const stringify = pipe(
         toPairs,
         map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`),
