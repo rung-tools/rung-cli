@@ -3,18 +3,19 @@ import { promisify } from 'bluebird';
 import { mergeAll, prop } from 'ramda';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
+import { compileES6 } from './compiler';
 
 export const readFile = promisify(fs.readFile);
 
-export function readSourceFile({ main }) {
+export function compileSourceFile({ main }) {
     const index = main || 'index.js';
-    return readFile(index, 'utf-8');
+    return readFile(index, 'utf-8').then(compileES6);
 }
 
 export default function run() {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(readSourceFile)
+        .then(compileSourceFile)
         .then(source => getProperties({ name: 'get-parameters', source })
             .then(prop('params'))
             .then(ask)
