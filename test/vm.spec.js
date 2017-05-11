@@ -77,13 +77,14 @@ describe('vm.js', () => {
                 });
         });
 
-        it('should compile JSX syntax', () => {
+        it('should compile JSX syntax down to HTML', () => {
             const source = `
+                const annoy = 'aborrecer';
                 export default { extension: () => {
                     return (
-                        <div>
-                            Você fala demais, acabei de me <b>Aborrecer</b>
-                            <br />
+                        <div className="component">
+                            Você fala demais, acabei de me <b>{ annoy }</b>
+                            <br hue="land" />
                         </div>
                     );
                 } }

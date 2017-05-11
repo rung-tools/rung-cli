@@ -5,22 +5,23 @@ import Promise, { all, promisify, resolve } from 'bluebird';
 import {
     T,
     __,
+    always,
     cond,
     contains,
     curry,
     either,
     equals,
-    has,
-    identity,
-    is,
     isEmpty,
+    join,
     map,
     pipe,
     propOr,
     reject as rejectWhere,
     split,
-    test
+    test,
+    toPairs
 } from 'ramda';
+import dasherize from 'dasherize';
 import { transform } from 'babel-core';
 
 const readFile = promisify(fs.readFile);
@@ -132,14 +133,38 @@ function compile(source) {
 }
 
 /**
- * Generates HTML source code directly from JSX
+ * Generates HTML string for element properties
  *
- * @param {Object} ast - Abstract syntax tree with React representation
+ * @param {Object} props
  * @return {String}
  */
-function generateHTMLFromJSX(ast) {
-    // TODO: Write function to generate HTML code from JSX AST
-    console.log(JSON.stringify(ast, null, 2));
+function compileProps(props) {
+    const transform = cond([
+        [equals('className'), always('class')],
+        [T, dasherize]
+    ]);
+    const stringify = pipe(
+        toPairs,
+        map(([key, value]) => `${transform(key)}=${JSON.stringify(value)}`),
+        join(' ')
+    );
+    const result = stringify(props);
+
+    return result.length === 0 ? '' : ` ${result}`;
+}
+
+/**
+ * Generates HTML source code directly from JSX
+ *
+ * @param {String} tag - JSX component name
+ * @param {Object} props - Element properties
+ * @param {Array} children - Items to append to inner component
+ * @return {String}
+ */
+function generateHTMLFromJSX(tag, props, ...children) {
+    return children.length === 0
+        ? `<${tag}${compileProps(props)} />`
+        : `<${tag}${compileProps(props)}>${children.join('')}</${tag}>`;
 }
 
 /**

@@ -25,6 +25,7 @@
     "bluebird": "3.5.0",
     "colors": "1.1.2",
     "commander": "2.9.0",
+    "dasherize": "^2.0.0",
     "data.maybe": "1.2.2",
     "handlebars": "^4.0.8",
     "install": "^0.10.1",
