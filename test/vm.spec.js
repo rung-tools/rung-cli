@@ -80,7 +80,7 @@ describe('vm.js', () => {
         it('should compile JSX syntax', () => {
             const source = `
                 export default { extension: () => {
-                    return render(
+                    return (
                         <div>
                             Você fala demais, acabei de me <b>Aborrecer</b>
                             <br />

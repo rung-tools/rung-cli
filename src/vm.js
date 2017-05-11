@@ -122,7 +122,10 @@ function compile(source) {
     const result = transform(source, {
         comments: false,
         compact: true,
-        presets: ['es2015', 'react']
+        presets: ['es2015', 'react'],
+        plugins: [
+            ['transform-react-jsx', { pragma: 'render' }]
+        ]
     });
 
     return resolve(result.code);
@@ -158,7 +161,6 @@ function runInSandbox(name, source) {
                 exports: __exports,
                 console: __console(name),
                 require: __require(packages),
-                React: require('react'),
                 render: generateHTMLFromJSX });
             const script = new vm.Script(source, { filename: `${name}.js` });
             return resolve(script.runInNewContext(v8Context));
