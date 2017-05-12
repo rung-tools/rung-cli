@@ -43,3 +43,6 @@ rung-cli-*.tgz
 
 # Generated .rung packages
 *.rung
+
+# Extra test files
+boilerplate-project
