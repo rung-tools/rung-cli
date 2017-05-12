@@ -15,7 +15,7 @@
     "lint": "xo src/**",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
-    "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test",
+    "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test/*.spec.js",
     "coverage": "nyc --reporter=html yarn test"
   },
   "dependencies": {
@@ -43,8 +43,11 @@
   "devDependencies": {
     "babel-cli": "^6.23.0",
     "chai": "^3.5.0",
+    "chai-fs": "^1.0.0",
+    "chai-json-schema": "^1.4.0",
     "mocha": "^3.3.0",
     "nyc": "^10.3.2",
+    "rimraf": "^2.6.1",
     "xo": "^0.17.1"
   },
   "xo": {

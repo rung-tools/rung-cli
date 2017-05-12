@@ -1,0 +1,18 @@
+{
+  "name": "hello-world",
+  "version": "0.1.0",
+  "description": "Hello world test",
+  "license": "MIT",
+  "main": "index.js",
+  "category": "miscellaneous",
+  "rung": {
+    "title": "Hello world",
+    "preview": "Hello, Trixie!"
+  },
+  "dependencies": {
+    "rung-sdk": "^1.0.6"
+  },
+  "devDependencies": {
+    "rung-cli": "0.3.2"
+  }
+}

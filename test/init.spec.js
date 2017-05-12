@@ -1,23 +1,5 @@
-import path from 'path';
-import thread from 'child_process';
-import Promise, { promisify } from 'bluebird';
 import { expect } from 'chai';
-
-const promisifyStream = fn => promisify((param, callback) => {
-    fn(param, result => { callback(null, result); });
-});
-
-function createStream(args) {
-    const task = thread.spawn('node', ['dist/cli.js', ...args], { stdio: 'pipe' });
-    task.stdout.setEncoding('utf-8');
-
-    return {
-        once: promisifyStream(task.stdout.once.bind(task.stdout)),
-        on: promisifyStream(task.stdout.on.bind(task.stdout)),
-        write: promisifyStream(task.stdin.write.bind(task.stdin)),
-        close: () => task.kill('SIGTERM')
-    };
-}
+import { createStream } from './helper';
 
 describe('init.js', () => {
     describe('Mocking stdin and stdout is successful', () => {
