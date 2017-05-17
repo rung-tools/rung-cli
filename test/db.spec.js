@@ -14,28 +14,40 @@ const home = os.homedir();
 const extensionName = 'rung-database-test';
 const dbPath = path.join(home, '.rung', `${extensionName}.db`);
 
+function sourceWithDb(db) {
+    return compileES6(`
+        export default {
+            extension(context) {
+                return {
+                    alerts: {},
+                    db: ${JSON.stringify(db)}
+                };
+            }
+        };
+    `);
+}
+
 describe.only('db.js', () => {
     before(() => rm(dbPath));
 
     describe('Database', () => {
-        it('should create a database file in home when first running', () => {
-            const source = compileES6(`
-                export default {
-                    extension(context) {
-                        return {
-                            alerts: {},
-                            db: {
-                                counter: 0
-                            }
-                        };
-                    }
-                };
-            `);
+        it('should store an object in the database', () => {
+            const source = sourceWithDb({
+                counter: 1
+            });
 
             return runAndGetAlerts({ name: extensionName, source }, {})
                 .then(result => {
-                    // const { counter } = result.db;
-                    // expect(dbPath).to.be.a.file();
+                    expect(dbPath).to.be.a.file();
+                });
+        });
+
+        it('should drop the file when passed undefined', () => {
+            const source = sourceWithDb(undefined);
+
+            return runAndGetAlerts({ name: extensionName, source }, {})
+                .then(() => {
+                    expect(dbPath).to.not.be.a.path();
                 });
         });
     });

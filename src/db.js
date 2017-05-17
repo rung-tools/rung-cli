@@ -4,7 +4,6 @@ import path from 'path';
 import { promisify, reject, resolve } from 'bluebird';
 import rimraf from 'rimraf';
 import {
-    curry,
     type
 } from 'ramda';
 
@@ -52,16 +51,14 @@ export function clear(name) {
  * @param {Mixed} store - Content to save
  * @return {Promise}
  */
-export const upsert = curry((name, store) => {
+export function upsert(name, store) {
     // When store is undefined, drop the file
-    if (store === undefined) {
-        return clear(name);
-    }
-
-    return resolveRungFolder()
+    return store === undefined
+        ? clear(name)
+        : resolveRungFolder()
         .then(() => marshall(store))
         .then(value => createFile(location(name), value));
-});
+}
 
 /**
  * Creates the .rung folder when it doesn't exist

@@ -8,11 +8,8 @@ import {
     curry,
     either,
     has,
-    ifElse,
     isEmpty,
-    lensProp,
     map,
-    over,
     pipe,
     propOr,
     reject as rejectWhere,
@@ -148,6 +145,14 @@ export function getProperties(extension) {
 }
 
 /**
+ * Records database if set to; otherwise, drop it
+ *
+ * @param {Object} result
+ * @return {Promise}
+ */
+const updateDb = curry((name, result) => has('db', result) ? upsert(name, result.db) : clear(name));
+
+/**
  * Runs an extension with a context (with parameters) and gets the alerts.
  * The result may be a string, a nullable value, an array...
  *
@@ -170,9 +175,5 @@ export function runAndGetAlerts(extension, context) {
 
             return runExtension();
         })
-        .tap(ifElse(
-            has('db'),
-            over(lensProp('db'), upsert(extension.name)),
-            clear.bind(null, extension.name)
-        ));
+        .tap(updateDb(extension.name));
 }
