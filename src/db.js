@@ -70,7 +70,8 @@ export function upsert(name, store) {
 export function read(name) {
     const file = location(name);
     return readFile(file, 'utf-8')
-        .then(JSON.parse);
+        .then(JSON.parse)
+        .catchReturn(undefined);
 }
 
 /**

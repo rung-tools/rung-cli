@@ -15,10 +15,17 @@ const home = os.homedir();
 const extensionName = 'rung-database-test';
 const dbPath = path.join(home, '.rung', `${extensionName}.db`);
 
-describe.only('db.js', () => {
+describe('db.js', () => {
     before(() => rm(dbPath));
 
     describe('Database', () => {
+        it('should get undefined when reading from empty db', () => {
+            return read(extensionName)
+                .then(result => {
+                    expect(result).to.equals(undefined);
+                });
+        });
+
         it('should store an object in the database', () => {
             const source = compileES6(`
                 export default {
