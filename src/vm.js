@@ -7,8 +7,12 @@ import {
     contains,
     curry,
     either,
+    has,
+    ifElse,
     isEmpty,
+    lensProp,
     map,
+    over,
     pipe,
     propOr,
     reject as rejectWhere,
@@ -16,6 +20,7 @@ import {
     test
 } from 'ramda';
 import { compileHTML } from './compiler';
+import { upsert, clear } from './db';
 
 const readFile = promisify(fs.readFile);
 
@@ -164,5 +169,10 @@ export function runAndGetAlerts(extension, context) {
             });
 
             return runExtension();
-        });
+        })
+        .tap(ifElse(
+            has('db'),
+            over(lensProp('db'), upsert(extension.name)),
+            clear.bind(null, extension.name)
+        ));
 }
