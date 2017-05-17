@@ -66,6 +66,25 @@ describe.only('db.js', () => {
                 });
         });
 
+        it('should update an object in the database', () => {
+            const source = compileES6(`
+                export default {
+                    extension(context) {
+                        return {
+                            alerts: {},
+                            db: { counter: context.db.counter + 1 }
+                        };
+                    }
+                };
+            `);
+
+            return read(extensionName)
+                .then(db => runAndGetAlerts({ name: extensionName, source }, { db }))
+                .then(result => {
+                    expect(result.db.counter).to.equals(2);
+                });
+        });
+
         it('should drop the file when passed undefined', () => {
             const source = compileES6(`
                 export default {
