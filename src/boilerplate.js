@@ -115,7 +115,9 @@ function getIndexFile(answers) {
 
         function main(context) {
             const { name } = context.params;
-            return [\`Hello, \${name}!\`];
+            return {
+                alerts: [\`Hello, \${name}!\`]
+            };
         }
 
         const params = {
