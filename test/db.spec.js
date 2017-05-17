@@ -6,6 +6,7 @@ import rimraf from 'rimraf';
 import fs from 'chai-fs';
 import { runAndGetAlerts } from '../src/vm';
 import { compileES6 } from '../src/compiler';
+import { read } from '../src/db';
 
 chai.use(fs);
 
@@ -37,7 +38,33 @@ describe.only('db.js', () => {
                 });
         });
 
-        it('should read and update data from db');
+        it('should break when passing invalid type to db', () => {
+            const source = compileES6(`
+                export default {
+                    extension(context) {
+                        return {
+                            alerts: {},
+                            db: x => x
+                        };
+                    }
+                };
+            `);
+
+            return runAndGetAlerts({ name: extensionName, source }, {})
+                .then(result => {
+                    throw new Error('It should break');
+                })
+                .catch(err => {
+                    expect(err.message).to.match(/Unsupported type Function/);
+                });
+        });
+
+        it('should read data from db', () => {
+            return read(extensionName)
+                .then(result => {
+                    expect(result.counter).to.equals(1);
+                });
+        });
 
         it('should drop the file when passed undefined', () => {
             const source = compileES6(`

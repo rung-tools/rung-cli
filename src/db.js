@@ -10,6 +10,7 @@ import {
 const rm = promisify(rimraf);
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
+const readFile = promisify(fs.readFile);
 
 /**
  * Marshalls the JS input
@@ -58,6 +59,18 @@ export function upsert(name, store) {
         : resolveRungFolder()
         .then(() => marshall(store))
         .then(value => createFile(location(name), value));
+}
+
+/**
+ * Reads data from database file
+ *
+ * @param {String} name
+ * @return {Promise}
+ */
+export function read(name) {
+    const file = location(name);
+    return readFile(file, 'utf-8')
+        .then(JSON.parse);
 }
 
 /**
