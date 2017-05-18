@@ -13,6 +13,7 @@ export function createStream(args) {
         once: promisifyStream(task.stdout.once.bind(task.stdout)),
         on: promisifyStream(task.stdout.on.bind(task.stdout)),
         write: promisifyStream(task.stdin.write.bind(task.stdin)),
+        after: promisifyStream(task.stdin.on.bind(task.stdin, 'close')),
         close: () => task.kill('SIGTERM')
     };
 }

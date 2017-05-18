@@ -156,12 +156,11 @@ describe('db.js', () => {
             return runAndGetAlerts({ name: extensionName, source }, {})
                 .then(() => {
                     const stream = createStream(['db', 'clear']);
-                    return delay(3000)
+                    return stream.after()
                         .then(() => {
                             expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
                                 .to.not.be.a.path();
-                        })
-                        .finally(stream.close);
+                        });
                 })
         }).timeout(20000);
     });
