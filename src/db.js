@@ -7,6 +7,8 @@ import {
     T,
     cond,
     equals,
+    pipe,
+    prop,
     type
 } from 'ramda';
 import { render } from 'prettyjson';
@@ -22,7 +24,7 @@ const readFile = promisify(fs.readFile);
  * @param {Mixed} input
  * @return {Promise}
  */
-function marshall(input) {
+function serialize(input) {
     const value = JSON.stringify(input);
     return value === undefined
         ? reject(new Error(`Unsupported type ${type(input)}`))
@@ -61,8 +63,8 @@ export function upsert(name, store) {
     return store === undefined
         ? clear(name)
         : resolveRungFolder()
-        .then(() => marshall(store))
-        .then(value => createFile(location(name), value));
+            .then(() => serialize(store))
+            .then(value => createFile(location(name), value));
 }
 
 /**
@@ -85,8 +87,9 @@ export function read(name) {
  */
 function resolveRungFolder() {
     const folder = path.join(os.homedir(), '.rung');
+    const lstat = fs.lstatSync(folder);
 
-    return fs.existsSync(folder)
+    return lstat.isDirectory()
         ? resolve()
         : createFolder(folder);
 }
@@ -107,12 +110,8 @@ function cliClear() {
         .catch(() => reject(new Error('Unable to clear database')));
 }
 
-export default function db({ option }) {
-    const runCommand = cond([
-        [equals('read'), cliRead],
-        [equals('clear'), cliClear],
-        [T, option => reject(new Error(`Unknown option ${option}`))]
-    ]);
-
-    return runCommand(option);
-}
+export default pipe(prop('option'), cond([
+    [equals('read'), cliRead],
+    [equals('clear'), cliClear],
+    [T, option => reject(new Error(`Unknown option ${option}`))]
+]));
