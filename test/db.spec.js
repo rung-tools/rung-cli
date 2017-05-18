@@ -7,6 +7,7 @@ import fs from 'chai-fs';
 import { runAndGetAlerts } from '../src/vm';
 import { compileES6 } from '../src/compiler';
 import { read } from '../src/db';
+import { createStream } from './helper';
 
 chai.use(fs);
 
@@ -107,6 +108,22 @@ describe('db.js', () => {
                 .then(() => {
                     expect(dbPath).to.not.be.a.path();
                 });
+        });
+    });
+
+    describe('Command line database', () => {
+        it('should cause an error on invalid option', () => {
+            const stream = createStream(['db', 'write']);
+
+            return stream.once('data')
+                .then(result => {
+                    expect(result).to.match(/Ooooops, something went wrong.../);
+                    return stream.once('data');
+                })
+                .then(result => {
+                    expect(result).to.match(/Unknown option write/);
+                })
+                .finally(stream.close);
         });
     });
 });

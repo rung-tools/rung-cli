@@ -4,8 +4,12 @@ import path from 'path';
 import { promisify, reject, resolve } from 'bluebird';
 import rimraf from 'rimraf';
 import {
+    T,
+    cond,
+    equals,
     type
 } from 'ramda';
+import { render } from 'prettyjson';
 
 const rm = promisify(rimraf);
 const createFolder = promisify(fs.mkdir);
@@ -85,4 +89,30 @@ function resolveRungFolder() {
     return fs.existsSync(folder)
         ? resolve()
         : createFolder(folder);
+}
+
+function cliRead() {
+    return readFile('package.json')
+        .then(JSON.parse)
+        .then(({ name }) => read(name))
+        .then(render)
+        .tap(console.log.bind(console))
+        .catch(() => reject(new Error('Unable to read database')));
+}
+
+function cliClear() {
+    return readFile('package.json')
+        .then(JSON.parse)
+        .then(({ name }) => clear(name))
+        .catch(() => reject(new Error('Unable to clear database')));
+}
+
+export default function db({ option }) {
+    const runCommand = cond([
+        [equals('read'), cliRead],
+        [equals('clear'), cliClear],
+        [T, option => reject(new Error(`Unknown option ${option}`))]
+    ]);
+
+    return runCommand(option);
 }

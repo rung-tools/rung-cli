@@ -8,6 +8,7 @@ import init from './init';
 import publish from './publish';
 import boilerplate from './boilerplate';
 import readme from './readme';
+import db from './db';
 
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
@@ -17,7 +18,8 @@ const executeCommand = cond([
     [commandEquals('run'), run],
     [commandEquals('publish'), publish],
     [commandEquals('boilerplate'), boilerplate],
-    [commandEquals('readme'), readme]
+    [commandEquals('readme'), readme],
+    [commandEquals('db'), db]
 ]);
 
 function cli(args) {
@@ -37,6 +39,7 @@ cli(yargs
     .command('run', 'Execute the current extension')
     .command('boilerplate', 'Generates the boilerplate files for your extension')
     .command('readme', 'Generates the README.md file to publish')
+    .command('db [option]', '[read|clear] Read or clear db for extension')
     .option('o', {
         alias: 'output',
         describe: 'Where to save the built package',
@@ -45,5 +48,6 @@ cli(yargs
     .strict()
     .demandCommand(1)
     .recommendCommands()
+    .help()
     .version()
     .argv);
