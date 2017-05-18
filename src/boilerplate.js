@@ -110,12 +110,14 @@ function getReadMeMetaFile(answers) {
  */
 function getIndexFile(answers) {
     const content = format(`
-        const { create } = require('rung-sdk');
-        const { String: Text } = require('rung-sdk/dist/types');
+        import { create } from 'rung-sdk';
+        import { String as Text } from 'rung-sdk/dist/types';
 
         function main(context) {
             const { name } = context.params;
-            return [\`Hello, \${name}!\`];
+            return {
+                alerts: [\`Hello, \${name}!\`]
+            };
         }
 
         const params = {
@@ -125,8 +127,7 @@ function getIndexFile(answers) {
             }
         };
 
-        const app = create(main, { params });
-        module.exports = app;
+        export default create(main, { params });
     `);
 
     return {

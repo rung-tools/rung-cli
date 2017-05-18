@@ -13,6 +13,7 @@ import { version as rungCliVersion } from '../package';
 import { getProperties } from './vm';
 import { readFile } from './run';
 import { getTypeName } from './types';
+import { compileES6 } from './compiler';
 
 const createFile = promisify(fs.writeFile);
 
@@ -72,7 +73,7 @@ export default function readme() {
             escapedName: replace(/-/g, '--', name),
             dependencies: dependenciesToArray(dependencies) },
             readFile(main || 'index.js', 'utf-8')
-                .then(source => getProperties({ name: 'pre-compile', source }))]))
+                .then(source => getProperties({ name: 'pre-compile', source: compileES6(source) }))]))
         .spread((partialContext, source) => merge(partialContext, {
             parameters: parametersToArray(source.params)
         }))

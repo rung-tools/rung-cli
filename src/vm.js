@@ -7,6 +7,7 @@ import {
     contains,
     curry,
     either,
+    has,
     isEmpty,
     map,
     pipe,
@@ -16,6 +17,7 @@ import {
     test
 } from 'ramda';
 import { compileHTML } from './compiler';
+import { upsert, clear } from './db';
 
 const readFile = promisify(fs.readFile);
 
@@ -143,6 +145,14 @@ export function getProperties(extension) {
 }
 
 /**
+ * Records database if set to; otherwise, drop it
+ *
+ * @param {Object} result
+ * @return {Promise}
+ */
+const updateDb = curry((name, result) => has('db', result) ? upsert(name, result.db) : clear(name));
+
+/**
  * Runs an extension with a context (with parameters) and gets the alerts.
  * The result may be a string, a nullable value, an array...
  *
@@ -164,5 +174,6 @@ export function runAndGetAlerts(extension, context) {
             });
 
             return runExtension();
-        });
+        })
+        .tap(updateDb(extension.name));
 }

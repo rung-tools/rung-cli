@@ -24,7 +24,7 @@ const workingDirectory = last(split('/', process.cwd()));
  */
 function createPackage(answers) {
     if (fs.existsSync('package.json')) {
-        return reject('package.json already exists');
+        return reject(new Error('package.json already exists'));
     }
 
     const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
