@@ -23,7 +23,7 @@ This will make the command `rung` available globally.
 
 ## Usage
 
-`rung [init|build|run|publish|boilerplate|readme]`
+`rung [init|build|run|publish|boilerplate|readme|db]`
 
 ### Commands
 
@@ -36,6 +36,8 @@ This will make the command `rung` available globally.
 | `publish`     | Publishes extension to store |
 | `boilerplate` | Generates boilerplate code for the extension |
 | `readme`      | Generates the README.md file to publish |
+| `db read`     | Read from extension database |
+| `db clear`    | Drop extension database |
 
 ### Options
 
