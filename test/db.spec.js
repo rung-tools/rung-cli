@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 import chai, { expect } from 'chai';
-import { promisify } from 'bluebird';
+import { delay, promisify } from 'bluebird';
 import rimraf from 'rimraf';
 import fs from 'chai-fs';
 import { runAndGetAlerts } from '../src/vm';
@@ -14,10 +14,11 @@ chai.use(fs);
 const rm = promisify(rimraf);
 const home = os.homedir();
 const extensionName = 'rung-database-test';
-const dbPath = path.join(home, '.rung', `${extensionName}.db`);
+const rungPath = path.join(home, '.rung');
+const dbPath = path.join(rungPath, `${extensionName}.db`);
 
 describe('db.js', () => {
-    before(() => rm(dbPath));
+    before(() => rm(rungPath));
 
     describe('Database', () => {
         it('should get undefined when reading from empty db', () => {
@@ -93,12 +94,29 @@ describe('db.js', () => {
                 });
         });
 
-        it('should drop the file when passed undefined', () => {
+        it('should drop the file when passed there isn\'t db', () => {
             const source = compileES6(`
                 export default {
                     extension(context) {
                         return {
                             alerts: {}
+                        };
+                    }
+                };
+            `);
+
+            return runAndGetAlerts({ name: extensionName, source }, {})
+                .then(() => {
+                    expect(dbPath).to.not.be.a.path();
+                });
+        });
+
+        it('should drop the file when passed undefined', () => {
+            const source = compileES6(`
+                export default {
+                    extension(context) {
+                        return {
+                            alerts: {}, db: undefined
                         };
                     }
                 };
@@ -125,5 +143,26 @@ describe('db.js', () => {
                 })
                 .finally(stream.close);
         });
+
+        it('should drop database via rung db clear', () => {
+            const source = compileES6(`
+                export default {
+                    extension(context) { return { alerts: {}, db: {
+                        dragQueen: 'alaska'
+                    } }; }
+                };
+            `);
+
+            return runAndGetAlerts({ name: extensionName, source }, {})
+                .then(() => {
+                    const stream = createStream(['db', 'clear']);
+                    return delay(3000)
+                        .then(() => {
+                            expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
+                                .to.not.be.a.path();
+                        })
+                        .finally(stream.close);
+                })
+        }).timeout(20000);
     });
 });
