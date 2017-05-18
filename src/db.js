@@ -9,6 +9,7 @@ import {
     equals,
     pipe,
     prop,
+    tryCatch,
     type
 } from 'ramda';
 import { render } from 'prettyjson';
@@ -87,11 +88,14 @@ export function read(name) {
  */
 function resolveRungFolder() {
     const folder = path.join(os.homedir(), '.rung');
-    const lstat = fs.lstatSync(folder);
+    const createIfNotExists = tryCatch(
+        () => fs.lstatSync(folder).isDirectory()
+            ? resolve()
+            : reject(new Error('~/.rung is not a directory')),
+        () => createFolder(folder)
+    );
 
-    return lstat.isDirectory()
-        ? resolve()
-        : createFolder(folder);
+    return createIfNotExists();
 }
 
 function cliRead() {
