@@ -142,7 +142,7 @@ describe('db.js', () => {
                     expect(result).to.match(/Unknown option write/);
                 })
                 .finally(stream.close);
-        });
+        }).timeout(5000);
 
         it('should drop database via rung db clear', () => {
             const source = compileES6(`

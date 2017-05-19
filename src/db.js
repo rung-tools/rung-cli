@@ -98,9 +98,13 @@ function resolveRungFolder() {
     return createIfNotExists();
 }
 
-function cliRead() {
+function getPackage() {
     return readFile('package.json')
-        .then(JSON.parse)
+        .then(JSON.parse);
+}
+
+function cliRead() {
+    return getPackage()
         .then(({ name }) => read(name))
         .then(render)
         .tap(console.log.bind(console))
@@ -108,8 +112,7 @@ function cliRead() {
 }
 
 function cliClear() {
-    return readFile('package.json')
-        .then(JSON.parse)
+    return getPackage()
         .then(({ name }) => clear(name))
         .catch(() => reject(new Error('Unable to clear database')));
 }
