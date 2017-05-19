@@ -1,7 +1,7 @@
 import os from 'os';
 import path from 'path';
 import chai, { expect } from 'chai';
-import { delay, promisify } from 'bluebird';
+import { promisify } from 'bluebird';
 import rimraf from 'rimraf';
 import fs from 'chai-fs';
 import { runAndGetAlerts } from '../src/vm';
