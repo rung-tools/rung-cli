@@ -1,5 +1,5 @@
 import dasherize from 'dasherize';
-import {
+import R, {
     T,
     always,
     cond,
@@ -65,9 +65,14 @@ export function compileHTML(tag, props, ...children) {
         [T, identity]
     ])(tag);
 
+    const render = cond([
+        [item => R.type(item) === 'Array', join('')],
+        [T, identity]
+    ]);
+
     return children.length === 0
         ? `<${filteredTag}${compileProps(props)} />`
-        : `<${filteredTag}${compileProps(props)}>${children.join('')}</${filteredTag}>`;
+        : `<${filteredTag}${compileProps(props)}>${children.map(render).join('')}</${filteredTag}>`;
 }
 
 /**
