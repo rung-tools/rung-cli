@@ -40,6 +40,7 @@
     "superagent-promise": "^1.1.0",
     "tracking-correios": "^1.1.0",
     "validator": "7.0.0",
+    "vm2": "^3.4.6",
     "yargs": "7.0.2"
   },
   "devDependencies": {
@@ -71,6 +72,9 @@
         "off"
       ],
       "new-cap": [
+        "off"
+      ],
+      "no-useless-call": [
         "off"
       ]
     }

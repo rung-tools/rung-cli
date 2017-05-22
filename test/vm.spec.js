@@ -2,19 +2,6 @@ import { expect } from 'chai';
 import { __require, getProperties, runAndGetAlerts } from '../src/vm';
 
 describe('vm.js', () => {
-    describe('Module system', () => {
-        it('should allow a module in whitelist to be required', () => {
-            const lib = __require(['rung-sdk', 'moment'], 'moment');
-            expect(lib).to.be.an('function');
-        });
-
-        it('should forbid a module that is not whitelisted to be required', () => {
-            expect(() => {
-                const lib = __require(['rung-sdk', 'moment'], 'fs');
-            }).to.throw(/Disallowed dependency/);
-        });
-    });
-
     describe('Virtual machine runtime', () => {
         it('should get the config of an extension', () => {
             const source = 'module.exports = { extension: () => {}, config: { primaryKey: true } };';
@@ -26,7 +13,7 @@ describe('vm.js', () => {
         });
 
         it('should get the alerts of a synchronous extension', () => {
-            const source = 'module.exports = { extension: ctx => ([`Hello, ${ctx.name}!`]) };'
+            const source = 'module.exports = { extension: ctx => ([`Hello, ${ctx.name}!`]) };';
 
             return runAndGetAlerts({ name: 'test-alerts', source }, { name: 'Marcelo' })
                 .then(alerts => {
@@ -37,7 +24,7 @@ describe('vm.js', () => {
 
         it('should get the alerts of a asynchronous extension', () => {
             const source = `
-                const delay = require('bluebird').delay;
+                const { delay } = require('bluebird');
 
                 // Export extension
                 module.exports = {
@@ -55,21 +42,9 @@ describe('vm.js', () => {
                     expect(alerts).to.be.an('array');
                 });
         });
+    });
 
-        it.only('should not allow to use JS process', () => {
-            const source = `
-                module.exports = {
-                    extension: context => {
-                        this.constructor.constructor("return process")().exit(1);
-                        return [];
-                    }
-                };
-            `;
+    describe('Virtual machine security', () => {
 
-            return runAndGetAlerts({ name: 'test-process-security', source }, {})
-                .then(() => {
-                    console.log(1);
-                });
-        })
-    })
+    });
 });
