@@ -55,5 +55,21 @@ describe('vm.js', () => {
                     expect(alerts).to.be.an('array');
                 });
         });
+
+        it.only('should not allow to use JS process', () => {
+            const source = `
+                module.exports = {
+                    extension: context => {
+                        this.constructor.constructor("return process")().exit(1);
+                        return [];
+                    }
+                };
+            `;
+
+            return runAndGetAlerts({ name: 'test-process-security', source }, {})
+                .then(() => {
+                    console.log(1);
+                });
+        })
     })
 });

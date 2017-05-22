@@ -10,6 +10,7 @@ import {
     has,
     isEmpty,
     map,
+    merge,
     pipe,
     propOr,
     reject as rejectWhere,
@@ -59,17 +60,6 @@ function getPackagesWhitelist() {
 }
 
 /**
- * Creates a secure v8 context to run our application, together with all
- * injected informations
- *
- * @author Marcelo Haskell Camargo
- * @return {Context}
- */
-function createSecureContext(globalVariables) {
-    return vm.createContext(globalVariables);
-}
-
-/**
  * The Rung version of console. It exposes the name of the extension that is
  * logging it
  *
@@ -114,19 +104,20 @@ export const __require = curry((whitelist, module) => {
  * @author Marcelo Haskell Camargo
  * @param {String} name - The unique identifier to track the extension
  * @param {String} source - ES6 source to run
+ * @param {Object} context - Object with global-scoped variables
  * @return {Promise}
  */
-function runInSandbox(name, source) {
+function runInSandbox(name, source, context = {}) {
     return getPackagesWhitelist()
         .then(packages => {
             const __module = createModule(name);
             const __exports = createExports();
-            const v8Context = createSecureContext({
+            const v8Context = vm.createContext(merge({
                 module: __module,
                 exports: __exports,
                 console: __console(name),
                 require: __require(packages),
-                render: compileHTML });
+                render: compileHTML }, context));
             const script = new vm.Script(source, { filename: `${name}.js` });
             return resolve(script.runInNewContext(v8Context));
         });
