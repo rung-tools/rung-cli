@@ -73,6 +73,23 @@ describe('compiler.js', () => {
                 .then(result => {
                     expect(result).to.equals('<div><span>alert();</span>Alerting?</div>');
                 });
-        })
+        });
+
+        it('should correctly join array elements', () => {
+            const source = compileES6(`
+                const component = (
+                    <div>
+                        { [1, 2, 3].map(num => <b>{ num }</b>) }
+                    </div>
+                );
+
+                export default { extension: () => component };
+            `);
+
+            return runAndGetAlerts({ name: 'test-jsx-array', source }, {})
+                .then(result => {
+                    expect(result).to.equals('<div><b>1</b><b>2</b><b>3</b></div>');
+                });
+        });
     })
 });
