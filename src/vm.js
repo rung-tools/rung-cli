@@ -3,7 +3,6 @@ import Promise, { reject, resolve } from 'bluebird';
 import {
     curry,
     has,
-    pathOr,
     propOr,
     type
 } from 'ramda';
@@ -30,7 +29,8 @@ function runInSandbox(name, source) {
     });
 
     try {
-        return resolve(vm.run(source, `${name}.js`));
+        const result = vm.run(source, `${name}.js`);
+        return resolve(propOr(result, 'default', result));
     } catch (err) {
         return reject(err);
     }
@@ -45,7 +45,7 @@ function runInSandbox(name, source) {
  */
 export function getProperties(extension) {
     return runInSandbox(extension.name, extension.source)
-        .then(app => pathOr(app.config, ['default', 'config'], app));
+        .then(propOr({}, 'config'));
 }
 
 /**
@@ -69,16 +69,14 @@ export function runAndGetAlerts(extension, context) {
     return runInSandbox(extension.name, extension.source)
         .then(app => {
             const runExtension = () => new Promise((resolve, reject) => {
-                const v8function = pathOr(app.extension, ['default', 'extension'], app);
-
-                if (type(v8function) !== 'Function') {
+                if (type(app.extension) !== 'Function') {
                     return reject(new TypeError('Expected default exported expression to be a function'));
                 }
 
                 // Async vs sync extension
-                return v8function.length > 1
-                    ? v8function.call(null, context, resolve)
-                    : resolve(v8function.call(null, context));
+                return app.extension.length > 1
+                    ? app.extension.call(null, context, resolve)
+                    : resolve(app.extension.call(null, context));
             });
 
             return runExtension();
