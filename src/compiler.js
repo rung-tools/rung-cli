@@ -3,6 +3,7 @@ import {
     T,
     always,
     cond,
+    contains,
     equals,
     identity,
     ifElse,
@@ -51,6 +52,21 @@ function compileProps(props) {
 }
 
 /**
+ * Compiles a self-closing tag, dealing with elements that may or not be
+ * self-closing
+ *
+ * @param {String} tag - JSX component name
+ * @param {Object} props - Element properties
+ */
+function compileSelfClosingTag(tag, props) {
+    const compiledProps = compileProps(props);
+
+    return contains(tag, ['br', 'hr', 'img'])
+        ? `<${tag}${compiledProps} />`
+        : `<${tag}${compiledProps}></${tag}>`;
+}
+
+/**
  * Generates HTML source code directly from JSX
  *
  * @param {String} tag - JSX component name
@@ -71,7 +87,7 @@ export function compileHTML(tag, props, ...children) {
     ]);
 
     return children.length === 0
-        ? `<${filteredTag}${compileProps(props)} />`
+        ? compileSelfClosingTag(filteredTag, props)
         : `<${filteredTag}${compileProps(props)}>${children.map(render).join('')}</${filteredTag}>`;
 }
 
