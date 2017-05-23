@@ -1,3 +1,4 @@
+import { resolve } from 'bluebird';
 import osLocale from 'os-locale';
 
 /**
