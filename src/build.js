@@ -10,6 +10,8 @@ import {
     pipe,
     sort,
     subtract,
+    test,
+    type,
     without
 } from 'ramda';
 import Promise, { promisifyAll } from 'bluebird';
@@ -30,6 +32,17 @@ function assertRequiredFiles(files) {
 }
 
 const filterProjectFiles = filter(contains(__, projectFiles));
+
+function appendLocales(files) {
+    return fs.lstatAsync('locales')
+        .then(lstat => lstat.isDirectory() ? fs.readdirAsync('locales') : [])
+        .then(filter(test(/^[a-z]{2}_[A-Z]{2}\.json$/)))
+        .filter(filename => fs.readFileAsync(path.join('locales', filename))
+            .then(pipe(JSON.parse, item => type(item) === 'Object'))
+            .catchReturn(false))
+        .then(pipe(map(file => path.join('locales', file)), concat(files)))
+        .catchReturn(files);
+}
 
 function validatePackage(rungPackage) {
     // TODO: implement package validation
@@ -107,6 +120,7 @@ export default function build(args) {
     return fs.readdirAsync(dir)
         .then(assertRequiredFiles)
         .then(filterProjectFiles)
+        .then(appendLocales)
         .then(sort(subtract))
         .then(extractProjectInfo(dir))
         .spread(createZip(dir))
