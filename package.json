@@ -16,6 +16,7 @@
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
     "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test/*.spec.js",
+    "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "coverage": "nyc --reporter=html yarn test"
   },
   "dependencies": {
@@ -49,6 +50,7 @@
     "chai": "^3.5.0",
     "chai-fs": "^1.0.0",
     "chai-json-schema": "^1.4.0",
+    "codecov": "^2.2.0",
     "mocha": "^3.3.0",
     "nyc": "^10.3.2",
     "xo": "^0.17.1"
