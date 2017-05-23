@@ -45,7 +45,7 @@ function runInSandbox(name, source) {
  */
 export function getProperties(extension) {
     return runInSandbox(extension.name, extension.source)
-        .then(propOr({}, 'config'));
+        .then(app => pathOr(app.config, ['default', 'config'], app));
 }
 
 /**

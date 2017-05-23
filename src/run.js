@@ -20,8 +20,8 @@ export default function run() {
         .spread((name, source, db) => getProperties({ name, source })
             .then(prop('params'))
             .then(ask)
-            .then(mergeAll)
-            .then(params => runAndGetAlerts({ name, source }, { params, db })))
+            .then(mergeAll))
+            .then(params => runAndGetAlerts({ name, source }, { params, db }))
         .tap(console.log.bind(console));
 }
 

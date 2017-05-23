@@ -4,7 +4,9 @@ import { __require, getProperties, runAndGetAlerts } from '../src/vm';
 describe('vm.js', () => {
     describe('Virtual machine runtime', () => {
         it('should get the config of an extension', () => {
-            const source = 'module.exports = { extension: () => {}, config: { primaryKey: true } };';
+            const source = `module.exports = { default:
+                { extension: () => {}, config: { primaryKey: true } }
+            }`;
 
             return getProperties({ name: 'test-config', source })
                 .then(result => {
