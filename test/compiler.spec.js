@@ -91,5 +91,23 @@ describe('compiler.js', () => {
                     expect(result).to.equals('<div><b>1</b><b>2</b><b>3</b></div>');
                 });
         });
+
+        it('should differ self-closing tags', () => {
+            const source = compileES6(`
+                const component = (
+                    <div>
+                        <div id="foo" />
+                        <br />
+                    </div>
+                );
+
+                export default { extension: () => component };
+            `);
+
+            return runAndGetAlerts({ name: 'test-jsx-array', source }, {})
+                .then(result => {
+                    expect(result).to.equals('<div><div id="foo"></div><br /></div>');
+                });
+        });
     })
 });

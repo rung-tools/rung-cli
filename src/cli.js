@@ -32,7 +32,7 @@ function cli(args) {
 }
 
 cli(yargs
-    .usage('Usage: $0 [init|build|run|publish|readme]')
+    .usage('Usage: $0 [init|build|run|publish|readme|db]')
     .command('init', 'Initialize a blank extension project')
     .command('build', 'Generate a .rung package')
     .command('publish', 'Publishes the extension to the Rung store')

@@ -8,6 +8,7 @@ import {
 } from 'ramda';
 import { compileHTML } from './compiler';
 import { upsert, clear } from './db';
+import { translator } from './i18n';
 
 /**
  * Runs an extension on a virtualized environment and returns its result as
@@ -16,15 +17,17 @@ import { upsert, clear } from './db';
  * @author Marcelo Haskell Camargo
  * @param {String} name - The unique identifier to track the extension
  * @param {String} source - ES6 source to run
+ * @param {Object} strings - Object containing the strings to translate
  * @return {Promise}
  */
-function runInSandbox(name, source) {
+function runInSandbox(name, source, strings = {}) {
     const vm = new NodeVM({
         require: {
             external: true
         },
         sandbox: {
-            render: compileHTML
+            render: compileHTML,
+            _: translator(strings)
         }
     });
 
@@ -40,11 +43,12 @@ function runInSandbox(name, source) {
  * Tries to get the parameter types by running the script to get config.params
  *
  * @author Marcelo Haskell Camargo
- * @param {Object} extension
+ * @param {Object} extension - Must contain name and source
+ * @param {Object} strings - Object with strings to translate
  * @return {Promise}
  */
-export function getProperties(extension) {
-    return runInSandbox(extension.name, extension.source)
+export function getProperties(extension, strings) {
+    return runInSandbox(extension.name, extension.source, strings)
         .then(propOr({}, 'config'));
 }
 
@@ -61,12 +65,13 @@ const updateDb = curry((name, result) => has('db', result) ? upsert(name, result
  * The result may be a string, a nullable value, an array...
  *
  * @author Marcelo Haskell Camargo
- * @param {Object} extension
- * @param {Object} context
+ * @param {Object} extension - Object containing name and source
+ * @param {Object} context - Context to pass to the main function
+ * @param {Object} strings - Object with strings to translate
  * @return {Promise}
  */
-export function runAndGetAlerts(extension, context) {
-    return runInSandbox(extension.name, extension.source)
+export function runAndGetAlerts(extension, context, strings) {
+    return runInSandbox(extension.name, extension.source, strings)
         .then(app => {
             const runExtension = () => new Promise((resolve, reject) => {
                 if (type(app.extension) !== 'Function') {
