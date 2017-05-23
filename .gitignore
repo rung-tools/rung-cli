@@ -46,3 +46,4 @@ rung-cli-*.tgz
 
 # Extra test files
 boilerplate-project
+coverage.lcov
