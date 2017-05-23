@@ -6,7 +6,7 @@ describe('i18n.js', () => {
         it('should get locale from machine', () => {
             return getLocale()
                 .then(locale => {
-                    expect(locale).to.match(/[a-z]{2}_[A-Z]{2}/);
+                    expect(locale).to.match(/^[a-z]{2}_([A-Z]{2,3})?$/);
                 });
         });
     });
