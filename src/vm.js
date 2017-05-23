@@ -29,7 +29,11 @@ function runInSandbox(name, source) {
         }
     });
 
-    return resolve(vm.run(source, `${name}.js`));
+    try {
+        return resolve(vm.run(source, `${name}.js`));
+    } catch (err) {
+        return reject(err);
+    }
 }
 
 /**
@@ -64,7 +68,7 @@ const updateDb = curry((name, result) => has('db', result) ? upsert(name, result
 export function runAndGetAlerts(extension, context) {
     return runInSandbox(extension.name, extension.source)
         .then(app => {
-            const runExtension = () => new Promise(resolve => {
+            const runExtension = () => new Promise((resolve, reject) => {
                 const v8function = pathOr(app.extension, ['default', 'extension'], app);
 
                 if (type(v8function) !== 'Function') {
