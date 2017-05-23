@@ -1,6 +1,9 @@
-import { resolve } from 'bluebird';
+import path from 'path';
+import { all, promisifyAll, resolve } from 'bluebird';
 import osLocale from 'os-locale';
 import { curry, propOr } from 'ramda';
+
+const fs = promisifyAll(require('fs'));
 
 /**
  * Returns the user locale. Firstly consider the env variable and, if it
@@ -11,9 +14,9 @@ import { curry, propOr } from 'ramda';
 export function getLocale() {
     const { RUNG_LOCALE } = process.env;
 
-    return RUNG_LOCALE
-        ? resolve(RUNG_LOCALE)
-        : osLocale();
+    return resolve(RUNG_LOCALE
+        ? RUNG_LOCALE
+        : osLocale());
 }
 
 /**
@@ -24,3 +27,20 @@ export function getLocale() {
  * @return {String}
  */
 export const translator = curry((map, key) => propOr(key, key, map));
+
+/**
+ * Reads the JSON file corresponding to a specific locale
+ *
+ * @return {Promise}
+ */
+export function getLocaleStrings() {
+    return getLocale()
+        .then(locale => {
+            const localePath = path.join('locales', `${locale}.json`);
+            return all([fs.lstatAsync(localePath), localePath]);
+        })
+        .spread((lstat, localePath) => lstat.isFile()
+            ? fs.readFileAsync(localePath).then(JSON.parse)
+            : {})
+        .catchReturn({});
+}
