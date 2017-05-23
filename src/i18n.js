@@ -13,7 +13,6 @@ const fs = promisifyAll(require('fs'));
  */
 export function getLocale() {
     const { RUNG_LOCALE } = process.env;
-
     return resolve(RUNG_LOCALE ? RUNG_LOCALE : osLocale());
 }
 
