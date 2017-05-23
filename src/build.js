@@ -36,7 +36,7 @@ const filterProjectFiles = filter(contains(__, projectFiles));
 function appendLocales(files) {
     return fs.lstatAsync('locales')
         .then(lstat => lstat.isDirectory() ? fs.readdirAsync('locales') : [])
-        .then(filter(test(/^[a-z]{2}_[A-Z]{2}\.json$/)))
+        .then(filter(test(/^[a-z]{2}_[A-Z]{2,3}\.json$/)))
         .filter(filename => fs.readFileAsync(path.join('locales', filename))
             .then(pipe(JSON.parse, item => type(item) === 'Object'))
             .catchReturn(false))
