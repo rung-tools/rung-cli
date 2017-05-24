@@ -1,13 +1,11 @@
 import { NodeVM } from 'vm2';
 import Promise, { reject, resolve } from 'bluebird';
 import {
-    curry,
-    has,
     propOr,
     type
 } from 'ramda';
 import { compileHTML } from './compiler';
-import { upsert, clear } from './db';
+import { upsert } from './db';
 import { translator } from './i18n';
 
 /**
@@ -53,14 +51,6 @@ export function getProperties(extension, strings) {
 }
 
 /**
- * Records database if set to; otherwise, drop it
- *
- * @param {Object} result
- * @return {Promise}
- */
-const updateDb = curry((name, result) => has('db', result) ? upsert(name, result.db) : clear(name));
-
-/**
  * Runs an extension with a context (with parameters) and gets the alerts.
  * The result may be a string, a nullable value, an array...
  *
@@ -86,5 +76,5 @@ export function runAndGetAlerts(extension, context, strings) {
 
             return runExtension();
         })
-        .tap(updateDb(extension.name));
+        .tap(result => upsert(extension.name, result.db));
 }

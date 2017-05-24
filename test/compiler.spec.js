@@ -109,5 +109,5 @@ describe('compiler.js', () => {
                     expect(result).to.equals('<div><div id="foo"></div><br /></div>');
                 });
         });
-    })
+    });
 });
