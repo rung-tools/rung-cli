@@ -94,7 +94,7 @@ describe('db.js', () => {
                 });
         });
 
-        it('should drop the file when passed there isn\'t db', () => {
+        it('should preserve the file when passed there isn\'t db', () => {
             const source = compileES6(`
                 export default {
                     extension(context) {
@@ -107,11 +107,12 @@ describe('db.js', () => {
 
             return runAndGetAlerts({ name: extensionName, source }, {})
                 .then(() => {
-                    expect(dbPath).to.not.be.a.path();
+                    expect(dbPath).to.be.a.file()
+                        .with.contents(JSON.stringify({ counter: 2 }));
                 });
         });
 
-        it('should drop the file when passed undefined', () => {
+        it('should preserve the file when passed undefined', () => {
             const source = compileES6(`
                 export default {
                     extension(context) {
@@ -124,7 +125,8 @@ describe('db.js', () => {
 
             return runAndGetAlerts({ name: extensionName, source }, {})
                 .then(() => {
-                    expect(dbPath).to.not.be.a.path();
+                    expect(dbPath).to.be.a.file()
+                        .with.contents(JSON.stringify({ counter: 2 }));
                 });
         });
     });

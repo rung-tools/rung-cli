@@ -62,7 +62,7 @@ export function clear(name) {
 export function upsert(name, store) {
     // When store is undefined, drop the file
     return store === undefined
-        ? clear(name)
+        ? resolve()
         : resolveRungFolder()
             .then(() => serialize(store))
             .then(value => createFile(location(name), value));
