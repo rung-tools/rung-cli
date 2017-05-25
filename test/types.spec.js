@@ -171,10 +171,5 @@ describe('types.js', () => {
             const native = cast('foo', Integer);
             expect(native).to.be.null;
         });
-
-        it('should return fallback value when failed to cast type', () => {
-            const native = cast('foo', Integer, 0);
-            expect(native).to.equals(0);
-        });
     })
 });

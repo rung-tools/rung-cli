@@ -1,11 +1,19 @@
 import readline from 'readline';
-import Promise, { promisify } from 'bluebird';
+import Promise, { resolve, promisify } from 'bluebird';
 import {
+    both,
     concat,
     curry,
-    keys
+    has,
+    is,
+    isNil,
+    keys,
+    mapObjIndexed,
+    pipe,
+    propEq,
+    toPairs
 } from 'ramda';
-import c from 'colors';
+import { blue, red, yellow } from 'colors/safe';
 import read from 'read';
 import { getTypeName, cast } from './types';
 
@@ -39,6 +47,48 @@ export function IO() {
 }
 
 /**
+ * Triggers the warnings related to bad coding practices
+ *
+ * @param {IO} io
+ * @param {Object} questions
+ */
+function triggerWarnings(io, questions) {
+    const printWarning = message => io.print(yellow(` ⚠ Warning: ${message}`));
+    const getFieldWarnings = pipe(
+        mapObjIndexed(both(has('default'), propEq('required', true))),
+        toPairs);
+
+    const triggerLanguageWarnings = () => has('language', questions)
+        ? printWarning('don\'t use context.params.language. Prefer context.locale')
+        : resolve();
+
+    return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
+        promise.then(() => hasWarning
+            ? printWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
+            : resolve()), resolve())
+            .then(triggerLanguageWarnings);
+}
+
+/**
+ * Returns the resolved value, based on required properties and default values
+ *
+ * @param {String} text
+ * @param {Object} type
+ * @param {Mixed} def
+ * @param {Boolean} required
+ */
+export function resolveValue(text, type, def, required) {
+    if (required && text.trim() === '') {
+        return null;
+    }
+
+    const nativeValue = cast(text, type);
+    const isEmptyString = value => is(String, value) && value.trim() === '';
+
+    return nativeValue === null || isEmptyString(nativeValue) ? def : nativeValue;
+}
+
+/**
  * Returns the pure JS values from received questions that will be answered
  *
  * @author Marcelo Haskell Camargo
@@ -50,12 +100,12 @@ export function ask(questions) {
     const recur = curry((remaining, answered, callback) => {
         if (remaining.length > 0) {
             const [head, ...tail] = remaining;
-            const { description, type, default: def } = questions[head];
+            const { description, type, default: def, required } = questions[head];
 
-            io.read(`(${c.red(getTypeName(type))}) ${c.blue(description)}`).done(answer => {
-                const value = cast(answer, type, def);
+            io.read(`${red.bold(getTypeName(type))}> ${blue(description)}`).done(answer => {
+                const value = resolveValue(answer, type, def, required);
 
-                const args = value === null
+                const args = isNil(value)
                     ? [remaining, answered, callback]
                     : [tail, concat(answered, [{ [head]: value }]), callback];
 
@@ -67,5 +117,6 @@ export function ask(questions) {
         }
     });
 
-    return new Promise(recur(keys(questions), []));
+    return triggerWarnings(io, questions)
+        .then(() => new Promise(recur(keys(questions), [])));
 }
