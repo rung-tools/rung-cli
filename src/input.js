@@ -78,7 +78,7 @@ function triggerWarnings(io, questions) {
  * @param {Mixed} def
  * @param {Boolean} required
  */
-function resolveValue(text, type, def, required) {
+export function resolveValue(text, type, def, required) {
     if (required && text.trim() === '') {
         return null;
     }
