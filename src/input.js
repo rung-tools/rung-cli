@@ -4,14 +4,13 @@ import {
     both,
     concat,
     curry,
-    equals,
     has,
     is,
     isNil,
     keys,
     mapObjIndexed,
     pipe,
-    propSatisfies,
+    propEq,
     toPairs
 } from 'ramda';
 import { blue, red, yellow } from 'colors/safe';
@@ -56,7 +55,7 @@ export function IO() {
 function triggerWarnings(io, questions) {
     const printWarning = message => io.print(yellow(` ⚠ Warning: ${message}`));
     const getFieldWarnings = pipe(
-        mapObjIndexed(both(has('default'), propSatisfies(equals(true), 'required'))),
+        mapObjIndexed(both(has('default'), propEq('required', true))),
         toPairs);
 
     const triggerLanguageWarnings = () => has('language', questions)
