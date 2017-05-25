@@ -1,13 +1,20 @@
 import readline from 'readline';
-import Promise, { promisify } from 'bluebird';
+import Promise, { resolve, promisify } from 'bluebird';
 import {
+    both,
     concat,
     curry,
-    keys,
+    equals,
+    has,
     is,
-    isNil
+    isNil,
+    keys,
+    mapObjIndexed,
+    pipe,
+    propSatisfies,
+    toPairs
 } from 'ramda';
-import { red, blue } from 'colors/safe';
+import { blue, red, yellow } from 'colors/safe';
 import read from 'read';
 import { getTypeName, cast } from './types';
 
@@ -38,6 +45,29 @@ export function IO() {
             read({ prompt: `${text}: `, silent: true, replace: '*' }, callback);
         })
     };
+}
+
+/**
+ * Triggers the warnings related to bad coding practices
+ *
+ * @param {IO} io
+ * @param {Object} questions
+ */
+function triggerWarnings(io, questions) {
+    const printWarning = message => io.print(yellow(` ⚠ Warning: ${message}`));
+    const getFieldWarnings = pipe(
+        mapObjIndexed(both(has('default'), propSatisfies(equals(true), 'required'))),
+        toPairs);
+
+    const triggerLanguageWarnings = () => has('language', questions)
+        ? printWarning('don\'t use context.params.language. Prefer context.locale')
+        : resolve();
+
+    return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
+        promise.then(() => hasWarning
+            ? printWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
+            : resolve()), resolve())
+            .then(triggerLanguageWarnings);
 }
 
 /**
@@ -88,5 +118,6 @@ export function ask(questions) {
         }
     });
 
-    return new Promise(recur(keys(questions), []));
+    return triggerWarnings(io, questions)
+        .then(() => new Promise(recur(keys(questions), [])));
 }
