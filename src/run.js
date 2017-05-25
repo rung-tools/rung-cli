@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { all, promisify } from 'bluebird';
 import { mergeAll, prop } from 'ramda';
+import { Spinner } from 'cli-spinner';
+import { green } from 'colors/safe';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
 import { compileES6 } from './compiler';
@@ -15,6 +17,9 @@ export function compileSourceFile({ main }) {
 }
 
 export default function run() {
+    const spinner = new Spinner(green('%s running extension...'));
+    spinner.setSpinnerString(8);
+
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
         .then(json => all([json.name, compileSourceFile(json), read(json.name),
@@ -23,7 +28,9 @@ export default function run() {
             .then(prop('params'))
             .then(ask)
             .then(mergeAll)
+            .tap(() => spinner.start())
             .then(params => runAndGetAlerts({ name, source }, { params, db, locale }, strings)))
+        .tap(() => spinner.stop(true))
         .tap(console.log.bind(console));
 }
 
