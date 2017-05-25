@@ -33,4 +33,3 @@ export default function run() {
         .tap(() => spinner.stop(true))
         .tap(console.log.bind(console));
 }
-
