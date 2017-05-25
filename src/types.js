@@ -93,5 +93,5 @@ export const valueOrNothing = {
  * @param {Object} type - Type of the value to be casted
  * @param {Mixed} def - The value that may be taken in case of error. Null on error
  */
-export const cast = (input, type, def = null) =>
-    valueOrNothing[type.name](input, type).getOrElse(def);
+export const cast = (input, type) =>
+    valueOrNothing[type.name](input, type).getOrElse(null);
