@@ -1,7 +1,7 @@
 import path from 'path';
 import { all, promisifyAll, resolve } from 'bluebird';
 import osLocale from 'os-locale';
-import { curry, propOr } from 'ramda';
+import { curry, propOr, replace } from 'ramda';
 
 const fs = promisifyAll(require('fs'));
 
@@ -23,7 +23,15 @@ export function getLocale() {
  * @param {String} key - Key to search in hashmap
  * @return {String}
  */
-export const translator = curry((map, key) => propOr(key, key, map));
+export const translator = curry((map, key, params = {}) => {
+    const sentence = propOr(key, key, map);
+
+    return replace(
+        /{{(\w+)}}/g,
+        (full, partial) => params[partial] || full,
+        sentence
+    );
+});
 
 /**
  * Reads the JSON file corresponding to a specific locale
