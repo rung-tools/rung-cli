@@ -1,10 +1,12 @@
 import {
     T,
+    any,
     cond,
     contains,
     prop,
     propEq,
     replace,
+    split,
     take
 } from 'ramda';
 import { Just, Nothing } from 'data.maybe';
@@ -24,6 +26,7 @@ export const Email = { name: 'Email' };
 export const Checkbox = { name: 'Checkbox' };
 export const OneOf = values => ({ name: 'OneOf', values });
 export const Url = { name: 'Url' };
+export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
 
 /**
  * Returns the human-readable name of a type
@@ -81,7 +84,15 @@ export const valueOrNothing = {
         return contains(lowerCaseInput, ['y', 'n']) ? Just(lowerCaseInput === 'y') : Nothing();
     },
     OneOf: (input, { values }) => contains(input, values) ? Just(input) : Nothing(),
-    Url: input => isURL(input) ? Just(input) : Nothing()
+    Url: input => isURL(input) ? Just(input) : Nothing(),
+    IntegerMultiRange: (input, { from, to }) => {
+        const [left, right] = split(' ', input).map(item => parseInt(item, 10));
+        if (any(isNaN, [left, right]) || left < from || right > to || left > right) {
+            return Nothing();
+        }
+
+        return Just([left, right]);
+    }
 };
 
 /**

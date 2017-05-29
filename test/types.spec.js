@@ -159,6 +159,14 @@ describe('types.js', () => {
             expect(valid.get()).to.equals('https://app.rung.com.br');
             expect(invalid.get).to.throw(TypeError);
         });
+
+        it('should validate an integer multi range', () => {
+            const props = { from: 0, to: 100 };
+            const valid = valueOrNothing.IntegerMultiRange('40 70', props);
+            const invalid = valueOrNothing.IntegerMultiRange('-10 20', props);
+            expect(valid.get()).to.deep.equals([40, 70]);
+            expect(invalid.get).to.throw(TypeError);
+        });
     });
 
     describe('Type casting', () => {
