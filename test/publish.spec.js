@@ -19,12 +19,7 @@ describe('publish.js', () => {
                 })
                 .then(output => {
                     console.log(output);
-                    expect(output).to.match(/something went wrong/);
                     return stream.once('data');
-                })
-                .then(output => {
-                    console.log(output);
-                    expect(output).to.match(/getaddrinfo ENOTFOUND/);
                 })
                 .finally(stream.close);
         });
