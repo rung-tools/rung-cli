@@ -5,8 +5,8 @@ const promisifyStream = fn => promisify((param, callback) => {
     fn(param, result => { callback(null, result); });
 });
 
-export function createStream(args) {
-    const task = thread.spawn('node', ['dist/cli.js', ...args], { stdio: 'pipe' });
+export function createCustomStream(env, args) {
+    const task = thread.spawn('node', ['dist/cli.js', ...args], { stdio: 'pipe', env });
     task.stdout.setEncoding('utf-8');
 
     return {
@@ -16,4 +16,8 @@ export function createStream(args) {
         after: promisifyStream(task.stdin.on.bind(task.stdin, 'close')),
         close: () => task.kill('SIGTERM')
     };
+}
+
+export function createStream(args) {
+    return createCustomStream({}, args);
 }
