@@ -3,7 +3,6 @@ import path from 'path';
 import { promisify, reject } from 'bluebird';
 import {
     append,
-    assoc,
     dropWhile,
     equals,
     join,
@@ -67,14 +66,9 @@ function createBoilerplateFolder(answers) {
  * @return {Object}
  */
 function getPackageMetaFile(answers) {
-    const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
-    const rungFields = ['title'];
-
-    const packageObject = merge(
-        assoc('rung', merge(pick(rungFields, answers), {
-            preview: 'Hello, Trixie!' }), pick(packageFields, answers)), {
-                dependencies: { 'rung-sdk': '^1.0.6' },
-                devDependencies: { 'rung-cli': rungCliVersion } });
+    const packageFields = ['name', 'version', 'license', 'main', 'category'];
+    const packageObject = merge(pick(packageFields, answers), {
+        dependencies: { 'rung-cli': rungCliVersion } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
@@ -111,28 +105,30 @@ function getReadMeMetaFile(answers) {
 function getIndexFile(answers) {
     const content = format(`
         import { create } from 'rung-sdk';
-        import { String as Text } from 'rung-sdk/dist/types';
+        import { String as Text } from 'rung-cli/dist/types';
 
         function main(context) {
             const { name } = context.params;
             return {
-                alerts: [\`Hello, \${name}!\`]
+                alerts: [_('Hello {{name}}', { name })]
             };
         }
 
         const params = {
             name: {
-                description: 'What is your name?',
+                description: _('What is your name?'),
                 type: Text
             }
         };
 
-        export default create(main, { params });
+        export default create(main, {
+            params,
+            title: _(${JSON.stringify(answers.title)}),
+            description: _(${JSON.stringify(answers.description)})
+        });
     `);
 
-    return {
-        filename: path.join(answers.name, 'index.js'),
-        content };
+    return { filename: path.join(answers.name, 'index.js'), content };
 }
 
 /**
