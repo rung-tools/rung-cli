@@ -15,6 +15,6 @@ describe('build.js', () => {
                     expect(output).to.match(/Error: Missing index/);
                 })
                 .finally(stream.close);
-        });
+        }).timeout(10000);
     });
 });
