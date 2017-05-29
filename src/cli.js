@@ -4,7 +4,6 @@ import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
 import build from './build';
 import run from './run';
-import init from './init';
 import publish from './publish';
 import boilerplate from './boilerplate';
 import readme from './readme';
@@ -13,7 +12,6 @@ import db from './db';
 const commandEquals = value => pipe(prop('_'), head, equals(value));
 
 const executeCommand = cond([
-    [commandEquals('init'), init],
     [commandEquals('build'), build],
     [commandEquals('run'), run],
     [commandEquals('publish'), publish],
@@ -32,8 +30,7 @@ function cli(args) {
 }
 
 cli(yargs
-    .usage('Usage: $0 [init|build|run|publish|readme|db]')
-    .command('init', 'Initialize a blank extension project')
+    .usage('Usage: $0 [build|run|publish|readme|db]')
     .command('build', 'Generate a .rung package')
     .command('publish', 'Publishes the extension to the Rung store')
     .command('run', 'Execute the current extension')

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { promisify, reject } from 'bluebird';
+import { promisify, reject, resolve } from 'bluebird';
 import {
     append,
     assoc,
@@ -8,14 +8,18 @@ import {
     equals,
     join,
     juxt,
+    keys,
+    last,
+    mapObjIndexed,
     merge,
     pick,
     pipe,
-    replace
+    replace,
+    split
 } from 'ramda';
+import { gray } from 'colors';
 import { version as rungCliVersion } from '../package';
 import { IO } from './input';
-import { askQuestions } from './init';
 
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
@@ -32,6 +36,38 @@ const format = pipe(
     append('\n'),
     join('')
 );
+
+/**
+ * Generate the answers from the stdin.
+ *
+ * @param {IO} io
+ * @return {Promise}
+ */
+export function askQuestions(io) {
+    // key: [Question description, Default value]
+    const questions = {
+        name: ['Project name', last(split('/', process.cwd()))],
+        version: ['Version', '1.0.0'],
+        title: ['Title', ''],
+        description: ['Description', ''],
+        category: ['Category', 'miscellaneous'],
+        main: ['Entry point', 'index.js'],
+        license: ['License', 'MIT']
+    };
+
+    // We chain the blocking promises and they return the fulfilled answers
+    return keys(questions).reduce((promise, key) =>
+        promise.then(prevAnswers => {
+            const [description, defaultValue] = questions[key];
+            return io.read(gray(`${description} (${defaultValue})`))
+                .then(value => merge(
+                    prevAnswers,
+                    value.trim() === ''
+                        ? {}
+                        : { [key]: value }));
+        }),
+        resolve(mapObjIndexed(last, questions)));
+}
 
 /**
  * Creates a file with the passed content. Receives the format
