@@ -67,8 +67,8 @@ function createBoilerplateFolder(answers) {
  */
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'license', 'main', 'category'];
-    const packageObject = merge(pick(packageFields, answers), {
-        dependencies: { 'rung-cli': rungCliVersion } });
+    const packageObject = merge(pick(packageFields, answers),
+        { dependencies: { 'rung-cli': rungCliVersion } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
