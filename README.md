@@ -24,14 +24,13 @@ This will make the command `rung` available globally.
 
 ## Usage
 
-`rung [init|build|run|publish|boilerplate|readme|db]`
+`rung [build|run|publish|boilerplate|readme|db]`
 
 ### Commands
 
 
 | Command       | Description |
 |---------------|-------------|
-| `init`        | Initialize a blank extension project |
 | `build`       | Generate a .rung package |
 | `run`         | Execute the current extension |
 | `publish`     | Publishes extension to store |

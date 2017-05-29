@@ -51,8 +51,7 @@ describe('boilerplate.js', () => {
                         .with.json.using.schema({
                             title: 'package.json schema',
                             type: 'object',
-                            required: ['name', 'version', 'description', 'category',
-                                'rung', 'main', 'license'],
+                            required: ['name', 'version', 'category', 'main', 'license'],
                             properties: {
                                 name: { type: 'string' },
                                 version: { type: 'string' }
