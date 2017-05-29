@@ -115,7 +115,7 @@ export function ask(questions) {
             });
         } else {
             io.close();
-            callback(answered);
+            return callback(answered);
         }
     });
 

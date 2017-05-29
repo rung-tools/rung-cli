@@ -63,19 +63,19 @@ function parametersToArray(parameters) {
 export default function readme() {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(({ name, version, description, author, rung, dependencies, main }) => all([{
+        .then(({ name, version, author, dependencies, main }) => all([{
             rungCliVersion,
             name,
             version,
-            description,
             author,
-            title: rung.title,
             escapedName: replace(/-/g, '--', name),
             dependencies: dependenciesToArray(dependencies) },
             readFile(main || 'index.js', 'utf-8')
                 .then(source => getProperties({ name: 'pre-compile', source: compileES6(source) }))]))
         .spread((partialContext, source) => merge(partialContext, {
-            parameters: parametersToArray(source.params)
+            parameters: parametersToArray(source.params),
+            description: source.description,
+            title: source.title
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))
