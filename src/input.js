@@ -17,6 +17,8 @@ import { blue, red, yellow } from 'colors/safe';
 import read from 'read';
 import { getTypeName, cast } from './types';
 
+export const emitWarning = curry((io, message) => io.print(yellow(` ⚠ Warning: ${message}`)));
+
 /**
  * Returns an IO object that promisifies everything that is necessary and exposes
  * a clear API
@@ -53,18 +55,18 @@ export function IO() {
  * @param {Object} questions
  */
 function triggerWarnings(io, questions) {
-    const printWarning = message => io.print(yellow(` ⚠ Warning: ${message}`));
+    const warn = emitWarning(io);
     const getFieldWarnings = pipe(
         mapObjIndexed(both(has('default'), propEq('required', true))),
         toPairs);
 
     const triggerLanguageWarnings = () => has('language', questions)
-        ? printWarning('don\'t use context.params.language. Prefer context.locale')
+        ? warn('don\'t use context.params.language. Prefer context.locale')
         : resolve();
 
     return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
         promise.then(() => hasWarning
-            ? printWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
+            ? warn(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
             : resolve()), resolve())
             .then(triggerLanguageWarnings);
 }
