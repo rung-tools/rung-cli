@@ -22,6 +22,6 @@ describe('publish.js', () => {
                     return stream.once('data');
                 })
                 .finally(stream.close);
-        });
+        }).timeout(10000);
     });
 });

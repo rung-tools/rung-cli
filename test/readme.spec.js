@@ -15,6 +15,6 @@ describe('readme.js', () => {
                     expect(output).to.match(/Error: Cannot read property 'title'/);
                 })
                 .finally(stream.close);
-        });
+        }).timeout(10000);
     });
 });
