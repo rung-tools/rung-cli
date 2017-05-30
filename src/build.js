@@ -12,7 +12,12 @@ import {
     filter,
     identity,
     join,
+    lensProp,
     map,
+    mapObjIndexed,
+    mergeAll,
+    over,
+    pick,
     pipe,
     prop,
     sort,
@@ -52,6 +57,17 @@ function localesToPairs(localeFiles) {
 }
 
 /**
+ * Transform the config fields, extracting what should be uploaded and getting
+ * only the description from parameters
+ *
+ * @param {Object} *
+ * @return {Object}
+ */
+const transformConfigFields = pipe(
+    pick(['title', 'description', 'preview', 'params']),
+    over(lensProp('params'), mapObjIndexed(pick(['description', 'default']))));
+
+/**
  * Lazily runs the extension using all possible listed locales and extracts
  * the meta-data
  *
@@ -61,7 +77,19 @@ function localesToPairs(localeFiles) {
  */
 function runInAllLocales(locales, source) {
     return all(locales.map(([locale, strings]) =>
-        getProperties({ name: `precompile-${locale}`, source }, strings)));
+        getProperties({ name: `precompile-${locale}`, source }, strings)
+            .then(config => ({ [locale]: transformConfigFields(config) }))))
+            .then(mergeAll);
+}
+
+/**
+ * Creates a meta file where the information about precompilation is stored
+ *
+ * @param {Object} locales
+ * @return {Promise}
+ */
+function createMetaFile(locales) {
+    return fs.writeFileAsync('.meta', JSON.stringify(locales));
 }
 
 /**
@@ -76,7 +104,8 @@ function precompileLocales(files) {
         .then(localesToPairs)
         .then(locales => all([locales, compileIndex()]))
         .spread(runInAllLocales)
-        .then(() => files);
+        .then(createMetaFile)
+        .thenReturn(['.meta', ...files]);
 }
 
 /**
