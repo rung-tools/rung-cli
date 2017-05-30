@@ -6,11 +6,13 @@ import {
     contains,
     curry,
     filter,
+    identity,
     map,
     pipe,
     sort,
     subtract,
     test,
+    tryCatch,
     type,
     without
 } from 'ramda';
@@ -20,7 +22,6 @@ import { emitWarning } from './input';
 const fs = promisifyAll(require('fs'));
 
 const defaultFileOptions = { date: new Date(1149562800000) };
-
 const requiredFiles = ['package.json', 'index.js'];
 const projectFiles = ['icon.png', ...requiredFiles];
 
@@ -46,6 +47,13 @@ function analyzeFiles(files) {
 
 const filterProjectFiles = filter(contains(__, projectFiles));
 
+/**
+ * Filters true locale files and appends the full qualified name for the
+ * previous files
+ *
+ * @param {String[]} files
+ * @return {Promise}
+ */
 function appendLocales(files) {
     return fs.lstatAsync('locales')
         .then(lstat => lstat.isDirectory() ? fs.readdirAsync('locales') : [])
@@ -57,35 +65,60 @@ function appendLocales(files) {
         .catchReturn(files);
 }
 
-function validatePackage(rungPackage) {
-    // TODO: implement package validation
-    return rungPackage;
-}
-
+/**
+ * Opens package.json and extrats its contents. Returns a promise containing
+ * the file list to be zipped and the package.json content parsed
+ *
+ * @param {String} dir
+ * @param {String[]} files
+ * @return {Promise}
+ */
 const extractProjectInfo = curry((dir, files) => {
     return fs.readFileAsync(path.join(dir, 'package.json'))
         .then(JSON.parse)
         .catchThrow(new Error('Failed to parse package.json from the project.'))
-        .then(pipe(
-            validatePackage,
-            projectInfo => [files, projectInfo]));
+        .then(projectInfo => [files, projectInfo]);
 });
 
 /**
- * customPath can be an target fileName or an exisiting directory
+ * Generates a zip package using a node buffer containing the necessary files
+ *
+ * @param {String} dir
+ * @param {String[]} files
+ * @param {Object} projectInfo
  */
-function resolveOutputTarget(customPath, fileName) {
-    const realPath = path.resolve('.', customPath);
-    try {
-        const lstat = fs.lstatSync(realPath);
-        if (lstat.isDirectory()) {
-            return path.join(realPath, fileName);
-        }
-    } catch (err) { /* Everything is fine... */ }
+const createZip = curry((dir, files, projectInfo) => {
+    const zip = new Zip();
+    files.forEach(filename => addToZip(zip, dir, filename));
+    return [zip, projectInfo];
+});
 
-    return realPath;
+/**
+ * Taking account the -o parameter can be used to specify the output directory,
+ * let's deal with it
+ *
+ * @param {String} customPath
+ * @param {String} filename
+ * @return {String}
+ */
+function resolveOutputTarget(customPath, filename) {
+    const realPath = path.resolve('.', customPath);
+
+    const getPath = tryCatch(realPath => fs.lstatSync(realPath).isDirectory()
+        ? path.join(realPath, filename)
+        : realPath
+    , identity);
+
+    return getPath(realPath);
 }
 
+/**
+ * Saves the zip file from buffer to the filesystem
+ *
+ * @param {Zip} zip
+ * @param {Object} projectInfo
+ * @param {String} customPath
+ */
 const saveZip = curry((zip, projectInfo, customPath = '.') => {
     const target = resolveOutputTarget(customPath, `${projectInfo.name}.rung`);
 
@@ -97,30 +130,23 @@ const saveZip = curry((zip, projectInfo, customPath = '.') => {
     });
 });
 
-const createZip = curry((dir, files, projectInfo) => {
-    const zip = new Zip();
-
-    files.forEach(fileName => {
-        addToZip(zip, dir, fileName);
-    });
-
-    return [zip, projectInfo];
-});
-
-function addToZip(zip, dir, fileName) {
-    const filePath = path.join(dir, fileName);
+/**
+ * Appends a file or folder to the zip buffer
+ *
+ * @param {Zip} zip
+ * @param {String} dir
+ * @param {String} filename
+ */
+function addToZip(zip, dir, filename) {
+    const filePath = path.join(dir, filename);
     const lstat = fs.lstatSync(filePath);
 
     if (lstat.isFile()) {
-        return zip.file(
-            fileName,
-            fs.readFileSync(filePath),
-            defaultFileOptions);
+        return zip.file(filename, fs.readFileSync(filePath), defaultFileOptions);
     }
 
     if (lstat.isDirectory()) {
-        return map(
-            file => addToZip(zip.folder(fileName), filePath, file),
+        return map(file => addToZip(zip.folder(filename), filePath, file),
             fs.readdirSync(filePath));
     }
 
