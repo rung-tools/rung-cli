@@ -1,5 +1,6 @@
 import path from 'path';
 import Zip from 'jszip';
+import Promise, { all, promisifyAll } from 'bluebird';
 import {
     __,
     concat,
@@ -9,6 +10,7 @@ import {
     identity,
     map,
     pipe,
+    prop,
     sort,
     subtract,
     test,
@@ -16,7 +18,6 @@ import {
     type,
     without
 } from 'ramda';
-import Promise, { promisifyAll } from 'bluebird';
 import { emitWarning } from './input';
 
 const fs = promisifyAll(require('fs'));
@@ -70,27 +71,25 @@ function appendLocales(files) {
  * the file list to be zipped and the package.json content parsed
  *
  * @param {String} dir
- * @param {String[]} files
  * @return {Promise}
  */
-const extractProjectInfo = curry((dir, files) => {
+function getProjectName(dir) {
     return fs.readFileAsync(path.join(dir, 'package.json'))
-        .then(JSON.parse)
-        .catchThrow(new Error('Failed to parse package.json from the project.'))
-        .then(projectInfo => [files, projectInfo]);
-});
+        .then(pipe(JSON.parse, prop('name')))
+        .catchThrow(new Error('Failed to parse package.json from the project'));
+}
 
 /**
  * Generates a zip package using a node buffer containing the necessary files
  *
  * @param {String} dir
  * @param {String[]} files
- * @param {Object} projectInfo
+ * @param {String} name
  */
-const createZip = curry((dir, files, projectInfo) => {
+const createZip = curry((dir, files) => {
     const zip = new Zip();
     files.forEach(filename => addToZip(zip, dir, filename));
-    return [zip, projectInfo];
+    return zip;
 });
 
 /**
@@ -115,12 +114,12 @@ function resolveOutputTarget(customPath, filename) {
 /**
  * Saves the zip file from buffer to the filesystem
  *
+ * @param {String} dir
  * @param {Zip} zip
- * @param {Object} projectInfo
- * @param {String} customPath
+ * @param {String} name
  */
-const saveZip = curry((zip, projectInfo, customPath = '.') => {
-    const target = resolveOutputTarget(customPath, `${projectInfo.name}.rung`);
+const saveZip = curry((dir, zip, name) => {
+    const target = resolveOutputTarget(dir || '.', `${name}.rung`);
 
     return new Promise((resolve, reject) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
@@ -166,7 +165,7 @@ export default function build(args) {
         .then(filterProjectFiles)
         .then(appendLocales)
         .then(sort(subtract))
-        .then(extractProjectInfo(dir))
-        .spread(createZip(dir))
-        .spread(saveZip(__, __, args.output));
+        .then(createZip(dir))
+        .then(zip => all([zip, getProjectName(dir)]))
+        .spread(saveZip(args.output));
 }
