@@ -10,6 +10,10 @@ describe('publish.js', () => {
 
             return stream.once('data')
                 .then(output => {
+                    expect(output).to.match(/Warning: invalid API for Rung: "foo"/);
+                    return stream.once('data');
+                })
+                .then(output => {
                     expect(output).to.match(/Rung email/);
                     return next('oh@xanaina.com');
                 })

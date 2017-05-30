@@ -8,11 +8,7 @@ describe('build.js', () => {
 
             return stream.once('data')
                 .then(output => {
-                    expect(output).to.match(/something went wrong/);
-                    return stream.once('data');
-                })
-                .then(output => {
-                    expect(output).to.match(/Error: Missing index/);
+                    expect(output).to.match(/Error: missing index.js from the project/);
                 })
                 .finally(stream.close);
         }).timeout(10000);

@@ -2,6 +2,7 @@
 
 import yargs from 'yargs';
 import { head, pipe, cond, equals, prop } from 'ramda';
+import { emitError } from './input';
 import build from './build';
 import run from './run';
 import publish from './publish';
@@ -23,8 +24,7 @@ const executeCommand = cond([
 function cli(args) {
     executeCommand(args)
         .catch(err => {
-            console.log('Ooooops, something went wrong...');
-            console.log(String(err));
+            emitError(err.message);
             process.exit(1);
         });
 }

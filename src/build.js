@@ -15,19 +15,32 @@ import {
     without
 } from 'ramda';
 import Promise, { promisifyAll } from 'bluebird';
+import { emitWarning } from './input';
 
 const fs = promisifyAll(require('fs'));
 
 const defaultFileOptions = { date: new Date(1149562800000) };
 
 const requiredFiles = ['package.json', 'index.js'];
-const projectFiles = concat(requiredFiles, ['icon.png', 'yarn.lock']);
+const projectFiles = ['icon.png', ...requiredFiles];
 
-function assertRequiredFiles(files) {
+/**
+ * Ensures there are missing no files in order to a allow a basic compilation.
+ * It also warns about possible improvements in the extensions
+ *
+ * @param {String[]} files
+ */
+function analyzeFiles(files) {
     const missingFiles = without(files, requiredFiles);
+
     if (missingFiles.length > 0) {
-        throw new Error(`Missing ${missingFiles} from the project!`);
+        throw new Error(`missing ${missingFiles.join(', ')} from the project`);
     }
+
+    if (!contains('icon.png', files)) {
+        emitWarning('compiling extension without providing an icon.png file');
+    }
+
     return files;
 }
 
@@ -114,11 +127,16 @@ function addToZip(zip, dir, fileName) {
     throw new Error(`Invalid file type for ${filePath}`);
 }
 
+/**
+ * Precompiles an extension and generates a .rung package
+ *
+ * @param {Object} args
+ */
 export default function build(args) {
     const dir = path.resolve('.', args._[1] || '');
 
     return fs.readdirAsync(dir)
-        .then(assertRequiredFiles)
+        .then(analyzeFiles)
         .then(filterProjectFiles)
         .then(appendLocales)
         .then(sort(subtract))
