@@ -1,30 +1,83 @@
 import path from 'path';
 import Zip from 'jszip';
-import Promise, { all, promisifyAll } from 'bluebird';
+import Promise, { all, promisifyAll, resolve } from 'bluebird';
 import {
     __,
+    complement,
     concat,
     contains,
     curry,
+    drop,
+    equals,
     filter,
     identity,
+    join,
     map,
     pipe,
     prop,
     sort,
     subtract,
+    takeWhile,
     test,
     tryCatch,
     type,
     without
 } from 'ramda';
 import { emitWarning } from './input';
+import { compileIndex } from './run';
+import { getProperties } from './vm';
 
 const fs = promisifyAll(require('fs'));
 
 const defaultFileOptions = { date: new Date(1149562800000) };
 const requiredFiles = ['package.json', 'index.js'];
 const projectFiles = ['icon.png', ...requiredFiles];
+
+const localeByFile = pipe(
+    drop(8),
+    takeWhile(complement(equals('.'))),
+    join('')
+);
+
+/**
+ * Converts a list of locale files to pairs containing locale strng and content
+ *
+ * @param {String[]} localeFiles
+ * @return {Promise}
+ */
+function localesToPairs(localeFiles) {
+    return all(localeFiles.map(localeFile => fs.readFileAsync(localeFile, 'utf-8')
+        .then(JSON.parse)
+        .then(json => [localeByFile(localeFile), json])));
+}
+
+/**
+ * Lazily runs the extension using all possible listed locales and extracts
+ * the meta-data
+ *
+ * @param {[(String, *)]} locales
+ * @param {String} source
+ * @return {Promise}
+ */
+function runInAllLocales(locales, source) {
+    return all(locales.map(([locale, strings]) =>
+        getProperties({ name: `precompile-${locale}`, source }, strings)));
+}
+
+/**
+ * Precompiles the locale files, generating a meta file containing the meta
+ *
+ * @param {String[]} files
+ * @return {Promise}
+ */
+function precompileLocales(files) {
+    return resolve(files)
+        .then(filter(test(/^locales\/[a-z]{2}(_[A-Z]{2,3})?\.json$/)))
+        .then(localesToPairs)
+        .then(locales => all([locales, compileIndex()]))
+        .spread(runInAllLocales)
+        .then(() => files);
+}
 
 /**
  * Ensures there are missing no files in order to a allow a basic compilation.
@@ -119,7 +172,7 @@ function resolveOutputTarget(customPath, filename) {
  * @param {String} name
  */
 const saveZip = curry((dir, zip, name) => {
-    const target = resolveOutputTarget(dir || '.', `${name}.rung`);
+    const target = resolveOutputTarget(dir, `${name}.rung`);
 
     return new Promise((resolve, reject) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
@@ -165,7 +218,8 @@ export default function build(args) {
         .then(filterProjectFiles)
         .then(appendLocales)
         .then(sort(subtract))
+        .then(precompileLocales)
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
-        .spread(saveZip(args.output));
+        .spread(saveZip(args.output || '.'));
 }

@@ -17,7 +17,6 @@ const answers = [
     'Boilerplate title',
     'Boilerplate description',
     'miscellaneous',
-    '',
     'MIT'
 ];
 
@@ -25,7 +24,7 @@ describe('boilerplate.js', () => {
     describe('Input and output', () => {
         it('should answer the questions and create a valid extension', () => {
             const stream = createStream(['boilerplate']);
-            const next = (text = '') => () => stream.write(`${text}\r`)
+            const next = text => () => stream.write(`${text}\r`)
                 .then(() => stream.once('data'));
             const stop = (text = '') => () => stream.write(`${text}\r`);
 
@@ -35,7 +34,6 @@ describe('boilerplate.js', () => {
                 .then(next('Boilerplate title'))
                 .then(next('Boilerplate description'))
                 .then(next('miscellaneous'))
-                .then(next())
                 .then(stop('MIT'))
                 .then(() => delay(1000));
 
@@ -51,7 +49,7 @@ describe('boilerplate.js', () => {
                         .with.json.using.schema({
                             title: 'package.json schema',
                             type: 'object',
-                            required: ['name', 'version', 'category', 'main', 'license'],
+                            required: ['name', 'version', 'category', 'license'],
                             properties: {
                                 name: { type: 'string' },
                                 version: { type: 'string' }

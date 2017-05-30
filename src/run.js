@@ -11,10 +11,8 @@ import { getLocale, getLocaleStrings } from './i18n';
 
 export const readFile = promisify(fs.readFile);
 
-export function compileSourceFile({ main }) {
-    const index = main || 'index.js';
-    return readFile(index, 'utf-8').then(compileES6);
-}
+export const compileIndex = () =>
+    readFile('index.js', 'utf-8').then(compileES6);
 
 export default function run() {
     const spinner = new Spinner(green('%s running extension...'));
@@ -22,7 +20,7 @@ export default function run() {
 
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(json => all([json.name, compileSourceFile(json), read(json.name),
+        .then(json => all([json.name, compileIndex(), read(json.name),
             getLocaleStrings(), getLocale()]))
         .spread((name, source, db, strings, locale) => getProperties({ name, source }, strings)
             .then(prop('params'))

@@ -50,7 +50,6 @@ export function askQuestions(io) {
         title: ['Title', ''],
         description: ['Description', ''],
         category: ['Category', 'miscellaneous'],
-        main: ['Entry point', 'index.js'],
         license: ['License', 'MIT']
     };
 
@@ -102,13 +101,14 @@ function createBoilerplateFolder(answers) {
  * @return {Object}
  */
 function getPackageMetaFile(answers) {
-    const packageFields = ['name', 'version', 'description', 'license', 'main', 'category'];
+    const packageFields = ['name', 'version', 'license', 'category'];
     const packageObject = merge(pick(packageFields, answers),
         { dependencies: { 'rung-cli': rungCliVersion } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
-        content: JSON.stringify(packageObject, null, 2) };
+        content: JSON.stringify(packageObject, null, 2)
+    };
 }
 
 /**
