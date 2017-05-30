@@ -143,10 +143,17 @@ function getIndexFile(answers) {
         import { create } from 'rung-sdk';
         import { String as Text } from 'rung-cli/dist/types';
 
+        function render(name) {
+            return <b>{ _('Hello {{name}}', { name }) }</b>;
+        }
+
         function main(context) {
             const { name } = context.params;
             return {
-                alerts: [_('Hello {{name}}', { name })]
+                alerts: [{
+                    title: _('Welcome'),
+                    content: render(name)
+                }]
             };
         }
 
@@ -159,8 +166,10 @@ function getIndexFile(answers) {
 
         export default create(main, {
             params,
+            primaryKey: true,
             title: _(${JSON.stringify(answers.title)}),
-            description: _(${JSON.stringify(answers.description)})
+            description: _(${JSON.stringify(answers.description)}),
+            preview: render('Trixie')
         });
     `);
 
