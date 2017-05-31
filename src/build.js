@@ -64,6 +64,7 @@ function localesToPairs(localeFiles) {
 const project = curry((locale, config) => ({
     title: { [locale]: config.title },
     description: { [locale]: config.description },
+    preview: { [locale]: config.preview },
     params: mapObjIndexed(param => merge(param,
         { description: { [locale]: param.description } }), config.params)
 }));
