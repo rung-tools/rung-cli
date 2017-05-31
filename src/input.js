@@ -17,7 +17,27 @@ import { blue, red, yellow } from 'colors/safe';
 import read from 'read';
 import { getTypeName, cast } from './types';
 
-export const emitWarning = curry((io, message) => io.print(yellow(` ⚠ Warning: ${message}`)));
+/**
+ * Emits a warning to stdout
+ *
+ * @param {String} message
+ * @return {Promise}
+ */
+export function emitWarning(message) {
+    console.log(yellow(` ⚠ Warning: ${message}`));
+    return resolve();
+}
+
+/**
+ * Emits an error to stdout
+ *
+ * @param {String} message
+ * @return {Promise}
+ */
+export function emitError(message) {
+    console.log(red(` ✗ Error: ${message}`));
+    return resolve();
+}
 
 /**
  * Returns an IO object that promisifies everything that is necessary and exposes
@@ -55,18 +75,17 @@ export function IO() {
  * @param {Object} questions
  */
 function triggerWarnings(io, questions) {
-    const warn = emitWarning(io);
     const getFieldWarnings = pipe(
         mapObjIndexed(both(has('default'), propEq('required', true))),
         toPairs);
 
     const triggerLanguageWarnings = () => has('language', questions)
-        ? warn('don\'t use context.params.language. Prefer context.locale')
+        ? emitWarning('don\'t use context.params.language. Prefer context.locale')
         : resolve();
 
     return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
         promise.then(() => hasWarning
-            ? warn(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
+            ? emitWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
             : resolve()), resolve())
             .then(triggerLanguageWarnings);
 }
@@ -115,7 +134,7 @@ export function ask(questions) {
             });
         } else {
             io.close();
-            callback(answered);
+            return callback(answered);
         }
     });
 

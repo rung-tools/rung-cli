@@ -137,10 +137,6 @@ describe('db.js', () => {
 
             return stream.once('data')
                 .then(result => {
-                    expect(result).to.match(/Ooooops, something went wrong.../);
-                    return stream.once('data');
-                })
-                .then(result => {
                     expect(result).to.match(/Unknown option write/);
                 })
                 .finally(stream.close);

@@ -4,6 +4,7 @@ import {
     DoubleRange,
     Integer,
     IntegerRange,
+    IntegerMultiRange,
     OneOf,
     String as Text,
     cast,
@@ -38,6 +39,13 @@ describe('types.js', () => {
             expect(type).property('name').to.equals('OneOf');
             expect(type).property('values').to.contain('A');
             expect(type).property('values').to.contain('B');
+        });
+
+        it('should support IntegerMultiRange(m, n)', () => {
+            const type = IntegerMultiRange(0, 100);
+            expect(type).property('name').to.equals('IntegerMultiRange');
+            expect(type).property('from').to.equals(0);
+            expect(type).property('to').to.equals(100);
         });
     });
 

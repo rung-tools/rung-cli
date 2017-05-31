@@ -15,10 +15,9 @@ const request = superagent.agent();
 /**
  * Returns the Rung API URL. Emits a warning when the URL is possibly invalid
  *
- * @param {IO} io
  * @return {String}
  */
-function fetchRungApi(io) {
+function fetchRungApi() {
     const envApi = process.env.RUNG_API;
 
     if (isNil(envApi)) {
@@ -26,7 +25,7 @@ function fetchRungApi(io) {
     }
 
     if (!isURL(envApi)) {
-        emitWarning(io, `invalid API for Rung: ${envApi}`);
+        emitWarning(`invalid API for Rung: ${JSON.stringify(envApi)}`);
     }
 
     return envApi;
@@ -61,7 +60,7 @@ const publishPackage = curry((api, spinner, path) => {
  */
 export default function publish(args) {
     const io = IO();
-    const api = fetchRungApi(io);
+    const api = fetchRungApi();
     const spinner = new Spinner(green('%s publishing extension...'));
     spinner.setSpinnerString(8);
 
