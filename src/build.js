@@ -57,6 +57,7 @@ function localesToPairs(localeFiles) {
 /**
  * Projects locale for each translatable subfield
  *
+ * @param {String} locale
  * @param {Object} config
  * @return {Object}
  */
