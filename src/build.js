@@ -76,7 +76,7 @@ const transformConfigFields = pipe(
  * @return {Promise}
  */
 function runInAllLocales(locales, source) {
-    return all(locales.map(([locale, strings]) =>
+    return all([['default', {}], ...locales].map(([locale, strings]) =>
         getProperties({ name: `precompile-${locale}`, source }, strings)
             .then(config => ({ [locale]: transformConfigFields(config) }))))
             .then(mergeAll);
