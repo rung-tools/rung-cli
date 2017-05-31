@@ -12,12 +12,9 @@ import {
     filter,
     identity,
     join,
-    lensProp,
     map,
     mapObjIndexed,
-    mergeAll,
-    over,
-    pick,
+    merge,
     pipe,
     prop,
     sort,
@@ -28,6 +25,7 @@ import {
     type,
     without
 } from 'ramda';
+import deepmerge from 'deepmerge';
 import { emitWarning } from './input';
 import { compileIndex } from './run';
 import { getProperties } from './vm';
@@ -57,15 +55,18 @@ function localesToPairs(localeFiles) {
 }
 
 /**
- * Transform the config fields, extracting what should be uploaded and getting
- * only the description from parameters
+ * Projects locale for each translatable subfield
  *
- * @param {Object} *
+ * @param {String} locale
+ * @param {Object} config
  * @return {Object}
  */
-const transformConfigFields = pipe(
-    pick(['title', 'description', 'preview', 'params']),
-    over(lensProp('params'), mapObjIndexed(pick(['description', 'default']))));
+const project = curry((locale, config) => ({
+    title: { [locale]: config.title },
+    description: { [locale]: config.description },
+    params: mapObjIndexed(param => merge(param,
+        { description: { [locale]: param.description } }), config.params)
+}));
 
 /**
  * Lazily runs the extension using all possible listed locales and extracts
@@ -78,8 +79,8 @@ const transformConfigFields = pipe(
 function runInAllLocales(locales, source) {
     return all([['default', {}], ...locales].map(([locale, strings]) =>
         getProperties({ name: `precompile-${locale}`, source }, strings)
-            .then(config => ({ [locale]: transformConfigFields(config) }))))
-            .then(mergeAll);
+            .then(project(locale))))
+            .then(deepmerge.all);
 }
 
 /**
