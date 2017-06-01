@@ -17,12 +17,14 @@ import {
     merge,
     pipe,
     prop,
+    propEq,
     sort,
     subtract,
     takeWhile,
     test,
     tryCatch,
     type,
+    when,
     without
 } from 'ramda';
 import deepmerge from 'deepmerge';
@@ -81,7 +83,7 @@ function runInAllLocales(locales, source) {
     return all([['default', {}], ...locales].map(([locale, strings]) =>
         getProperties({ name: `precompile-${locale}`, source }, strings)
             .then(project(locale))))
-            .then(deepmerge.all);
+            .then(when(propEq('length', 1), deepmerge.all));
 }
 
 /**
