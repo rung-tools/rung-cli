@@ -83,7 +83,7 @@ function runInAllLocales(locales, source) {
     return all([['default', {}], ...locales].map(([locale, strings]) =>
         getProperties({ name: `precompile-${locale}`, source }, strings)
             .then(project(locale))))
-            .then(when(propEq('length', 1), deepmerge.all));
+            .then(when(complement(propEq('length', 1)), deepmerge.all));
 }
 
 /**
