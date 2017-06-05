@@ -104,7 +104,7 @@ export function compileES6(source) {
         compact: true,
         presets: ['es2015', 'react'],
         plugins: [
-            ['transform-react-jsx', { pragma: 'render' }]
+            ['transform-react-jsx', { pragma: '__render__' }]
         ]
     });
 
