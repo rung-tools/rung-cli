@@ -24,7 +24,7 @@ function runInSandbox(name, source, strings = {}) {
             external: true
         },
         sandbox: {
-            render: compileHTML,
+            __render__: compileHTML,
             _: translator(strings)
         }
     });

@@ -16,6 +16,7 @@ import {
     when
 } from 'ramda';
 import { transform } from 'babel-core';
+import { jsxCompiler } from './jsx-compiler';
 
 /**
  * Generates CSS string from an object
@@ -104,7 +105,7 @@ export function compileES6(source) {
         compact: true,
         presets: ['es2015', 'react'],
         plugins: [
-            ['transform-react-jsx', { pragma: 'render' }]
+            ['transform-react-jsx', { pragma: '__render__' }]
         ]
     });
 
