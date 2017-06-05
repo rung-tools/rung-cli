@@ -6,8 +6,6 @@ do valor informado. Estaremos usando uma API de um terceiro para obter os valore
 Vamos nomear nossa extensão como `dollar-quotation`. O objetivo será gerar 
 alertas para quando a primeira moeda estiver valendo **menos** que o valor que especificarmos.
 
-![](./resources/main.png)
-
 ## Como funcionam as extensões
 
 O Rung suporta o desenvolvimento de extensões usando JavaScript, mais
