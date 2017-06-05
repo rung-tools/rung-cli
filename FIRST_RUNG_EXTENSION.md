@@ -130,3 +130,56 @@ aos parâmetros que o usuário informou e é responsável por buscar os dados e 
 No final, o `export default` permite que a extensão seja acessível pelo nosso `rung-cli`, e informamos
 mais algumas configurações, como qual será o título da nossa extensão, sua descrição e reaproveitamos a
 função `render` para mostrar como ela vai ser exibida para o usuário final!
+
+### Adaptando às nossas necessidades
+
+Vamos precisar adaptar para que a entrada seja o valor em reais que queremos que o dólar esteja valendo!
+Vamos fazer a seguinte substituição:
+
+```diff
+-import { String as Text } from 'rung-cli/dist/types';
++import { Money } from 'rung-cli/dist/types';
+```
+
+```diff
+const params = {
+-   name: {
+-       description: _('What is your name?'),
+-       type: Text
+-   }
++   price: {
++       description: _('Alert when dollar is lower than R$'),
++       type: Money
++   }
+};
+```
+
+Com isso, dizemos que vamos receber o valor do dólar para comparar e podermos trabalhar. 
+Agora vamos trabalhar dentro da função `main`, a começar por substituir `{ name }` por `{ price }`,
+que vai conter o valor em `double` do que queremos. Vamos antes adicionar alguns `import` que
+precisaremos e definir nosso objeto responsável por acessar um site externo (API):
+
+```js
+import Bluebird from 'bluebird';
+import agent from 'superagent';
+import promisifyAgent from 'superagent-promise';
+import { path } from 'ramda';
+
+const request = promisifyAgent(agent, Bluebird);
+```
+
+Então, voltando à função principal, podemos apagar o que está abaixo do `const { price } ...`
+e fazer uma requisição pra nossa API do [fixer.io](http://fixer.io):
+
+```js
+return request.get('http://api.fixer.io/latest?base=USD')
+    .then(path(['body', 'rates', 'BRL']))
+    .then(dollar => dollar < price
+        ? [{
+            title: _('Dollar is lower than R$ {{price}}', { price }),
+            content: render(dollar)
+        }]
+        : [])
+    .then(done)
+    .catch(() => done([]));
+```
