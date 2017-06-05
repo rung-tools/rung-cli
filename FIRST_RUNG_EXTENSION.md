@@ -72,7 +72,11 @@ e outras coisas. Instalaremos os seguintes pacotes:
 | `rung-cli`           | Para trabalhar com os "tipos"         |
 
 Logo, execute `npm install --save bluebird ramda superagent superagent-promise rung-sdk rung-cli` dentro
-da pasta `dollar-quotation`
+da pasta `dollar-quotation`.
+
+Se você rodar `rung run` agora na pasta, verá isso acontencendo:
+
+![](./resources/rung-run-boilerplate.png)
 
 ### Começando a programar
 
@@ -175,11 +179,36 @@ e fazer uma requisição pra nossa API do [fixer.io](http://fixer.io):
 return request.get('http://api.fixer.io/latest?base=USD')
     .then(path(['body', 'rates', 'BRL']))
     .then(dollar => dollar < price
-        ? [{
-            title: _('Dollar is lower than R$ {{price}}', { price }),
-            content: render(dollar)
-        }]
+        ? {
+            alerts: [{
+                title: _('Dollar is lower than R$ {{price}}', { price }),
+                content: render(dollar)
+            }]
+        }
         : [])
     .then(done)
-    .catch(() => done([]));
+    .catch(() => done({ alerts: [] }));
 ```
+
+Note que ainda não definimos a função `done`, que serve para indicar o término de execução
+da nossa aplicação. Para isso, basta trocar `main(context)` por `main(context, done)`.
+
+Agora vamos alterar a maneira como a nossa extensão é exibida usando HTML básico.
+Altere a chamada `preview('Trixie')` por `render(3.23)` e modifique `render` para:
+
+```js
+function render(price) {
+    return (
+        <div>{ _('Current dollar quotation is') } <b>{ price }</b></div>
+    );
+}
+```
+
+### Testando sua extensão
+
+Execute `rung run` e informe um valor qualquer. Vamos testar com `5` agora ~e torcer para
+o dólar não estar nesse valor rsrs~.
+
+![](./resources/rung-run)
+
+Com isso, temos uma extensão funcionando e pronta para publicar no Rung! Se desejar distribuir sua extensão para outros utilizarem, execute `rung build` e distribua o binário `dollar-quotation.rung`.
