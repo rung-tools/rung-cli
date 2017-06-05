@@ -209,6 +209,6 @@ function render(price) {
 Execute `rung run` e informe um valor qualquer. Vamos testar com `5` agora ~e torcer para
 o dólar não estar nesse valor rsrs~.
 
-![](./resources/rung-run)
+![](./resources/rung-run.png)
 
 Com isso, temos uma extensão funcionando e pronta para publicar no Rung! Se desejar distribuir sua extensão para outros utilizarem, execute `rung build` e distribua o binário `dollar-quotation.rung`.
