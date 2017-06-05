@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { all, resolve, promisify } from 'bluebird';
 import { curry, isNil, pick, pipe } from 'ramda';
 import { gray } from 'colors';
@@ -32,25 +33,25 @@ function fetchRungApi() {
 }
 
 /**
- * After login, publishes the extension
+ * Publishes a Rung package from a file
  *
- * @param {String} api
- * @param {Spinner} spinner
- * @param {String} path
+ * @param {String} filename
  * @return {Promise}
  */
-const publishPackage = curry((api, spinner, path) => {
-    const io = IO();
+const publishFile = curry((api, filename) =>
+    request.post(`${api}/metaExtensions`)
+        .attach('metaExtension', filename));
 
-    return resolve(request.get(`${api}/whoami`))
-        .then(({ body }) => io.print(`Logged in as ${body.exhibitionName || body.name}`))
-        .then(() => readFile('package.json', 'utf-8').then(pipe(JSON.parse, pick(['name', 'version']))))
-        .tap(() => spinner.stop(true))
-        .then(({ name, version }) => request.post(`${api}/metaExtensions`)
-            .attach('metaExtension', path)
-            .then(() => io.print(`Successfully published ${name}@${version}`)))
-        .finally(io.close.bind(this));
-});
+/**
+ * Builds or uses the passed file to publication
+ *
+ * @param {Object} args
+ * @return {Promise}
+ */
+function resolveInputFile(args) {
+    const { file } = args;
+    return file ? resolve(path.resolve(file)) : build(args);
+}
 
 /**
  * Authenticates and publishes the extension
@@ -69,7 +70,8 @@ export default function publish(args) {
         .tap(() => spinner.start())
         .spread((email, password) => request.post(`${api}/login`)
             .send({ email, password }))
-        .then(() => build(args))
-        .then(publishPackage(api, spinner))
-        .tapCatch(() => spinner.stop(true));
+        .then(() => resolveInputFile(args))
+        .then(publishFile(api))
+        .then(() => io.print('Successfully published'))
+        .finally(() => spinner.stop(true));
 }

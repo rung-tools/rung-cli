@@ -32,7 +32,7 @@ function cli(args) {
 cli(yargs
     .usage('Usage: $0 [build|run|publish|readme|db]')
     .command('build', 'Generate a .rung package')
-    .command('publish', 'Publishes the extension to the Rung store')
+    .command('publish [file]', 'Publishes the extension to the Rung store')
     .command('run', 'Execute the current extension')
     .command('boilerplate', 'Generates the boilerplate files for your extension')
     .command('readme', 'Generates the README.md file to publish')
