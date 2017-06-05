@@ -1,27 +1,28 @@
 # Escrevendo sua primeira extensão para o Rung
 
 Nesse documento, estaremos cobrindo os passos para desenvolvimento de uma
-extensão capaz de obter a cotação de uma moeda, especificada pelo usuário,
-convertida para outra moeda, também parametrizada. Estaremos usando uma API
-de terceiros para obter os valores. Vamos nomear nossa extensão como
-`money-quotation`. O objetivo será gerar alertas para quando a primeira moeda
-estiver valendo **mais** ou **menos** que o valor que especificarmos.
+extensão capaz de obter a cotação do dólar e avisar quando ele estiver abaixo
+do valor informado. Estaremos usando uma API de um terceiro para obter os valores. 
+Vamos nomear nossa extensão como `dollar-quotation`. O objetivo será gerar 
+alertas para quando a primeira moeda estiver valendo **menos** que o valor que especificarmos.
 
 ![](./resources/main.png)
 
 ## Como funcionam as extensões
 
 O Rung suporta o desenvolvimento de extensões usando JavaScript, mais
-especificamente, EcmaScript 5 e tudo que for suportado pelo NodeJS 6.*.
+especificamente, EcmaScript 6 e tudo que for suportado pelo NodeJS 6.*.
 As extensões rodam dentro do Rung em um contexto seguro de máquina virtual (V8)
 e os resultados de saída, que podem ser de retorno ou através de chamadas de
 funções, são passados para a inteligência do Rung para a geração de alertas.
+Nós escrevemos uma ferramenta que permite a você testar a execução de sua extensão
+sem ter que conhecer diretamente o funcionamento do Rung.
 
 ## O que eu preciso saber?
 
 É ideal que já se possua conhecimento básico de JavaScript e o sistema de
 pacotes `npm`, já que o Rung funciona de maneira bem similar. As extensões podem
-ser desenvolvidas em qualquer sistema operacional NT ou POSIX-compliant.
+ser desenvolvidas em qualquer sistema operacional NT ou POSIX-compliant (Windows, Linux, OS X, Solaris, BSD).
 
 ## Instalando as dependências
 
@@ -31,65 +32,35 @@ iremos precisar, primordialmente, instalar globalmente um pacote do `npm`: o
 
 `npm install -g rung-cli`
 
+Se receber um erro dizendo que no há o comando `npm`, busque instalar o NodeJS no [site
+oficial da plataforma](https://nodejs.org/en/download/).
+
 Com isso, você terá disponível o comando `rung`. Você pode ver
 [aqui](https://github.com/rung-tools/rung-cli#commands) a lista de subcomandos
 que são suportados pela ferramenta
 
+![](./resources/rung-cli-commands.png)
+
 ## Iniciando o projeto
 
-Crie uma pasta para o seu projeto e abra o terminal. De agora em diante,
-trabalharemos muito com ele! Acesse a pasta para criar um projeto vazio:
+Execute o comando em seu terminal:
 
-`rung init`
+`rung boilerplate`
 
-![](./resources/init.png)
+Informe `dollar-quotation` como nome do projeto. Dê também um título e uma descrição,
+preferencialmente em inglês, pois trataremos de internacionalizar o projeto depois!
 
-Preenchemos as informações básicas. Isso irá apenas criar um `package.json`
-compatível com o utilizado pelo `npm`. O Rung utiliza o mesmo arquivo.
+![](./resources/rung-boilerplate.png)
 
-A estrutura do arquivo `package.json` gerado será a seguinte:
+Após isso, teremos uma pasta criada chamada `dollar-quotation` contendo o arquivo
+de manifesto com as informações básicas da nossa extensão e um arquivo `index.js`,
+que é onde trabalharemos!
 
-```json
-{
-  "name": "money-quotation",
-  "version": "1.0.0",
-  "description": "Alerta quando a cotação de uma moeda estiver como desejado",
-  "license": "MIT",
-  "main": "index.js",
-  "category": "miscellaneous",
-  "rung": {
-    "title": "Cotação de moeda"
-  }
-```
+### Dependências do projeto
 
-Inicialmente, vamos mostrar ao usuário como nosso alerta parecerá, adicionando
-um campo `preview` dentro de `rung`:
-
-```diff
-    "rung": {
-        "title": "Cotação de moeda",
-+       "preview": "USD valendo BRL 3.13"
-    }
-}
-```
-
-Também precisamos adicionar como dependência o `rung-sdk`, que utilizaremos
-como a base para a construção da extensão, mas localmente, via `npm` dessa vez:
-
-`npm install --save rung-sdk`
-
-Com isso, será automaticamente adicionado às `dependencies`:
-
-```diff
-    license: "MIT",
-+   "dependencies": {
-+       "rung-sdk": "^1.0.6"
-+   }
-}
-```
-
-Também é aconselhável, agora, a instalação de alguns pacotes que serão úteis no
-nosso desenvolvimento:
+Nosso projeto também possuirá algumas dependências. Utilizaremos algumas bibliotecas
+de terceiros para fazer coisas como requisição para a API, manipulação das estruturas
+e outras coisas. Instalaremos os seguintes pacotes:
 
 | Pacote               | Função                                |
 |----------------------|---------------------------------------|
@@ -97,166 +68,65 @@ nosso desenvolvimento:
 | `ramda`              | Funções para listas                   |
 | `superagent`         | Requisição HTTP(S)                    |
 | `superagent-promise` | Promises com o `superagent`           |
+| `rung-sdk`           | Para poder "montar" uma extensão      |
+| `rung-cli`           | Para trabalhar com os "tipos"         |
 
-Logo, execute `npm install --save bluebird ramda superagent superagent-promise`.
+Logo, execute `npm install --save bluebird ramda superagent superagent-promise rung-sdk rung-cli` dentro
+da pasta `dollar-quotation`
 
-Com tudo configurado, podemos finalmente iniciar o desenvolvimento. Crie um
-arquivo `index.js` dentro da pasta do projeto, como especificou como ponto de
-entrada no `package.json`.
+### Começando a programar
 
-Abaixo segue o código-fonte com as explicações comentadas:
+Com tudo isso já configurado, podemos começar a desenvolver. Inicialmente, teremos o
+seguinte fonte, que tem partes do nosso código e partes do código gerado:
 
-```javascript
-// Função padrão para criação de extensão
-const { create } = require('rung-sdk');
-// O SDK conta com uma gama de tipos para os parâmetros
-const { OneOf, Money } = require('rung-sdk/dist/types');
-// Pacotes utilitários
-const Bluebird = require('bluebird');
-const agent = require('superagent');
-const promisifyAgent = require('superagent-promise');
-const { path, lt, gt } = require('ramda');
+```js
+import { create } from 'rung-sdk';
+import { String as Text } from 'rung-cli/dist/types';
 
-const request = promisifyAgent(agent, Bluebird);
-
-// Ponto de entrada. A função principal recebe um contexto (que contém os
-// parâmetros) e, opcionalmente, uma função `done`. Se `done` não for definida,
-// os alertas devem ser **retornados**. Caso contrário, os alertas devem ser
-// parâmetros de `done(...)`
-function main(context, done) {
-    // Obter os parâmetros do contexto
-    const { origin, target, comparator, value } = context.params;
-    const compare = comparator === 'maior' ? gt : lt;
-
-    // Não gere alertas quando a moeda for a mesma
-    if (origin === target) {
-        return done({});
-    }
-
-    // Consultar a API do fixer.io, obter a cotação para moeda alvo
-    // e comparar com a origem, gerando um único alerta caso a comparação seja
-    // positiva ou não gerando alertas
-    return request.get(`http://api.fixer.io/latest?base=${origin}`)
-        .then(path(['body', 'rates', target]))
-        .then(result => compare(result, value)
-            ? [`${origin} valendo ${target} ${result.toFixed(2)}`]
-            : {})
-        // Invoque a função de callback para dizer que está terminado, já que
-        // essa é uma extensão assíncrona
-        .then(done)
-        .catch(() => done({}));
+function render(name) {
+    return <b>{ _('Hello {{name}}', { name }) }</b>;
 }
 
-// Tipos de moedas que aceitaremos
-const currencies = [
-    'AUD', 'BGN', 'BRL', 'CAD', 'CHF', 'CNY', 'CZK', 'DKK', 'EUR',
-    'GBP', 'HKD', 'HRK', 'HUF', 'IDR', 'ILS', 'INR', 'JPY', 'KRW',
-    'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'RON', 'RUB', 'SEK',
-    'SGD', 'THB', 'TRY', 'USD', 'ZAR'
-];
+function main(context) {
+    const { name } = context.params;
+    return {
+        alerts: [{
+            title: _('Welcome'),
+            content: render(name)
+        }]
+    };
+}
 
-// Definição dos parâmetros de entrada
 const params = {
-    origin: {
-        description: 'Moeda de origem',
-        type: OneOf(currencies),
-        default: 'USD'
-    },
-    target: {
-        description: 'Moeda de destino',
-        type: OneOf(currencies),
-        default: 'BRL'
-    },
-    comparator: {
-        description: 'Tipo de comparação',
-        type: OneOf(['maior', 'menor']),
-        default: 'menor'
-    },
-    value: {
-        description: 'Valor de comparação',
-        type: Money,
-        default: 3.0
+    name: {
+        description: _('What is your name?'),
+        type: Text
     }
 };
 
-// Criar a aplicação, onde o primeiro parâmetro é a função principal e o segundo
-// é a configuração da aplicação
-const app = create(main, { params });
-
-// Deixar o conteúdo acessível pela máquina virtual do Rung
-module.exports = app;
+export default create(main, {
+    params,
+    primaryKey: true,
+    title: _("Dollar quotation"),
+    description: _("Be alerted when dollar is low"),
+    preview: render('Trixie')
+});
 ```
 
-Com isso, já é possível rodarmos nossa extensão. Teste com os parâmetros, em
-sequência, `USD`, `BRL`, `menor`, `4`. Caso o dólar esteja valendo menos que
-R$ 4,00, um alerta será retornado
+Agora, vamos primeiro tentar entender como ele funciona antes de começarmos a modificá-lo.
 
-# Compilando o pacote
+Note que há 2 linhas contendo `import`. Importamos a função `create`, utilizada para "montar"
+uma extensão, diretamente da `sdk` do Rung. Também importamos o tipo `String` e renomeamos
+para `Text` para utilizarmos. Note que os tipos são utilizados para definirmos como deve
+ser formatada a entrada dos parâmetros.
 
-Para compilar e gerar o binário `*.rung`, utilize o comando `rung build`. O
-arquivo gerado pode ser subido como uma extensão privada no Rung ou publicado
-para a loja caso haja _karma_. Se você possuir _karma_ de publicação,
-`rung publish` irá subir sua extensão diretamente para a loja.
+Temos também uma função chamada `render`. Lá você pode usar um _superset_ de HTML (com JSX)
+para mostrar como sua extensão deve ser exibida com base nos parâmetros recebidos. O `_`
+é usado para definir as strings da sua aplicação, já que depois precisaremos internacionalizá-la!
 
-## Extras
+A função `main` é responsável por ser a função principal, o ponto de entrada. Ela vai ter acesso
+aos parâmetros que o usuário informou e é responsável por buscar os dados e gerar os alertas.
 
-Outras features são suportadas no desenvolvimento de extensões do Rung:
-
-### Chaves primárias
-
-Você pode retornar `['Alerta 1', 'Alerta 2']` para a geração ou pode usar
-chaves ao invés disso, caso queria modificar um alerta na próxima vez que a
-extensão rodar no Rung (ao invés de recriar). É possível utilizar:
-
-```javascript
-{
-    alerta_1: 'Alerta 1',
-    alerta_2: 'Alerta 2'
-}
-```
-
-Para habilitar, basta utilizar a flag `{ primaryKey: true }` no objeto de
-configurações, o mesmo que contém os parâmetros.
-
-### Rung Bot
-
-Contamos com o Rung Bot, um robozinho responsável por auxiliar o usuário nos
-alertas. Ele pode dar informações importantes detalhando um alerta, e suporta
-Markdown!
-
-![](./resources/bot.png)
-
-Ao invés de usar uma _string_ como valor, você pode usar um objeto contendo
-`title` e `comment`, tal qual:
-
-```javascript
-{
-    alerta_1: {
-        title: 'Alerta 1',
-        comment: 'Estou aqui para te **ajudar**!'
-    }
-}
-```
-
-### Itens da barra lateral
-
-Os campos da barra lateral do Rung também são programáveis!
-
-![](./resources/sidebar.png)
-
-Utilizamos a flag `sidebar` no objeto de configurações. Por padrão, todos os
-campos são habilitados. Se quiser desabilitar algum, pode passar
-`nomeDoCampo: false`. Exemplo:
-
-```javascript
-{
-    params: {},
-    sidebar: {
-        percent: false,
-        priority: false
-    }
-}
-```
-
-Os campos aceitos são `title`, `percent`, `priority`, `situation`, `startDate` e
-`endDate`.
+No final, o `export default` permite que a extensão seja acessível pelo nosso `rung-cli`, e informamos
+mais algumas configurações, como qual será o título da nossa extensão, sua descrição e reaproveitamos a
+função `render` para mostrar como ela vai ser exibida para o usuário final!
