@@ -1,7 +1,6 @@
-import fs from 'fs';
 import path from 'path';
-import { all, resolve, promisify } from 'bluebird';
-import { curry, isNil, pick, pipe } from 'ramda';
+import { all, resolve } from 'bluebird';
+import { curry, isNil } from 'ramda';
 import { gray } from 'colors';
 import { Spinner } from 'cli-spinner';
 import superagent from 'superagent';
@@ -10,7 +9,6 @@ import { green } from 'colors/safe';
 import { emitWarning, IO } from './input';
 import build from './build';
 
-const readFile = promisify(fs.readFile);
 const request = superagent.agent();
 
 /**
