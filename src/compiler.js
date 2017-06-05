@@ -16,7 +16,6 @@ import {
     when
 } from 'ramda';
 import { transform } from 'babel-core';
-import { jsxCompiler } from './jsx-compiler';
 
 /**
  * Generates CSS string from an object
