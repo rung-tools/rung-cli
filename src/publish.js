@@ -1,15 +1,17 @@
 import path from 'path';
-import { all, resolve } from 'bluebird';
+import { all, promisify, resolve } from 'bluebird';
 import { curry, isNil } from 'ramda';
 import { gray } from 'colors';
 import { Spinner } from 'cli-spinner';
 import superagent from 'superagent';
 import { isURL } from 'validator';
 import { green } from 'colors/safe';
-import { emitWarning, IO } from './input';
+import rimraf from 'rimraf';
+import { emitError, emitWarning, IO } from './input';
 import build from './build';
 
 const request = superagent.agent();
+const rm = promisify(rimraf);
 
 /**
  * Returns the Rung API URL. Emits a warning when the URL is possibly invalid
@@ -38,7 +40,8 @@ function fetchRungApi() {
  */
 const publishFile = curry((api, filename) =>
     request.post(`${api}/metaExtensions`)
-        .attach('metaExtension', filename));
+        .attach('metaExtension', filename)
+        .then(() => rm(filename)));
 
 /**
  * Builds or uses the passed file to publication
@@ -70,6 +73,9 @@ export default function publish(args) {
             .send({ email, password }))
         .then(() => resolveInputFile(args))
         .then(publishFile(api))
-        .then(() => io.print('Successfully published'))
-        .finally(() => spinner.stop(true));
+        .then(() => spinner.stop(true))
+        .catch(err => {
+            spinner.stop(true);
+            emitError(err.message);
+        });
 }
