@@ -7,7 +7,7 @@ import superagent from 'superagent';
 import { isURL } from 'validator';
 import { green } from 'colors/safe';
 import rimraf from 'rimraf';
-import { emitWarning, IO } from './input';
+import { emitError, emitWarning, IO } from './input';
 import build from './build';
 
 const request = superagent.agent();
@@ -74,5 +74,8 @@ export default function publish(args) {
         .then(() => resolveInputFile(args))
         .then(publishFile(api))
         .then(() => spinner.stop(true))
-        .catch(() => spinner.stop(true));
+        .catch(err => {
+            spinner.stop(true);
+            emitError(err.message);
+        });
 }
