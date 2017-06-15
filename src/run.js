@@ -1,4 +1,5 @@
 import fs from 'fs';
+import os from 'os';
 import { all, promisify } from 'bluebird';
 import { mergeAll, prop } from 'ramda';
 import { Spinner } from 'cli-spinner';
@@ -8,6 +9,8 @@ import { ask } from './input';
 import { compileES6 } from './compiler';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
+
+const user = { name: os.userInfo().username };
 
 export const readFile = promisify(fs.readFile);
 
@@ -27,7 +30,8 @@ export default function run() {
             .then(ask)
             .then(mergeAll)
             .tap(() => spinner.start())
-            .then(params => runAndGetAlerts({ name, source }, { params, db, locale }, strings)))
+            .then(params => runAndGetAlerts({ name, source },
+                { params, db, locale, user }, strings)))
         .tap(() => spinner.stop(true))
         .tap(console.log.bind(console));
 }

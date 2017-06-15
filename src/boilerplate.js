@@ -43,7 +43,7 @@ const format = pipe(
  * @return {Promise}
  */
 export function askQuestions(io) {
-    // key: [Question description, Default value]
+    // [Question description, Default value]
     const questions = {
         name: ['Project name', last(split('/', process.cwd()))],
         version: ['Version', '1.0.0'],
