@@ -42,6 +42,10 @@ cli(yargs
         describe: 'Where to save the built package',
         type: 'string'
     })
+    .option('private', {
+        describe: 'If it is a private extension',
+        type: 'boolean'
+    })
     .strict()
     .demandCommand(1)
     .recommendCommands()

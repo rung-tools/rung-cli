@@ -20,7 +20,7 @@ This will make the command `rung` available globally.
 - Create blank extensions
 - Generate `.rung` packages
 - Run extensions locally in CLI mode
-- Publish extensions to Rung Store
+- Publish extensions to Rung Store (public and private)
 - Generate boilerplate code for extension
 - Generate README.md file to publish
 
@@ -47,3 +47,4 @@ This will make the command `rung` available globally.
 |------------------|-------------|
 | `-o`, `--output` | Where to save the built package |
 | `--version`      | Displays versions |
+| `--private`      | If set, extension is published for current user only |
