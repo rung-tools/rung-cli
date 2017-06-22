@@ -10,7 +10,9 @@ import {
     drop,
     equals,
     filter,
+    head,
     identity,
+    ifElse,
     join,
     map,
     mapObjIndexed,
@@ -24,7 +26,7 @@ import {
     test,
     tryCatch,
     type,
-    when,
+    unary,
     without
 } from 'ramda';
 import deepmerge from 'deepmerge';
@@ -83,7 +85,7 @@ function runInAllLocales(locales, source) {
     return all([['default', {}], ...locales].map(([locale, strings]) =>
         getProperties({ name: `precompile-${locale}`, source }, strings)
             .then(project(locale))))
-            .then(when(complement(propEq('length', 1)), deepmerge.all));
+            .then(ifElse(propEq('length', 1), head, unary(deepmerge.all)));
 }
 
 /**
