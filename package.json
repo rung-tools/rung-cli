@@ -61,6 +61,14 @@
     "esnext": true,
     "space": 4,
     "rules": {
+      "no-restricted-syntax": [
+        "error",
+        "ForStatement",
+        "WhileStatement",
+        "SwitchStatement",
+        "VariableDeclaration[kind='var']",
+        "VariableDeclaration[kind='let']"
+      ],
       "object-curly-spacing": [
         "error",
         "always"
