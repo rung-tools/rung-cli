@@ -20,6 +20,11 @@ describe.only('module.js', () => {
                 });
         });
 
-        it('should correctly compile a JS module');
+        it('should correctly compile a JS module', () => {
+            return compileModules(['./test/module.spec.js', './test/build.spec.js'])
+                .then(compiledFiles => {
+                    expect(compiledFiles).to.be.an('object');
+                });
+        });
     });
 });
