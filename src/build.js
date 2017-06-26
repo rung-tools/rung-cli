@@ -106,7 +106,7 @@ function createMetaFile(locales) {
  */
 function precompileLocales(files) {
     return resolve(files)
-        .then(filter(test(/^locales\/[a-z]{2,3}(_[A-Z]{2})?\.json$/)))
+        .then(filter(test(/^locales(\/|\\)[a-z]{2,3}(_[A-Z]{2})?\.json$/)))
         .then(localesToPairs)
         .then(locales => all([locales, compileIndex()]))
         .spread(runInAllLocales)
