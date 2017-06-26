@@ -5,21 +5,12 @@ import {
     T,
     cond,
     endsWith,
-    find,
     fromPairs,
-    identity,
-    invoker,
     lensIndex,
-    mapObjIndexed,
-    nth,
     over,
     pipe,
-    prop,
-    propSatisfies,
-    tryCatch
+    propSatisfies
 } from 'ramda';
-import { Left, Right } from 'data.either';
-import { fromNullable } from 'data.maybe';
 import { compileES6 } from './compiler';
 
 const fileMatching = promisify(glob);
@@ -48,21 +39,11 @@ export const findModules = () => fileMatching('*.{js,json}');
  * @return {Promise}
  */
 export function compileModules(modules) {
-    const compileJSONModule = tryCatch(pipe(JSON.parse, JSON.stringify, Right), Left);
-    const compileES6Module = tryCatch(pipe(compileES6, Right), Left);
-
     return all(modules.map(getFileTuple))
         .map(cond([
-            [propSatisfies(endsWith('json'), 0), over(lensIndex(1), compileJSONModule)],
-            [propSatisfies(endsWith('js'), 0), over(lensIndex(1), compileES6Module)],
+            [propSatisfies(endsWith('json'), 0), over(lensIndex(1), pipe(JSON.parse, JSON.stringify))],
+            [propSatisfies(endsWith('js'), 0), over(lensIndex(1), compileES6)],
             [T, reject]
         ]))
-        .then(modulePairs => {
-            const error = fromNullable(find(propSatisfies(prop('isLeft'), 1), modulePairs))
-                .map(pipe(nth(1), applicative => applicative.fold(identity)));
-
-            return error.isJust
-                ? reject(error)
-                : mapObjIndexed(invoker(0, 'get'), fromPairs(modulePairs));
-        });
+        .then(fromPairs);
 }

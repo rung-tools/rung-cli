@@ -1051,10 +1051,6 @@ dasherize@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
 
-data.either@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/data.either/-/data.either-1.5.1.tgz#71f9dbfc8fe3ab0112e52e443470bcd526f50b47"
-
 data.maybe@1.2.2, data.maybe@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/data.maybe/-/data.maybe-1.2.2.tgz#f955e4b5572b2eb5047eab93d8bb3a1cc76a2dc3"
