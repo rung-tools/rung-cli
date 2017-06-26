@@ -21,13 +21,13 @@ import { translator } from './i18n';
 function runInSandbox(name, source, strings = {}) {
     const vm = new NodeVM({
         require: {
-            external: true
-        },
-        sandbox: {
-            __render__: compileHTML,
-            _: translator(strings)
+            external: true,
+            root: './'
         }
     });
+
+    vm.freeze(compileHTML, '__render__');
+    vm.freeze(translator(strings), '_');
 
     try {
         const result = vm.run(source, `${name}.js`);
