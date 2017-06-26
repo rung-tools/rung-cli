@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { findModules, compileModules } from '../src/module';
 
-describe.only('module.js', () => {
+describe('module.js', () => {
     describe('Module compilation', () => {
         it('should list all JS and JSON files', () => {
             return findModules()
