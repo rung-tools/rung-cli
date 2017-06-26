@@ -2,6 +2,7 @@ import { NodeVM } from 'vm2';
 import Promise, { reject, resolve } from 'bluebird';
 import {
     propOr,
+    tryCatch,
     type
 } from 'ramda';
 import { compileHTML } from './compiler';
@@ -29,12 +30,12 @@ function runInSandbox(name, source, strings = {}) {
     vm.freeze(compileHTML, '__render__');
     vm.freeze(translator(strings), '_');
 
-    try {
+    const evaluate = tryCatch(() => {
         const result = vm.run(source, `${name}.js`);
         return resolve(propOr(result, 'default', result));
-    } catch (err) {
-        return reject(err);
-    }
+    }, reject);
+
+    return evaluate();
 }
 
 /**

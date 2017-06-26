@@ -68,7 +68,8 @@
         "WhileStatement",
         "SwitchStatement",
         "VariableDeclaration[kind='var']",
-        "VariableDeclaration[kind='let']"
+        "VariableDeclaration[kind='let']",
+        "TryStatement"
       ],
       "object-curly-spacing": [
         "error",
