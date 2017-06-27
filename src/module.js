@@ -3,6 +3,7 @@ import glob from 'glob';
 import { all, promisify, reject } from 'bluebird';
 import {
     T,
+    chain as flatMap,
     cond,
     endsWith,
     fromPairs,
@@ -64,19 +65,23 @@ export function findAndCompileModules() {
  * @param {NodeVM} vm - Virtual machine instance to run
  * @param {String[][]} modules pairs, with [name :: string, source :: string]
  */
-export function evaluateModules(vm, modules) {
-    // TODO: Use flatMap instead, to allow multiple module names!
-    return fromPairs(modules.map(([module, source]) => {
-        const name = `./${module}`;
-        // JSON doesn't need to run on VM. We can directly parse it
-        if (endsWith('.json', module)) {
-            return [name, { default: JSON.parse(source) }];
-        }
+export const evaluateModules = (vm, modules) => fromPairs(flatMap(([module, source]) => {
+    const fullName = `./${module}`;
+    const partialName = fullName.replace(/\.[a-z]+$/i, '');
+    // JSON doesn't need to run on VM. We can directly parse it
 
-        if (endsWith('.js', module)) {
-            return [name, vm.run(source, module)];
-        }
+    const convertToBytecode = cond([
+        [endsWith('.json'), () => ({ default: JSON.parse(source) })],
+        [endsWith('.js'), module => vm.run(source, module)],
+        [T, module => {
+            throw new Error(`Unknown file type for ${module}`);
+        }]
+    ]);
 
-        throw new Error(`Unknown file type for ${module}`);
-    }));
-}
+    const bytecode = convertToBytecode(module);
+
+    return [
+        [fullName, bytecode],
+        [partialName, bytecode]
+    ];
+}, modules));
