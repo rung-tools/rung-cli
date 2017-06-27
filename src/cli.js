@@ -46,6 +46,10 @@ cli(yargs
         describe: 'If it is a private extension',
         type: 'boolean'
     })
+    .option('raw', {
+        describe: 'Display returned data as it is',
+        type: 'boolean'
+    })
     .strict()
     .demandCommand(1)
     .recommendCommands()
