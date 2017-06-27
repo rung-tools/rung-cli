@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { findModules, compileModules, findAndCompileModules } from '../src/module';
+import {
+    compileModules,
+    evaluateModules,
+    findAndCompileModules ,
+    findModules
+} from '../src/module';
+import { createVM } from '../src/vm';
 
 describe('module.js', () => {
     describe('Module compilation', () => {
@@ -30,6 +36,28 @@ describe('module.js', () => {
                 .then(results => {
                     expect(results).to.be.an('array');
                 });
-        }).timeout(40000);
+        }).timeout(20000);
+
+        it('should compile and evaluate modules', () => {
+            const modules = [
+                ['drag-queen.json', JSON.stringify({
+                    alaska: 1,
+                    courtney: 2
+                })],
+                ['workaround.js', `
+                    module.exports = 42;
+                `]
+            ];
+
+            const vm = createVM({});
+            const result = evaluateModules(vm, modules);
+            expect(result).to.be.an('object');
+            expect(result).to.have.property('./drag-queen.json');
+            expect(result).to.have.property('./drag-queen');
+            expect(result).to.have.property('./workaround.js');
+            expect(result).to.have.property('./workaround');
+            expect(result).property('./workaround').to.equals(42);
+            expect(result).property('./drag-queen').to.have.property('alaska');
+        });
     });
 });

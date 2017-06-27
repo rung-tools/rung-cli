@@ -17,7 +17,7 @@ import { evaluateModules } from './module';
  * @param {Object} translator - Map of strings to translate
  * @return {NodeVM}
  */
-function createVM(strings) {
+export function createVM(strings) {
     const vm = new NodeVM({
         require: {
             external: true
