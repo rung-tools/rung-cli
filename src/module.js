@@ -32,7 +32,7 @@ const getFileTuple = filename => readFile(filename, 'utf-8')
  *
  * @return {Promise}
  */
-export const findModules = () => fileMatching('*.{js,json}')
+export const findModules = () => fileMatching('{*,*/*}.{js,json}')
     .then(without('index.js'));
 
 /**
