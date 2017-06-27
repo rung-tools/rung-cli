@@ -71,7 +71,7 @@ export const evaluateModules = (vm, modules) => fromPairs(flatMap(([module, sour
     // JSON doesn't need to run on VM. We can directly parse it
 
     const convertToBytecode = cond([
-        [endsWith('.json'), () => ({ default: JSON.parse(source) })],
+        [endsWith('.json'), () => JSON.parse(source)],
         [endsWith('.js'), module => vm.run(source, module)],
         [T, module => {
             throw new Error(`Unknown file type for ${module}`);
@@ -79,7 +79,6 @@ export const evaluateModules = (vm, modules) => fromPairs(flatMap(([module, sour
     ]);
 
     const bytecode = convertToBytecode(module);
-
     return [
         [fullName, bytecode],
         [partialName, bytecode]
