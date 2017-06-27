@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { findModules, compileModules } from '../src/module';
+import { findModules, compileModules, findAndCompileModules } from '../src/module';
 
 describe('module.js', () => {
     describe('Module compilation', () => {
@@ -24,5 +24,12 @@ describe('module.js', () => {
                     expect(compiledFiles).to.be.an('array');
                 });
         });
+
+        it('should bootstrap the rung-cli project!!!', () => {
+            return findAndCompileModules()
+                .then(results => {
+                    expect(results).to.be.an('array');
+                });
+        }).timeout(40000);
     });
 });

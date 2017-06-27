@@ -11,6 +11,8 @@ import {
     over,
     pipe,
     propSatisfies,
+    reject as rejectWhere,
+    test,
     without
 } from 'ramda';
 import { compileES6 } from './compiler';
@@ -33,7 +35,8 @@ const getFileTuple = filename => readFile(filename, 'utf-8')
  * @return {Promise}
  */
 export const findModules = () => fileMatching('{*,*/*}.{js,json}')
-    .then(without('index.js'));
+    .then(without('index.js'))
+    .then(rejectWhere(test(/^node_modules(\/|\\)/)));
 
 /**
  * Compiles a list of JS or JSON modules
