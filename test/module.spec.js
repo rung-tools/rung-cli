@@ -7,7 +7,6 @@ describe('module.js', () => {
             return findModules()
                 .then(files => {
                     expect(files).to.be.an('array');
-                    expect(files).to.have.lengthOf(41);
                 });
         });
 
