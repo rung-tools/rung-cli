@@ -14,16 +14,15 @@ describe('module.js', () => {
         it('should correctly compile a JSON module', () => {
             return compileModules(['package.json'])
                 .then(compiledFiles => {
-                    expect(compiledFiles).to.be.an('object');
-                    expect(compiledFiles).to.have.property('package.json');
-                    expect(() => JSON.parse(compiledFiles['package.json'])).to.not.throw(Error);
+                    expect(compiledFiles).to.be.an('array');
+                    expect(compiledFiles).to.have.length(1);
                 });
         });
 
         it('should correctly compile a JS module', () => {
             return compileModules(['./test/module.spec.js', './test/build.spec.js'])
                 .then(compiledFiles => {
-                    expect(compiledFiles).to.be.an('object');
+                    expect(compiledFiles).to.be.an('array');
                 });
         });
     });
