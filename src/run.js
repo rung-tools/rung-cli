@@ -4,6 +4,7 @@ import { all, promisify } from 'bluebird';
 import { mergeAll, prop } from 'ramda';
 import { Spinner } from 'cli-spinner';
 import { green } from 'colors/safe';
+import Table from 'cli-table';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
 import { compileES6 } from './compiler';
@@ -16,6 +17,10 @@ export const readFile = promisify(fs.readFile);
 
 export const compileIndex = () =>
     readFile('index.js', 'utf-8').then(compileES6);
+
+function showInformation(data) {
+    console.log(data);
+}
 
 export default function run() {
     const spinner = new Spinner(green('%s running extension...'));
@@ -33,5 +38,5 @@ export default function run() {
             .then(params => runAndGetAlerts({ name, source },
                 { params, db, locale, user }, strings)))
         .tap(() => spinner.stop(true))
-        .tap(console.log.bind(console));
+        .tap(showInformation);
 }

@@ -22,8 +22,7 @@ import { translator } from './i18n';
 function runInSandbox(name, source, strings = {}) {
     const vm = new NodeVM({
         require: {
-            external: true,
-            root: './'
+            external: true
         }
     });
 

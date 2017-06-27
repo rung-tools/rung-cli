@@ -26,6 +26,7 @@
     "babel-preset-react": "^6.24.1",
     "bluebird": "3.5.0",
     "cli-spinner": "^0.2.6",
+    "cli-table": "0.3.1",
     "colors": "1.1.2",
     "commander": "2.9.0",
     "dasherize": "^2.0.0",
