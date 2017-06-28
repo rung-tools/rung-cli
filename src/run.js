@@ -18,6 +18,7 @@ import { ask } from './input';
 import { compileES6 } from './compiler';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
+import { findAndCompileModules } from './module';
 
 const user = { name: os.userInfo().username };
 
@@ -50,14 +51,14 @@ export default function run(args) {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
         .then(json => all([json.name, compileIndex(), read(json.name),
-            getLocaleStrings(), getLocale()]))
-        .spread((name, source, db, strings, locale) => getProperties({ name, source }, strings)
+            getLocaleStrings(), findAndCompileModules(), getLocale()]))
+        .spread((name, source, db, strings, modules, locale) => getProperties({ name, source }, strings, modules)
             .then(prop('params'))
             .then(ask)
             .then(mergeAll)
             .tap(() => spinner.start())
             .then(params => runAndGetAlerts({ name, source },
-                { params, db, locale, user }, strings)))
+                { params, db, locale, user }, strings, modules)))
         .tap(() => spinner.stop(true))
         .tap(pipe(args.raw ? identity : tableView, console.log));
 }

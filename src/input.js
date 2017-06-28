@@ -74,7 +74,7 @@ export function IO() {
  * @param {IO} io
  * @param {Object} questions
  */
-function triggerWarnings(io, questions) {
+export function triggerWarnings(io, questions) {
     const getFieldWarnings = pipe(
         mapObjIndexed(both(has('default'), propEq('required', true))),
         toPairs);

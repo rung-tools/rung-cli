@@ -8,18 +8,16 @@ import {
 import { compileHTML } from './compiler';
 import { upsert } from './db';
 import { translator } from './i18n';
+import { evaluateModules } from './module';
 
 /**
- * Runs an extension on a virtualized environment and returns its result as
- * native JS data
+ * Returns an instance of the Rung virtual machine
  *
  * @author Marcelo Haskell Camargo
- * @param {String} name - The unique identifier to track the extension
- * @param {String} source - ES6 source to run
- * @param {Object} strings - Object containing the strings to translate
- * @return {Promise}
+ * @param {Object} translator - Map of strings to translate
+ * @return {NodeVM}
  */
-function runInSandbox(name, source, strings = {}) {
+export function createVM(strings) {
     const vm = new NodeVM({
         require: {
             external: true
@@ -29,7 +27,28 @@ function runInSandbox(name, source, strings = {}) {
     vm.freeze(compileHTML, '__render__');
     vm.freeze(translator(strings), '_');
 
+    return vm;
+}
+
+/**
+ * Runs an extension on a virtualized environment and returns its result as
+ * native JS data
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String} name - The unique identifier to track the extension
+ * @param {String} source - ES6 source to run
+ * @param {Object} strings - Object containing the strings to translate
+ * @param {String[][]} modules - Map of modules with [filename, source]
+ * @return {Promise}
+ */
+function runInSandbox(name, source, strings = {}, modules = []) {
     const evaluate = tryCatch(() => {
+        const vm = createVM(strings);
+
+        // Pre-evaluate and inject in vm all necessary modules
+        vm.options.require.mock = evaluateModules(vm, modules);
+
+        // Run with all modules! :)
         const result = vm.run(source, `${name}.js`);
         return resolve(propOr(result, 'default', result));
     }, reject);
@@ -43,10 +62,11 @@ function runInSandbox(name, source, strings = {}) {
  * @author Marcelo Haskell Camargo
  * @param {Object} extension - Must contain name and source
  * @param {Object} strings - Object with strings to translate
+ * @param {String[][]} modules - Object with modules name and source
  * @return {Promise}
  */
-export function getProperties(extension, strings) {
-    return runInSandbox(extension.name, extension.source, strings)
+export function getProperties(extension, strings, modules) {
+    return runInSandbox(extension.name, extension.source, strings, modules)
         .then(propOr({}, 'config'));
 }
 
@@ -58,10 +78,11 @@ export function getProperties(extension, strings) {
  * @param {Object} extension - Object containing name and source
  * @param {Object} context - Context to pass to the main function
  * @param {Object} strings - Object with strings to translate
+ * @param {String[][]} modules - Modules with [filename, source]
  * @return {Promise}
  */
-export function runAndGetAlerts(extension, context, strings) {
-    return runInSandbox(extension.name, extension.source, strings)
+export function runAndGetAlerts(extension, context, strings, modules) {
+    return runInSandbox(extension.name, extension.source, strings, modules)
         .then(app => {
             const runExtension = () => new Promise((resolve, reject) => {
                 if (type(app.extension) !== 'Function') {
