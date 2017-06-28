@@ -35,7 +35,7 @@ const getFileTuple = filename => readFile(filename, 'utf-8')
  * @return {Promise}
  */
 export const findModules = () => fileMatching('{*,*/*}.{js,json}')
-    .then(without('index.js'))
+    .then(without(['index.js']))
     .then(rejectWhere(test(/^node_modules(\/|\\)/)));
 
 /**
