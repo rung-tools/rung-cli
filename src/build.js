@@ -1,22 +1,28 @@
 import path from 'path';
 import Zip from 'jszip';
-import Promise, { all, promisifyAll, resolve } from 'bluebird';
+import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
 import {
+    T,
     __,
     complement,
     concat,
+    cond,
     contains,
     curry,
     drop,
+    either,
+    endsWith,
     equals,
     filter,
     head,
     identity,
     ifElse,
     join,
+    lensProp,
     map,
     mapObjIndexed,
     merge,
+    over,
     pipe,
     prop,
     propEq,
@@ -27,18 +33,18 @@ import {
     tryCatch,
     type,
     unary,
+    union,
     without
 } from 'ramda';
 import deepmerge from 'deepmerge';
 import { emitWarning } from './input';
-import { compileIndex } from './run';
 import { getProperties } from './vm';
+import { fileMatching, findAndCompileModules, inspect } from './module';
 
 const fs = promisifyAll(require('fs'));
 
 const defaultFileOptions = { date: new Date(1149562800000) };
 const requiredFiles = ['package.json', 'index.js'];
-const projectFiles = ['icon.png', ...requiredFiles];
 
 const localeByFile = pipe(
     drop(8),
@@ -77,16 +83,16 @@ const project = curry((locale, config) => ({
  * Lazily runs the extension using all possible listed locales and extracts
  * the meta-data
  *
- * @param {[(String, *)]} locales
  * @param {String} source
+ * @param {[(String, *)]} locales
  * @return {Promise}
  */
-function runInAllLocales(locales, source) {
-    return all([['default', {}], ...locales].map(([locale, strings]) =>
-        getProperties({ name: `precompile-${locale}`, source }, strings)
-            .then(project(locale))))
-            .then(ifElse(propEq('length', 1), head, unary(deepmerge.all)));
-}
+const runInAllLocales = curry((source, locales) =>
+    findAndCompileModules().then(modules =>
+        all([['default', {}], ...locales].map(([locale, strings]) =>
+            getProperties({ name: `precompile-${locale}`, source }, strings, modules)
+                .then(project(locale))))
+                .then(ifElse(propEq('length', 1), head, unary(deepmerge.all)))));
 
 /**
  * Creates a meta file where the information about precompilation is stored
@@ -101,27 +107,48 @@ function createMetaFile(locales) {
 /**
  * Precompiles the locale files, generating a meta file containing the meta
  *
- * @param {String[]} files
+ * @param {Object<String, String[]>} { code, files }
  * @return {Promise}
  */
-function precompileLocales(files) {
+function precompileLocales({ code, files }) {
     return resolve(files)
         .then(filter(test(/^locales(\/|\\)[a-z]{2,3}(_[A-Z]{2})?\.json$/)))
         .then(localesToPairs)
-        .then(locales => all([locales, compileIndex()]))
-        .spread(runInAllLocales)
+        .then(runInAllLocales(code))
         .then(createMetaFile)
         .thenReturn(['.meta', ...files]);
 }
 
 /**
- * Ensures there are missing no files in order to a allow a basic compilation.
- * It also warns about possible improvements in the extensions
+ * Returns the full name for a file that may not contain an extension
+ *
+ * @param {String} partialName
+ * @return {Promise}
+ */
+function getQualifiedName(partialName) {
+    const getMatches = cond([
+        [either(endsWith('.json'), endsWith('.js')), fileMatching],
+        [T, pipe(concat(__, '.{js,json}'), fileMatching)]
+    ]);
+
+    return getMatches(partialName)
+        .then(ifElse(
+            propEq('length', 0),
+            () => reject(new Error(`Unable to resolve ${partialName}`)),
+            head));
+}
+
+/**
+ * Ensures there are missing no files in order to a allow a basic compilation
+ * and filter the used modules. It also warns about possible improvements in the
+ * extensions
  *
  * @param {String[]} files
+ * @return {Promise}
  */
-function analyzeFiles(files) {
+function filterFiles(files) {
     const missingFiles = without(files, requiredFiles);
+    const projectFiles = ['icon.png', ...requiredFiles];
 
     if (missingFiles.length > 0) {
         throw new Error(`missing ${missingFiles.join(', ')} from the project`);
@@ -131,27 +158,34 @@ function analyzeFiles(files) {
         emitWarning('compiling extension without providing an icon.png file');
     }
 
-    return files;
+    return fs.readFileAsync('index.js', 'utf-8')
+        .then(inspect)
+        .then(over(lensProp('modules'), filter(test(/\.\/.+/))))
+        .then(({ code, modules }) =>
+            all(modules.map(getQualifiedName))
+                .map(unary(path.join))
+                .then(union(projectFiles))
+                .then(files => ({ code, files })));
 }
-
-const filterProjectFiles = filter(contains(__, projectFiles));
 
 /**
  * Filters true locale files and appends the full qualified name for the
  * previous files
  *
- * @param {String[]} files
+ * @param {Object<String, String[]>} { code, files }
  * @return {Promise}
  */
-function appendLocales(files) {
+function appendLocales({ code, files }) {
     return fs.lstatAsync('locales')
         .then(lstat => lstat.isDirectory() ? fs.readdirAsync('locales') : [])
-        .then(filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)))
-        .filter(filename => fs.readFileAsync(path.join('locales', filename))
+        .then(pipe(
+            filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
+            map(file => path.join('locales', file))))
+        .filter(filePath => fs.readFileAsync(filePath)
             .then(pipe(JSON.parse, item => type(item) === 'Object'))
             .catchReturn(false))
-        .then(pipe(map(file => path.join('locales', file)), concat(files)))
-        .catchReturn(files);
+        .then(pipe(union(files), sort(subtract), files => ({ code, files })))
+        .catchReturn({ code, files });
 }
 
 /**
@@ -249,10 +283,8 @@ export default function build(args) {
     const dir = path.resolve('.', args._[1] || '');
 
     return fs.readdirAsync(dir)
-        .then(analyzeFiles)
-        .then(filterProjectFiles)
+        .then(filterFiles)
         .then(appendLocales)
-        .then(sort(subtract))
         .then(precompileLocales)
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))

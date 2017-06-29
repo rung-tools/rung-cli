@@ -3,7 +3,8 @@ import {
     compileModules,
     evaluateModules,
     findAndCompileModules ,
-    findModules
+    findModules,
+    inspect
 } from '../src/module';
 import { createVM } from '../src/vm';
 
@@ -58,6 +59,21 @@ describe('module.js', () => {
             expect(result).to.have.property('./workaround');
             expect(result).property('./workaround').to.equals(42);
             expect(result).property('./drag-queen').to.have.property('alaska');
+        });
+
+        it('should get module files from AST', () => {
+            const { code, modules } = inspect(`
+                import jquery from 'jquery';
+                import isThirteen from 'is-thirteen';
+                import workarounds from './gambiarras';
+            `);
+
+            expect(code).to.be.a('string');
+            expect(modules).to.be.an('array');
+            expect(modules).to.have.lengthOf(3);
+            expect(modules).to.contain('jquery');
+            expect(modules).to.contain('is-thirteen');
+            expect(modules).to.contain('./gambiarras');
         });
     });
 });
