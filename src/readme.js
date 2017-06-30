@@ -73,8 +73,10 @@ export default function readme() {
             escapedName: replace(/-/g, '--', name),
             dependencies: dependenciesToArray(dependencies) },
             all([readFile(main || 'index.js', 'utf-8'), findAndCompileModules()])
-                .spread((source, modules) => getProperties({ name: 'pre-compile', source: compileES6(source) }, {},
-                    modules))]))
+                .spread((source, modules) =>
+                    getProperties({
+                        name: 'pre-compile',
+                        source: compileES6(source) }, {}, modules))]))
         .spread((partialContext, source) => merge(partialContext, {
             parameters: parametersToArray(source.params),
             description: source.description,
