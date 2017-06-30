@@ -11,9 +11,11 @@ import {
 } from 'ramda';
 import { version as rungCliVersion } from '../package';
 import { getProperties } from './vm';
+import { findAndCompileModules } from './module';
 import { readFile } from './run';
 import { getTypeName } from './types';
 import { compileES6 } from './compiler';
+import { emitSuccess } from './input';
 
 const createFile = promisify(fs.writeFile);
 
@@ -70,8 +72,11 @@ export default function readme() {
             author,
             escapedName: replace(/-/g, '--', name),
             dependencies: dependenciesToArray(dependencies) },
-            readFile(main || 'index.js', 'utf-8')
-                .then(source => getProperties({ name: 'pre-compile', source: compileES6(source) }))]))
+            all([readFile(main || 'index.js', 'utf-8'), findAndCompileModules()])
+                .spread((source, modules) =>
+                    getProperties({
+                        name: 'pre-compile',
+                        source: compileES6(source) }, {}, modules))]))
         .spread((partialContext, source) => merge(partialContext, {
             parameters: parametersToArray(source.params),
             description: source.description,
@@ -79,5 +84,6 @@ export default function readme() {
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))
-        .then(content => createFile('README.md', content));
+        .then(content => createFile('README.md', content))
+        .tap(() => emitSuccess('generated README.md'));
 }
