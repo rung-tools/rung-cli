@@ -7,10 +7,21 @@ install:
   - yarn
   - yarn compile
 
-script:
-  - yarn lint
-  - yarn test
-  - yarn report-coverage
+script: yarn lint && yarn test -- --grep=$SPEC.js && yarn report-coverage
+
+env:
+  - SPEC=boilerplate
+  - SPEC=build
+  - SPEC=compiler
+  - SPEC=db
+  - SPEC=i18n
+  - SPEC=input
+  - SPEC=module
+  - SPEC=publish
+  - SPEC=readme
+  - SPEC=run
+  - SPEC=types
+  - SPEC=vm
 
 cache:
   yarn: true
