@@ -83,5 +83,5 @@ export default function readme() {
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))
         .then(content => createFile('README.md', content))
-        .tap(() => emitSuccess('generated README.md'))
+        .tap(() => emitSuccess('generated README.md'));
 }
