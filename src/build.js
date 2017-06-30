@@ -17,6 +17,7 @@ import {
     head,
     identity,
     ifElse,
+    isEmpty,
     join,
     lensProp,
     map,
@@ -135,7 +136,7 @@ function getQualifiedName(partialName) {
 
     return getMatches(partialName)
         .then(ifElse(
-            propEq('length', 0),
+            isEmpty,
             () => reject(new Error(`Unable to resolve ${partialName}`)),
             head));
 }
