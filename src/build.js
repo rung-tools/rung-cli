@@ -83,8 +83,6 @@ const project = curry((locale, config) => ({
 /**
  * Lazily runs the extension using all possible listed locales and extracts
  * the meta-data.
- * TODO: in the future, to avoid error when other files are in the folder,
- * use only `compileModules(names :: String[]) :: [(String, String)]`
  *
  * @param {String} source
  * @param {[(String, *)]} locales
