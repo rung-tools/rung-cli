@@ -1,0 +1,1 @@
+{"title":{"default":"Hello world!"},"description":{"default":"Hello world example"},"preview":{},"params":{"name":{"type":{"name":"String"},"description":{"default":"What is your name?"},"required":true}}}

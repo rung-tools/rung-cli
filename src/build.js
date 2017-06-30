@@ -37,7 +37,7 @@ import {
     without
 } from 'ramda';
 import deepmerge from 'deepmerge';
-import { emitWarning } from './input';
+import { emitSuccess, emitWarning } from './input';
 import { getProperties } from './vm';
 import { fileMatching, findAndCompileModules, inspect } from './module';
 
@@ -150,7 +150,6 @@ function getQualifiedName(partialName) {
  */
 function filterFiles(files) {
     const missingFiles = without(files, requiredFiles);
-    const projectFiles = ['icon.png', ...requiredFiles];
 
     if (missingFiles.length > 0) {
         throw new Error(`missing ${missingFiles.join(', ')} from the project`);
@@ -166,7 +165,7 @@ function filterFiles(files) {
         .then(({ code, modules }) =>
             all(modules.map(getQualifiedName))
                 .map(unary(path.join))
-                .then(union(projectFiles))
+                .then(union(files))
                 .then(files => ({ code, files })));
 }
 
@@ -290,5 +289,6 @@ export default function build(args) {
         .then(precompileLocales)
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
-        .spread(saveZip(args.output || '.'));
+        .spread(saveZip(args.output || '.'))
+        .tap(() => emitSuccess('Rung extension compilation'));
 }
