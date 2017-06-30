@@ -54,7 +54,7 @@ const localeByFile = pipe(
 );
 
 /**
- * Converts a list of locale files to pairs containing locale strng and content
+ * Converts a list of locale files to pairs containing locale string and content
  *
  * @param {String[]} localeFiles
  * @return {Promise}

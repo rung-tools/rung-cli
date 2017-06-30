@@ -1,7 +1,6 @@
 import { delay } from 'bluebird';
 import { expect } from 'chai';
 import path from 'path';
-import fs from 'chai-fs';
 import intercept from 'intercept-stdout';
 import { createStream } from './helper';
 
