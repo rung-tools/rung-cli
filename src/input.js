@@ -13,7 +13,7 @@ import {
     propEq,
     toPairs
 } from 'ramda';
-import { blue, red, yellow } from 'colors/safe';
+import { blue, green, red, yellow } from 'colors/safe';
 import read from 'read';
 import { getTypeName, cast } from './types';
 
@@ -36,6 +36,17 @@ export function emitWarning(message) {
  */
 export function emitError(message) {
     console.log(red(` ✗ Error: ${message}`));
+    return resolve();
+}
+
+/**
+ * Emits a success message
+ *
+ * @param {String} message
+ * @return {Promise}
+ */
+export function emitSuccess(message) {
+    console.log(green(` ✔ Success: ${message}`));
     return resolve();
 }
 

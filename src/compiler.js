@@ -96,6 +96,7 @@ export function compileHTML(tag, props, ...children) {
  *
  * @author Marcelo Haskell Camargo
  * @param {String} source
+ * @param {String} property - code, map or ast
  * @return {Promise}
  */
 export function compileES6(source) {

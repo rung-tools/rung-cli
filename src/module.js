@@ -8,6 +8,7 @@ import {
     endsWith,
     fromPairs,
     lensIndex,
+    merge,
     over,
     pipe,
     propSatisfies,
@@ -15,9 +16,10 @@ import {
     test,
     without
 } from 'ramda';
+import { transform } from 'babel-core';
 import { compileES6 } from './compiler';
 
-const fileMatching = promisify(glob);
+export const fileMatching = promisify(glob);
 const readFile = promisify(fs.readFile);
 
 /**
@@ -87,3 +89,31 @@ export const evaluateModules = (vm, modules) => fromPairs(flatMap(([module, sour
         [partialName, bytecode]
     ];
 }, modules));
+
+/**
+ * Inspects a JS source and returns processed information, such as ES5 code,
+ * the ast, source map and the used modules
+ *
+ * @param {String} source - ES6 source
+ * @return {String[]}
+ */
+export function inspect(source) {
+    const modules = [];
+    const result = transform(source, {
+        comments: false,
+        compact: true,
+        presets: ['es2015', 'react'],
+        plugins: [
+            ['transform-react-jsx', { pragma: '__render__' }],
+            [() => ({
+                visitor: {
+                    ImportDeclaration({ node }) {
+                        modules.push(node.source.value);
+                    }
+                }
+            })]
+        ]
+    });
+
+    return merge(result, { modules });
+}
