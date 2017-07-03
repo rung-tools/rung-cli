@@ -164,7 +164,7 @@ function filterFiles(files) {
         .then(({ code, modules }) =>
             all(modules.map(getQualifiedName))
                 .map(unary(path.join))
-                .then(union(files))
+                .then(union(without(['node_modules'], files)))
                 .then(files => ({ code, files })));
 }
 

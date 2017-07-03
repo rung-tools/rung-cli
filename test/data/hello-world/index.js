@@ -1,6 +1,6 @@
 import { create } from 'rung-sdk';
 import { String as Text } from 'rung-sdk/dist/types';
-import world from './world.js';
+import world from './sub/world.js';
 
 function main(context) {
     const { name } = context.params;
