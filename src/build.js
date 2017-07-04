@@ -126,20 +126,23 @@ function precompileLocales({ code, files }) {
 function filterFiles(files) {
     const clearModule = replace(/^\.\//, '');
     const missingFiles = without(files, requiredFiles);
+    const hasIcon = contains('icon.png', files);
+    const resources = hasIcon ? ['icon.png'] : [];
 
     if (missingFiles.length > 0) {
         throw new Error(`missing ${missingFiles.join(', ')} from the project`);
     }
 
-    if (!contains('icon.png', files)) {
+    if (!hasIcon) {
         emitWarning('compiling extension without providing an icon.png file');
     }
+
 
     return fs.readFileAsync('index.js', 'utf-8')
         .then(inspect)
         .then(over(lensProp('modules'), filter(startsWith('./'))))
         .then(({ code, modules }) => ({
-            code, files: union(modules.map(clearModule), ['icon.png', ...requiredFiles]) }));
+            code, files: union(modules.map(clearModule), concat(resources, requiredFiles)) }));
 }
 
 /**

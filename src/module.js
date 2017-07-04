@@ -9,7 +9,8 @@ import {
     merge,
     path,
     pipe,
-    startsWith
+    startsWith,
+    uniq
 } from 'ramda';
 import { transform } from 'babel-core';
 import { compileES6 } from './compiler';
@@ -105,5 +106,5 @@ export function inspect(source) {
         ]
     });
 
-    return merge(result, { modules });
+    return merge(result, { modules: uniq(modules) });
 }
