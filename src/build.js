@@ -20,6 +20,7 @@ import {
     pipe,
     prop,
     propEq,
+    replace,
     sort,
     startsWith,
     subtract,
@@ -123,6 +124,7 @@ function precompileLocales({ code, files }) {
  * @return {Promise}
  */
 function filterFiles(files) {
+    const clearModule = replace(/^\.\//, '');
     const missingFiles = without(files, requiredFiles);
 
     if (missingFiles.length > 0) {
@@ -135,7 +137,9 @@ function filterFiles(files) {
 
     return fs.readFileAsync('index.js', 'utf-8')
         .then(inspect)
-        .then(over(lensProp('modules'), filter(startsWith('./'))));
+        .then(over(lensProp('modules'), filter(startsWith('./'))))
+        .then(({ code, modules }) => ({
+            code, files: union(modules.map(clearModule), ['icon.png', ...requiredFiles]) }));
 }
 
 /**
