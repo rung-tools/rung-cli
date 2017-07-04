@@ -1,5 +1,4 @@
 import fs from 'fs';
-import glob from 'glob';
 import { all, promisify, reject } from 'bluebird';
 import {
     T,
@@ -8,13 +7,13 @@ import {
     fromPairs,
     map,
     merge,
+    path,
     pipe,
     startsWith
 } from 'ramda';
 import { transform } from 'babel-core';
 import { compileES6 } from './compiler';
 
-export const fileMatching = promisify(glob);
 const readFile = promisify(fs.readFile);
 
 /**
@@ -87,6 +86,19 @@ export function inspect(source) {
                 visitor: {
                     ImportDeclaration({ node }) {
                         modules.push(node.source.value);
+                    },
+                    CallExpression({ node }) {
+                        // Find and extract require(module)
+                        const callee = path(['callee', 'name'], node);
+
+                        if (callee === 'require') {
+                            const [moduleNode] = node.arguments;
+                            const isLiteralModule = moduleNode && moduleNode.type === 'StringLiteral';
+
+                            if (isLiteralModule) {
+                                modules.push(moduleNode.value);
+                            }
+                        }
                     }
                 }
             })]
