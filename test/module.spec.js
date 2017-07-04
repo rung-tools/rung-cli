@@ -22,12 +22,10 @@ describe('module.js', () => {
             const vm = createVM({});
             const result = evaluateModules(vm, modules);
             expect(result).to.be.an('object');
-            expect(result).to.have.property('./drag-queen.json');
-            expect(result).to.have.property('./drag-queen');
-            expect(result).to.have.property('./workaround.js');
-            expect(result).to.have.property('./workaround');
-            expect(result).property('./workaround').to.equals(42);
-            expect(result).property('./drag-queen').to.have.property('alaska');
+            expect(result).to.have.property('drag-queen.json');
+            expect(result).to.have.property('workaround.js');
+            expect(result).property('workaround.js').to.equals(42);
+            expect(result).property('drag-queen.json').to.have.property('alaska');
         });
 
         it('should get module files from AST', () => {
