@@ -18,16 +18,12 @@ import { ask } from './input';
 import { compileES6 } from './compiler';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
-import { findAndCompileModules } from './module';
+import { compileModulesFromSource } from './module';
 
 const user = { name: os.userInfo().username };
+const percentOf = curry((value, percent) => value / 100 * percent);
 
 export const readFile = promisify(fs.readFile);
-
-export const compileIndex = () =>
-    readFile('index.js', 'utf-8').then(compileES6);
-
-const percentOf = curry((value, percent) => value / 100 * percent);
 
 function tableView(data) {
     const size = percentOf(process.stdout.columns);
@@ -44,21 +40,26 @@ function tableView(data) {
     return table.toString();
 }
 
+function compileSources() {
+    return readFile('index.js', 'utf-8')
+        .then(index => all([compileES6(index), compileModulesFromSource(index)]));
+}
+
 export default function run(args) {
     const spinner = new Spinner(green('%s running extension...'));
     spinner.setSpinnerString(8);
 
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(json => all([json.name, compileIndex(), read(json.name),
-            getLocaleStrings(), findAndCompileModules(), getLocale()]))
-        .spread((name, source, db, strings, modules, locale) => getProperties({ name, source }, strings, modules)
-            .then(prop('params'))
-            .then(ask)
-            .then(mergeAll)
-            .tap(() => spinner.start())
-            .then(params => runAndGetAlerts({ name, source },
-                { params, db, locale, user }, strings, modules)))
+        .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
+        .spread((name, db, strings, locale) => compileSources()
+            .spread((source, modules) => getProperties({ name, source }, strings, modules)
+                .then(prop('params'))
+                .then(ask)
+                .then(mergeAll)
+                .tap(() => spinner.start())
+                .then(params => runAndGetAlerts({ name, source },
+                    { params, db, locale, user }, strings, modules))))
         .tap(() => spinner.stop(true))
         .tap(pipe(args.raw ? identity : tableView, console.log));
 }
