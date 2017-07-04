@@ -40,7 +40,7 @@ function tableView(data) {
     return table.toString();
 }
 
-function compileSources() {
+export function compileSources() {
     return readFile('index.js', 'utf-8')
         .then(index => all([compileES6(index), compileModulesFromSource(index)]));
 }
