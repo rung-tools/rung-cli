@@ -4,7 +4,7 @@
 
 [![Deploy to Rung](https://i.imgur.com/uijt57R.png)](https://app.rung.com.br/integration/hello-world/customize)
 
-![rung-cli 0.8.0](https://img.shields.io/badge/rung--cli-0.8.0-blue.svg?style=flat-square)
+![rung-cli 0.8.2](https://img.shields.io/badge/rung--cli-0.8.2-blue.svg?style=flat-square)
 ![hello-world 0.1.0](https://img.shields.io/badge/hello--world-0.1.0-green.svg?style=flat-square)
 
 Hello world example

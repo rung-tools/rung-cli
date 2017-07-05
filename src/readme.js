@@ -11,8 +11,7 @@ import {
 } from 'ramda';
 import { version as rungCliVersion } from '../package';
 import { getProperties } from './vm';
-import { findAndCompileModules } from './module';
-import { readFile } from './run';
+import { readFile, compileSources } from './run';
 import { getTypeName } from './types';
 import { compileES6 } from './compiler';
 import { emitSuccess } from './input';
@@ -65,22 +64,20 @@ function parametersToArray(parameters) {
 export default function readme() {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(({ name, version, author, dependencies, main }) => all([{
+        .then(({ name, version, author, dependencies }) => all([{
             rungCliVersion,
             name,
             version,
             author,
             escapedName: replace(/-/g, '--', name),
             dependencies: dependenciesToArray(dependencies) },
-            all([readFile(main || 'index.js', 'utf-8'), findAndCompileModules()])
+            compileSources()
                 .spread((source, modules) =>
-                    getProperties({
-                        name: 'pre-compile',
-                        source: compileES6(source) }, {}, modules))]))
-        .spread((partialContext, source) => merge(partialContext, {
-            parameters: parametersToArray(source.params),
-            description: source.description,
-            title: source.title
+                    getProperties({ name: 'pre-compile', source: compileES6(source) }, {}, modules))]))
+        .spread((partialContext, result) => merge(partialContext, {
+            parameters: parametersToArray(result.params),
+            description: result.description,
+            title: result.title
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))

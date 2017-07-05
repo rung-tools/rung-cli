@@ -1,23 +1,17 @@
 import path from 'path';
 import Zip from 'jszip';
-import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
+import Promise, { all, promisifyAll, resolve } from 'bluebird';
 import {
-    T,
-    __,
     complement,
     concat,
-    cond,
     contains,
     curry,
     drop,
-    either,
-    endsWith,
     equals,
     filter,
     head,
     identity,
     ifElse,
-    isEmpty,
     join,
     lensProp,
     map,
@@ -27,7 +21,9 @@ import {
     pipe,
     prop,
     propEq,
+    replace,
     sort,
+    startsWith,
     subtract,
     takeWhile,
     test,
@@ -40,7 +36,7 @@ import {
 import deepmerge from 'deepmerge';
 import { emitSuccess, emitWarning } from './input';
 import { getProperties } from './vm';
-import { fileMatching, findAndCompileModules, inspect } from './module';
+import { compileModulesFromSource, inspect } from './module';
 
 const fs = promisifyAll(require('fs'));
 
@@ -89,7 +85,7 @@ const project = curry((locale, config) => ({
  * @return {Promise}
  */
 const runInAllLocales = curry((source, locales) =>
-    findAndCompileModules().then(modules =>
+    compileModulesFromSource(source).then(modules =>
         all([['default', {}], ...locales].map(([locale, strings]) =>
             getProperties({ name: `precompile-${locale}`, source }, strings, modules)
                 .then(project(locale))))
@@ -121,25 +117,6 @@ function precompileLocales({ code, files }) {
 }
 
 /**
- * Returns the full name for a file that may not contain an extension
- *
- * @param {String} partialName
- * @return {Promise}
- */
-function getQualifiedName(partialName) {
-    const getMatches = cond([
-        [either(endsWith('.json'), endsWith('.js')), fileMatching],
-        [T, pipe(concat(__, '.{js,json}'), fileMatching)]
-    ]);
-
-    return getMatches(partialName)
-        .then(ifElse(
-            isEmpty,
-            () => reject(new Error(`Unable to resolve ${partialName}`)),
-            head));
-}
-
-/**
  * Ensures there are missing no files in order to a allow a basic compilation
  * and filter the used modules. It also warns about possible improvements in the
  * extensions
@@ -148,24 +125,24 @@ function getQualifiedName(partialName) {
  * @return {Promise}
  */
 function filterFiles(files) {
+    const clearModule = replace(/^\.\//, '');
     const missingFiles = without(files, requiredFiles);
+    const hasIcon = contains('icon.png', files);
+    const resources = hasIcon ? ['icon.png'] : [];
 
     if (missingFiles.length > 0) {
         throw new Error(`missing ${missingFiles.join(', ')} from the project`);
     }
 
-    if (!contains('icon.png', files)) {
+    if (!hasIcon) {
         emitWarning('compiling extension without providing an icon.png file');
     }
 
     return fs.readFileAsync('index.js', 'utf-8')
         .then(inspect)
-        .then(over(lensProp('modules'), filter(test(/\.\/.+/))))
-        .then(({ code, modules }) =>
-            all(modules.map(getQualifiedName))
-                .map(unary(path.join))
-                .then(union(without(['node_modules'], files)))
-                .then(files => ({ code, files })));
+        .then(over(lensProp('modules'), filter(startsWith('./'))))
+        .then(({ code, modules }) => ({
+            code, files: union(modules.map(clearModule), concat(resources, requiredFiles)) }));
 }
 
 /**
