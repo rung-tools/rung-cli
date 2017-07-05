@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import {
-    compileModules,
+    compileModulesFromSource,
     evaluateModules,
     inspect
 } from '../src/module';
@@ -41,6 +41,31 @@ describe('module.js', () => {
             expect(modules).to.contain('jquery');
             expect(modules).to.contain('is-thirteen');
             expect(modules).to.contain('./gambiarras');
+        });
+
+        it('should reject when required file has no loader', () => {
+            const source = 'import config from "./_config.yml"';
+            return compileModulesFromSource(source)
+                .then((x) => {
+                    throw new Error('Should never fall here');
+                })
+                .catch(({ message }) => {
+                    expect(message).to.match(/Unknown module loader for file/);
+                });
+        });
+
+        it('should reject compilation of unknown file', () => {
+            const modules = [
+                ['Main.hs', `
+                    module Main where
+
+                    main :: IO ()
+                    main = putStrLn "Hello from Haskell!"
+                `]
+            ];
+            const vm = createVM({});
+            expect(() => evaluateModules(vm, modules))
+                .to.throw('Unknown file type for Main.hs');
         });
     });
 });
