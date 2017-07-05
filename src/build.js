@@ -3,6 +3,7 @@ import Zip from 'jszip';
 import Promise, { all, promisifyAll, resolve } from 'bluebird';
 import {
     complement,
+    concat,
     contains,
     curry,
     drop,
@@ -136,7 +137,6 @@ function filterFiles(files) {
     if (!hasIcon) {
         emitWarning('compiling extension without providing an icon.png file');
     }
-
 
     return fs.readFileAsync('index.js', 'utf-8')
         .then(inspect)
