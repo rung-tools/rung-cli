@@ -152,7 +152,8 @@ function getIndexFile(answers) {
             return {
                 alerts: [{
                     title: _('Welcome'),
-                    content: render(name)
+                    content: render(name),
+                    resources: []
                 }]
             };
         }
