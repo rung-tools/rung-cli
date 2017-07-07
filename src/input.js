@@ -67,10 +67,6 @@ export function IO() {
         read: promisify((text, callback) => {
             io.question(`${text}: `, callback.bind(null, null));
         }),
-        print: promisify((text, callback) => {
-            io.write(`${text}\n`);
-            callback();
-        }),
         close: io.close.bind(io),
         password: promisify((text, callback) => {
             io.close();
