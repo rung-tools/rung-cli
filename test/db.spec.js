@@ -142,6 +142,33 @@ describe('db.js', () => {
                 .finally(stream.close);
         }).timeout(5000);
 
+        it('should fail to read database when a file doesn\'t exist', () => {
+            const stream = createStream(['db', 'read']);
+            return stream.once('data')
+                .then(error => {
+                    expect(error).to.match(/Unable to read database/);
+                });
+        }).timeout(5000);
+
+        it('should read database via rung-cli', () => {
+            const source = compileES6(`
+                export default {
+                    extension(context) { return { alerts: {}, db: {
+                        dragQueen: 'sharon'
+                    } }; }
+                };
+            `);
+
+            return runAndGetAlerts({ name: 'rung-cli', source }, {})
+                .then(() => {
+                    const stream = createStream(['db', 'read']);
+                    return stream.once('data')
+                        .then(yaml => {
+                            expect(yaml).to.equals('dragQueen: sharon\n');
+                        });
+                })
+        }).timeout(10000);
+
         it('should drop database via rung db clear', () => {
             const source = compileES6(`
                 export default {
