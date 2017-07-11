@@ -155,7 +155,8 @@ function filterFiles(files) {
  */
 function listFiles(directory) {
     return fs.lstatAsync(directory)
-        .then(lstat => lstat.isDirectory() ? fs.readdirAsync(directory) : []);
+        .then(lstat => lstat.isDirectory() ? fs.readdirAsync(directory) : [])
+        .catchReturn([]);
 }
 
 /**
@@ -197,7 +198,6 @@ function linkLocales() {
  */
 function linkFiles({ code, files }) {
     return all([linkLocales(), linkAutoComplete()])
-        .tap(console.log)
         .spread(union)
         .then(pipe(union(files), sort(subtract), files => ({ code, files })));
 }
