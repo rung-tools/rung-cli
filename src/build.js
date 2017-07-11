@@ -8,10 +8,12 @@ import {
     curry,
     drop,
     equals,
+    endsWith,
     filter,
     head,
     identity,
     ifElse,
+    is,
     join,
     lensProp,
     map,
@@ -28,7 +30,6 @@ import {
     takeWhile,
     test,
     tryCatch,
-    type,
     unary,
     union,
     without
@@ -36,7 +37,7 @@ import {
 import deepmerge from 'deepmerge';
 import { emitSuccess, emitWarning } from './input';
 import { getProperties } from './vm';
-import { compileModulesFromSource, inspect } from './module';
+import { compileModulesFromSource, ensureNoImports, inspect } from './module';
 
 const fs = promisifyAll(require('fs'));
 
@@ -102,12 +103,12 @@ function createMetaFile(locales) {
 }
 
 /**
- * Precompiles the locale files, generating a meta file containing the meta
+ * Precompiles linked files, generating a .meta file with all the meta data
  *
  * @param {Object<String, String[]>} { code, files }
  * @return {Promise}
  */
-function precompileLocales({ code, files }) {
+function precompile({ code, files }) {
     return resolve(files)
         .then(filter(test(/^locales(\/|\\)[a-z]{2,3}(_[A-Z]{2})?\.json$/)))
         .then(localesToPairs)
@@ -146,23 +147,59 @@ function filterFiles(files) {
 }
 
 /**
- * Filters true locale files and appends the full qualified name for the
- * previous files
+ * Returns all the files in a directory if it exists. Otherwise, return an
+ * empty array as fallback (everything inside a promise)
+ *
+ * @param {String} directory
+ * @return {String[]}
+ */
+function listFiles(directory) {
+    return fs.lstatAsync(directory)
+        .then(lstat => lstat.isDirectory() ? fs.readdirAsync(directory) : [])
+        .catchReturn([]);
+}
+
+/**
+ * Links autocomplete files
+ *
+ * @return {Promise}
+ */
+function linkAutoComplete() {
+    return listFiles('autocomplete')
+        .then(pipe(filter(endsWith('.js')), map(file => path.join('autocomplete', file))))
+        .tap(files => all(files.map(file => fs.readFileAsync(file)
+            .then(ensureNoImports(file)))));
+}
+
+/**
+ * Links locale files
+ *
+ * @return {Promise}
+ */
+function linkLocales() {
+    return listFiles('locales')
+        .then(pipe(
+            filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
+            map(file => path.join('locales', file))))
+        .filter(location => fs.readFileAsync(location)
+            .then(pipe(JSON.parse, is(Object)))
+            .catchReturn(false))
+        .catchReturn([]);
+}
+
+/**
+ * Links the files to precompilation, including locales and autocomplete
+ * scripts. For autocomplete files, ensuring it is a valid script without
+ * requires. For locales, filtering true locale files and appending the full
+ * qualified name for current files.
  *
  * @param {Object<String, String[]>} { code, files }
  * @return {Promise}
  */
-function appendLocales({ code, files }) {
-    return fs.lstatAsync('locales')
-        .then(lstat => lstat.isDirectory() ? fs.readdirAsync('locales') : [])
-        .then(pipe(
-            filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
-            map(file => path.join('locales', file))))
-        .filter(filePath => fs.readFileAsync(filePath)
-            .then(pipe(JSON.parse, item => type(item) === 'Object'))
-            .catchReturn(false))
-        .then(pipe(union(files), sort(subtract), files => ({ code, files })))
-        .catchReturn({ code, files });
+function linkFiles({ code, files }) {
+    return all([linkLocales(), linkAutoComplete()])
+        .spread(union)
+        .then(pipe(union(files), sort(subtract), files => ({ code, files })));
 }
 
 /**
@@ -261,8 +298,8 @@ export default function build(args) {
 
     return fs.readdirAsync(dir)
         .then(filterFiles)
-        .then(appendLocales)
-        .then(precompileLocales)
+        .then(linkFiles)
+        .then(precompile)
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
         .spread(saveZip(args.output || '.'))

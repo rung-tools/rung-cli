@@ -1,8 +1,9 @@
 import fs from 'fs';
-import { all, promisify, reject } from 'bluebird';
+import { all, promisify, reject, resolve } from 'bluebird';
 import {
     T,
     cond,
+    curry,
     endsWith,
     fromPairs,
     map,
@@ -16,6 +17,19 @@ import { transform } from 'babel-core';
 import { compileES6 } from './compiler';
 
 const readFile = promisify(fs.readFile);
+
+/**
+ * Ensures a piece of source has no import or require declarations
+ *
+ * @param {String} source
+ * @return {Promise}
+ */
+export const ensureNoImports = curry((filename, source) => {
+    const { modules } = inspect(source);
+    return modules.length
+        ? reject(new Error(`Cannot import modules on autocomplete files (${filename})`))
+        : resolve();
+});
 
 /**
  * Traverses the AST, getting the imported modules and compile to pairs
