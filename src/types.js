@@ -59,7 +59,7 @@ export const valueOrNothing = {
         return isNaN(doubleValue) ? Nothing() : Just(doubleValue);
     },
     DateTime: input => {
-        const date = new Date(input);
+        const date = new JSDate(input);
         return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
     },
     Natural: input => {
