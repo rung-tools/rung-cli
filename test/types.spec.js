@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import {
+    AutoComplete,
     Char,
     DoubleRange,
     Integer,
     IntegerRange,
     IntegerMultiRange,
     OneOf,
-    String as Text,
     cast,
     getTypeName,
     valueOrNothing
@@ -60,7 +60,7 @@ describe('types.js', () => {
             expect(name).to.equals('IntegerRange(10, 20)');
         });
 
-        it('should recognized DoubleRange(m, n)', () => {
+        it('should recognize DoubleRange(m, n)', () => {
             const name = getTypeName(DoubleRange(10, 20));
             expect(name).to.equals('DoubleRange(10, 20)');
         });
@@ -174,6 +174,21 @@ describe('types.js', () => {
             const invalid = valueOrNothing.IntegerMultiRange('-10 20', props);
             expect(valid.get()).to.deep.equals([40, 70]);
             expect(invalid.get).to.throw(TypeError);
+        });
+
+        it('should validate a calendar', () => {
+            const date = 'Thu Jul 27 2017 08:55:10 GMT-0300 (BRT)';
+            const workaround = 'BELIEVE IN ME, I\'M A DATE!!!';
+            const valid = valueOrNothing.Calendar(date);
+            const invalid = valueOrNothing.Calendar(workaround);
+
+            const extracted = valid.get();
+            expect(extracted).to.be.instanceOf(Date);
+            expect(invalid.get).to.throw(TypeError);
+        });
+
+        it('should have identity for autocomplete', () => {
+            expect(valueOrNothing.AutoComplete('...').get()).to.equals('...');
         });
     });
 
