@@ -27,6 +27,8 @@ export const Checkbox = { name: 'Checkbox' };
 export const OneOf = values => ({ name: 'OneOf', values });
 export const Url = { name: 'Url' };
 export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
+export const Date = { name: 'Date' };
+export const AutoComplete = { name: 'AutoComplete' };
 
 /**
  * Returns the human-readable name of a type
