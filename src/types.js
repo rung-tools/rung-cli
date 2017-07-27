@@ -12,6 +12,9 @@ import {
 import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
 
+// Alias for JS Date, because we reuse the name
+const JSDate = Date;
+
 export const Integer = { name: 'Integer' };
 export const Double = { name: 'Double' };
 export const DateTime = { name: 'DateTime' };
@@ -98,7 +101,7 @@ export const valueOrNothing = {
     },
     Date: input => {
         // Default JS date constructor because MomentJS sucks for validation
-        const date = new Date(input);
+        const date = new JSDate(input);
         return date.toString() === 'Invalid Date'
             ? Nothing()
             : Just(date);
