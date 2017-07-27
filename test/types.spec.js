@@ -176,11 +176,11 @@ describe('types.js', () => {
             expect(invalid.get).to.throw(TypeError);
         });
 
-        it('should validate date', () => {
+        it('should validate a calendar', () => {
             const date = 'Thu Jul 27 2017 08:55:10 GMT-0300 (BRT)';
             const workaround = 'BELIEVE IN ME, I\'M A DATE!!!';
-            const valid = valueOrNothing.Date(date);
-            const invalid = valueOrNothing.Date(workaround);
+            const valid = valueOrNothing.Calendar(date);
+            const invalid = valueOrNothing.Calendar(workaround);
 
             const extracted = valid.get();
             expect(extracted).to.be.instanceOf(Date);

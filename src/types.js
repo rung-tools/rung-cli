@@ -12,9 +12,6 @@ import {
 import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
 
-// Alias for JS Date, because we reuse the name
-const JSDate = Date;
-
 export const Integer = { name: 'Integer' };
 export const Double = { name: 'Double' };
 export const DateTime = { name: 'DateTime' };
@@ -30,7 +27,7 @@ export const Checkbox = { name: 'Checkbox' };
 export const OneOf = values => ({ name: 'OneOf', values });
 export const Url = { name: 'Url' };
 export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
-export const Date = { name: 'Date' };
+export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
 
 /**
@@ -59,7 +56,7 @@ export const valueOrNothing = {
         return isNaN(doubleValue) ? Nothing() : Just(doubleValue);
     },
     DateTime: input => {
-        const date = new JSDate(input);
+        const date = new Date(input);
         return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
     },
     Natural: input => {
@@ -99,9 +96,9 @@ export const valueOrNothing = {
 
         return Just([left, right]);
     },
-    Date: input => {
+    Calendar: input => {
         // Default JS date constructor because MomentJS sucks for validation
-        const date = new JSDate(input);
+        const date = new Date(input);
         return date.toString() === 'Invalid Date'
             ? Nothing()
             : Just(date);
