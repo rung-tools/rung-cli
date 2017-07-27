@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import {
+    AutoComplete,
     Char,
     DoubleRange,
     Integer,
@@ -184,6 +185,10 @@ describe('types.js', () => {
             const extracted = valid.get();
             expect(extracted).to.be.instanceOf(Date);
             expect(invalid.get).to.throw(TypeError);
+        });
+
+        it('should have identity for autocomplete', () => {
+            expect(valueOrNothing.AutoComplete('...').get()).to.equals('...');
         });
     });
 

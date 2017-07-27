@@ -77,6 +77,7 @@ export const valueOrNothing = {
         return isNaN(money) ? Nothing() : Just(money);
     },
     String: Just,
+    AutoComplete: Just,
     Color: input => isHexColor(input) ? Just(input) : Nothing(),
     Email: input => isEmail(input) ? Just(input) : Nothing(),
     Checkbox: input => {
