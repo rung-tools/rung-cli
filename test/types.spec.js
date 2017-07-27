@@ -60,7 +60,7 @@ describe('types.js', () => {
             expect(name).to.equals('IntegerRange(10, 20)');
         });
 
-        it('should recognized DoubleRange(m, n)', () => {
+        it('should recognize DoubleRange(m, n)', () => {
             const name = getTypeName(DoubleRange(10, 20));
             expect(name).to.equals('DoubleRange(10, 20)');
         });
