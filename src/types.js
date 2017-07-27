@@ -92,6 +92,13 @@ export const valueOrNothing = {
         }
 
         return Just([left, right]);
+    },
+    Date: input => {
+        // Default JS date constructor because MomentJS sucks for validation
+        const date = new Date(input);
+        return date.toString() === 'Invalid Date'
+            ? Nothing()
+            : Just(date);
     }
 };
 

@@ -6,7 +6,6 @@ import {
     IntegerRange,
     IntegerMultiRange,
     OneOf,
-    String as Text,
     cast,
     getTypeName,
     valueOrNothing
@@ -173,6 +172,17 @@ describe('types.js', () => {
             const valid = valueOrNothing.IntegerMultiRange('40 70', props);
             const invalid = valueOrNothing.IntegerMultiRange('-10 20', props);
             expect(valid.get()).to.deep.equals([40, 70]);
+            expect(invalid.get).to.throw(TypeError);
+        });
+
+        it('should validate date', () => {
+            const date = 'Thu Jul 27 2017 08:55:10 GMT-0300 (BRT)';
+            const workaround = 'BELIEVE IN ME, I\'M A DATE!!!';
+            const valid = valueOrNothing.Date(date);
+            const invalid = valueOrNothing.Date(workaround);
+
+            const extracted = valid.get();
+            expect(extracted).to.be.instanceOf(Date);
             expect(invalid.get).to.throw(TypeError);
         });
     });
