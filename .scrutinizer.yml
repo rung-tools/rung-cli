@@ -1,0 +1,4 @@
+checks:
+    javascript: true
+filter:
+    paths: ["src/"]
