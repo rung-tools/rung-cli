@@ -105,6 +105,7 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const prompt = {
+    Calendar: () => ({ type: 'datetime', format: ['m', '/', 'd', '/', 'yy'] })
     Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
     Checkbox: () => ({ type: 'confirm' }),
     Color: () => ({ type: 'input', validate: validator.Color }),
