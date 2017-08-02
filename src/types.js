@@ -2,13 +2,13 @@ import {
     T,
     any,
     cond,
-    contains,
     lte,
     prop,
     propEq,
     replace,
     split,
-    take
+    take,
+    unary
 } from 'ramda';
 import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
@@ -49,7 +49,10 @@ export const getTypeName = cond([
 export const validator = {
     Double: input => !isNaN(parseFloat(input)),
     Integer: input => !isNaN(parseInt(input, 10)),
-    Natural: lte(0)
+    Natural: lte(0),
+    Email: unary(isEmail),
+    Url: unary(isURL),
+    Color: isHexColor
 };
 
 export const filter = {
@@ -60,10 +63,6 @@ export const filter = {
 
 // Type validators
 export const valueOrNothing = {
-    DateTime: input => {
-        const date = new Date(input);
-        return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
-    },
     IntegerRange: (input, { from, to }) => {
         const intValue = parseInt(input, 10);
         return isNaN(intValue) || intValue < from || intValue > to ? Nothing() : Just(intValue);
@@ -77,14 +76,6 @@ export const valueOrNothing = {
         return isNaN(money) ? Nothing() : Just(money);
     },
     AutoComplete: Just,
-    Color: input => isHexColor(input) ? Just(input) : Nothing(),
-    Email: input => isEmail(input) ? Just(input) : Nothing(),
-    Checkbox: input => {
-        const lowerCaseInput = input.toLowerCase();
-        return contains(lowerCaseInput, ['y', 'n']) ? Just(lowerCaseInput === 'y') : Nothing();
-    },
-    OneOf: (input, { values }) => contains(input, values) ? Just(input) : Nothing(),
-    Url: input => isURL(input) ? Just(input) : Nothing(),
     IntegerMultiRange: (input, { from, to }) => {
         const [left, right] = split(' ', input).map(item => parseInt(item, 10));
         if (any(isNaN, [left, right]) || left < from || right > to || left > right) {

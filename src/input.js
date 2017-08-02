@@ -16,6 +16,7 @@ import {
 import { green, red, yellow } from 'colors/safe';
 import read from 'read';
 import { createPromptModule } from 'inquirer';
+import DatePickerPrompt from 'inquirer-datepicker-prompt';
 import { cast, validator, filter } from './types';
 
 /**
@@ -104,11 +105,17 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const prompt = {
-    Char: config => ({ type: 'input', filter: filter.Char(config.type.length) }),
-    Double: config => ({ type: 'input', validate: validator.Double, filter: filter.Double }),
-    Integer: config => ({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
-    Natural: config => ({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
-    String: config => ({ type: 'input' })
+    Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
+    Checkbox: () => ({ type: 'confirm' }),
+    Color: () => ({ type: 'input', validate: validator.Color }),
+    DateTime: () => ({ type: 'datetime' }),
+    Double: () => ({ type: 'input', validate: validator.Double, filter: filter.Double }),
+    Email: () => ({ type: 'input', validate: validator.Email }),
+    Integer: () => ({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
+    Natural: () => ({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
+    OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
+    String: () => ({ type: 'input' }),
+    Url: () => ({ type: 'input', validate: validator.Url })
 };
 
 /**
@@ -123,6 +130,7 @@ function toInquirerQuestion([name, config]) {
     const transform = pipe(
         renameKeys({ description: 'message' }),
         merge(__, { name }));
+
     const component = has(config.type.name, prompt)
         ? prompt[config.type.name]
         : prompt.String;
@@ -140,6 +148,7 @@ function toInquirerQuestion([name, config]) {
 export function ask(questions) {
     const toInquirerQuestions = pipe(toPairs, map(toInquirerQuestion));
     const prompt = createPromptModule();
+    prompt.registerPrompt('datetime', DatePickerPrompt);
     return resolve(prompt(toInquirerQuestions(questions)))
         .tap(console.log);
 }
