@@ -104,7 +104,7 @@ export function resolveValue(text, type, def, required) {
 const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
-const prompt = {
+const components = {
     Calendar: () => ({ type: 'datetime' }),
     Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
     Checkbox: () => ({ type: 'confirm' }),
@@ -132,9 +132,9 @@ function toInquirerQuestion([name, config]) {
         renameKeys({ description: 'message' }),
         merge(__, { name }));
 
-    const component = has(config.type.name, prompt)
-        ? prompt[config.type.name]
-        : prompt.String;
+    const component = has(config.type.name, components)
+        ? components[config.type.name]
+        : components.String;
 
     return merge(transform(config), component(config));
 }

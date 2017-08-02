@@ -1,6 +1,6 @@
 {
   "name": "rung-cli",
-  "version": "0.9.3",
+  "version": "0.1.0",
   "description": "Command line interface for Rung",
   "main": "./dist/vm.js",
   "bin": {
