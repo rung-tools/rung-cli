@@ -3,6 +3,7 @@ import {
     any,
     cond,
     contains,
+    lte,
     prop,
     propEq,
     replace,
@@ -47,7 +48,8 @@ export const getTypeName = cond([
 
 export const validator = {
     Double: input => !isNaN(parseFloat(input)),
-    Integer: input => !isNaN(parseInt(input, 10))
+    Integer: input => !isNaN(parseInt(input, 10)),
+    Natural: lte(0)
 };
 
 export const filter = {
@@ -61,10 +63,6 @@ export const valueOrNothing = {
     DateTime: input => {
         const date = new Date(input);
         return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
-    },
-    Natural: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) || intValue < 0 ? Nothing() : Just(intValue);
     },
     IntegerRange: (input, { from, to }) => {
         const intValue = parseInt(input, 10);

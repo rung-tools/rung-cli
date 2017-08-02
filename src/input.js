@@ -2,16 +2,16 @@ import readline from 'readline';
 import { resolve, promisify } from 'bluebird';
 import {
     __,
+    assoc,
     curry,
     has,
     is,
-    pipe,
-    toPairs,
-    map,
-    reduce,
-    assoc,
     keys,
-    merge
+    map,
+    merge,
+    pipe,
+    reduce,
+    toPairs
 } from 'ramda';
 import { green, red, yellow } from 'colors/safe';
 import read from 'read';
@@ -104,10 +104,11 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const prompt = {
-    Char: config => merge(config, { type: 'input', filter: filter.Char(config.type.length) }),
-    Double: config => merge(config, { type: 'input', validate: validator.Double, filter: filter.Double }),
-    Integer: config => merge(config, { type: 'input', validate: validator.Integer, filter: filter.Integer }),
-    String: config => merge(config, { type: 'input' }),
+    Char: config => ({ type: 'input', filter: filter.Char(config.type.length) }),
+    Double: config => ({ type: 'input', validate: validator.Double, filter: filter.Double }),
+    Integer: config => ({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
+    Natural: config => ({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
+    String: config => ({ type: 'input' })
 };
 
 /**
@@ -122,11 +123,11 @@ function toInquirerQuestion([name, config]) {
     const transform = pipe(
         renameKeys({ description: 'message' }),
         merge(__, { name }));
-    const setType = has(config.type.name, prompt)
+    const component = has(config.type.name, prompt)
         ? prompt[config.type.name]
         : prompt.String;
 
-    return setType(transform(config));
+    return merge(transform(config), component(config));
 }
 
 /**
