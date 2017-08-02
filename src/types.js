@@ -46,23 +46,18 @@ export const getTypeName = cond([
 ]);
 
 export const validator = {
+    Double: input => !isNaN(parseFloat(input)),
     Integer: input => !isNaN(parseInt(input, 10))
 };
 
 export const filter = {
+    Char: take,
+    Double: parseFloat,
     Integer: input => parseInt(input, 10)
 };
 
 // Type validators
 export const valueOrNothing = {
-    Integer: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) ? Nothing() : Just(intValue);
-    },
-    Double: input => {
-        const doubleValue = parseFloat(input);
-        return isNaN(doubleValue) ? Nothing() : Just(doubleValue);
-    },
     DateTime: input => {
         const date = new Date(input);
         return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
@@ -70,9 +65,6 @@ export const valueOrNothing = {
     Natural: input => {
         const intValue = parseInt(input, 10);
         return isNaN(intValue) || intValue < 0 ? Nothing() : Just(intValue);
-    },
-    Char: (input, { length }) => {
-        return Just(take(length, input));
     },
     IntegerRange: (input, { from, to }) => {
         const intValue = parseInt(input, 10);
@@ -86,7 +78,6 @@ export const valueOrNothing = {
         const money = parseFloat(replace(',', '.', input));
         return isNaN(money) ? Nothing() : Just(money);
     },
-    String: Just,
     AutoComplete: Just,
     Color: input => isHexColor(input) ? Just(input) : Nothing(),
     Email: input => isEmail(input) ? Just(input) : Nothing(),
@@ -112,15 +103,3 @@ export const valueOrNothing = {
             : Just(date);
     }
 };
-
-/**
- * Returns the literal value by receiving the string input, the type and the
- * default value
- *
- * @author Marcelo Haskell Camargo
- * @param {String} input - The original string value
- * @param {Object} type - Type of the value to be casted
- * @param {Mixed} def - The value that may be taken in case of error. Null on error
- */
-export const cast = (input, type) =>
-    valueOrNothing[type.name](input, type).getOrElse(null);

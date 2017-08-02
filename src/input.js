@@ -104,8 +104,10 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const prompt = {
+    Char: config => merge(config, { type: 'input', filter: filter.Char(config.type.length) }),
+    Double: config => merge(config, { type: 'input', validate: validator.Double, filter: filter.Double }),
+    Integer: config => merge(config, { type: 'input', validate: validator.Integer, filter: filter.Integer }),
     String: config => merge(config, { type: 'input' }),
-    Integer: config => merge(config, { type: 'input', validate: validator.Integer, filter: filter.Integer })
 };
 
 /**
