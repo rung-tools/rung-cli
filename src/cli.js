@@ -25,6 +25,7 @@ function cli(args) {
     executeCommand(args)
         .catch(err => {
             emitError(err.message);
+            emitError(err.stack);
             process.exit(1);
         });
 }

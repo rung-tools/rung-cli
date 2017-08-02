@@ -1,21 +1,22 @@
 import readline from 'readline';
-import Promise, { resolve, promisify } from 'bluebird';
+import { resolve, promisify } from 'bluebird';
 import {
-    both,
-    concat,
+    __,
     curry,
     has,
     is,
-    isNil,
-    keys,
-    mapObjIndexed,
     pipe,
-    propEq,
-    toPairs
+    toPairs,
+    map,
+    reduce,
+    assoc,
+    keys,
+    merge
 } from 'ramda';
-import { blue, green, red, yellow } from 'colors/safe';
+import { green, red, yellow } from 'colors/safe';
 import read from 'read';
-import { getTypeName, cast } from './types';
+import { createPromptModule } from 'inquirer';
+import { cast, validator, filter } from './types';
 
 /**
  * Emits a warning to stdout
@@ -76,28 +77,6 @@ export function IO() {
 }
 
 /**
- * Triggers the warnings related to bad coding practices
- *
- * @param {IO} io
- * @param {Object} questions
- */
-export function triggerWarnings(io, questions) {
-    const getFieldWarnings = pipe(
-        mapObjIndexed(both(has('default'), propEq('required', true))),
-        toPairs);
-
-    const triggerLanguageWarnings = () => has('language', questions)
-        ? emitWarning('don\'t use context.params.language. Prefer context.locale')
-        : resolve();
-
-    return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
-        promise.then(() => hasWarning
-            ? emitWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
-            : resolve()), resolve())
-            .then(triggerLanguageWarnings);
-}
-
-/**
  * Returns the resolved value, based on required properties and default values
  *
  * @param {String} text
@@ -117,6 +96,38 @@ export function resolveValue(text, type, def, required) {
 }
 
 /**
+ * Renames the keys of an object
+ *
+ * @sig {a: b} -> {a: *} -> {b: *}
+ */
+const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
+    assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
+
+const prompt = {
+    String: config => merge(config, { type: 'input' }),
+    Integer: config => merge(config, { type: 'input', validate: validator.Integer, filter: filter.Integer })
+};
+
+/**
+ * Converts a Rung CLI question object to an Inquirer question object
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String} name
+ * @param {Object} config
+ * @return {Object}
+ */
+function toInquirerQuestion([name, config]) {
+    const transform = pipe(
+        renameKeys({ description: 'message' }),
+        merge(__, { name }));
+    const setType = has(config.type.name, prompt)
+        ? prompt[config.type.name]
+        : prompt.String;
+
+    return setType(transform(config));
+}
+
+/**
  * Returns the pure JS values from received questions that will be answered
  *
  * @author Marcelo Haskell Camargo
@@ -124,27 +135,8 @@ export function resolveValue(text, type, def, required) {
  * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
-    const io = IO();
-    const recur = curry((remaining, answered, callback) => {
-        if (remaining.length > 0) {
-            const [head, ...tail] = remaining;
-            const { description, type, default: def, required } = questions[head];
-
-            io.read(`${red.bold(getTypeName(type))}> ${blue(description)}`).done(answer => {
-                const value = resolveValue(answer, type, def, required);
-
-                const args = isNil(value)
-                    ? [remaining, answered, callback]
-                    : [tail, concat(answered, [{ [head]: value }]), callback];
-
-                return recur(...args);
-            });
-        } else {
-            io.close();
-            return callback(answered);
-        }
-    });
-
-    return triggerWarnings(io, questions)
-        .then(() => new Promise(recur(keys(questions), [])));
+    const toInquirerQuestions = pipe(toPairs, map(toInquirerQuestion));
+    const prompt = createPromptModule();
+    return resolve(prompt(toInquirerQuestions(questions)))
+        .tap(console.log);
 }

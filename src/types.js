@@ -45,6 +45,14 @@ export const getTypeName = cond([
     [T, prop('name')]
 ]);
 
+export const validator = {
+    Integer: input => !isNaN(parseInt(input, 10))
+};
+
+export const filter = {
+    Integer: input => parseInt(input, 10)
+};
+
 // Type validators
 export const valueOrNothing = {
     Integer: input => {
