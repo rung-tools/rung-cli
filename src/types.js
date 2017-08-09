@@ -29,6 +29,7 @@ export const Url = { name: 'Url' };
 export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
 export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
+export const Location = { name: 'Location' };
 
 /**
  * Returns the human-readable name of a type
@@ -102,7 +103,8 @@ export const valueOrNothing = {
         return date.toString() === 'Invalid Date'
             ? Nothing()
             : Just(date);
-    }
+    },
+    Location: Just
 };
 
 /**
