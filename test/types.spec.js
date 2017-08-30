@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import {
-    AutoComplete,
     Char,
     DoubleRange,
     Integer,
@@ -194,7 +193,7 @@ describe('types.js', () => {
 
     describe('Type casting', () => {
         it('should cast a string to an integer', () => {
-            const native = cast("10", Integer, 0);
+            const native = cast('10', Integer, 0);
             expect(native).to.equals(10);
         });
 
@@ -202,5 +201,5 @@ describe('types.js', () => {
             const native = cast('foo', Integer);
             expect(native).to.be.null;
         });
-    })
+    });
 });

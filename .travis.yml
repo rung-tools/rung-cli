@@ -9,6 +9,7 @@ install:
 
 script:
   - yarn lint
+  - yarn lint:tests
   - yarn test
   - yarn report-coverage
 

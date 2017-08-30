@@ -11,15 +11,6 @@ chai.use(json);
 
 const rm = promisify(rimraf);
 
-const answers = [
-    'boilerplate-project',
-    '0.1.0',
-    'Boilerplate title',
-    'Boilerplate description',
-    'miscellaneous',
-    'MIT'
-];
-
 describe('boilerplate.js', () => {
     describe('Input and output', () => {
         it('should answer the questions and create a valid extension', () => {
@@ -59,5 +50,5 @@ describe('boilerplate.js', () => {
                 .tap(() => rm('boilerplate-project'))
                 .finally(stream.close);
         }).timeout(20000);
-    })
+    });
 });

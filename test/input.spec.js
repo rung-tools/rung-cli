@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import intercept from 'intercept-stdout';
-import { IO, resolveValue } from '../src/input';
+import { resolveValue } from '../src/input';
 import { String as Text } from '../src/types';
 import { compileES6 } from '../src/compiler';
 

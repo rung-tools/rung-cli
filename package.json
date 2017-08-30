@@ -67,7 +67,9 @@
   "xo": {
     "esnext": true,
     "space": 4,
-    "globals": ["_"],
+    "globals": [
+      "_"
+    ],
     "overrides": [
       {
         "files": "test/**/*.js",
