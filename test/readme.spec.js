@@ -1,6 +1,6 @@
+import path from 'path';
 import { promisify } from 'bluebird';
 import { expect } from 'chai';
-import path from 'path';
 import rimraf from 'rimraf';
 import { createStream } from './helper';
 

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { __require, getProperties, runAndGetAlerts } from '../src/vm';
+import { getProperties, runAndGetAlerts } from '../src/vm';
 
 describe('vm.js', () => {
     describe('Virtual machine runtime', () => {
@@ -58,7 +58,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-process-exit', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {
@@ -78,7 +78,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-filesystem-access', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {
@@ -94,7 +94,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-ext-type', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {

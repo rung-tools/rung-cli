@@ -13,6 +13,7 @@
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps",
     "lint": "xo src/**",
+    "lint:tests": "xo test/**",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
     "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test/*.spec.js",
@@ -67,6 +68,16 @@
     "esnext": true,
     "space": 4,
     "globals": ["_"],
+    "overrides": [
+      {
+        "files": "test/**/*.js",
+        "globals": [
+          "describe",
+          "it",
+          "before"
+        ]
+      }
+    ],
     "rules": {
       "no-restricted-syntax": [
         "error",
