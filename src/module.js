@@ -72,7 +72,7 @@ export const evaluateModules = (vm, modules) => fromPairs(map(([module, source])
     // JSON doesn't need to run on VM. We can directly parse it
     const convertToBytecode = cond([
         [endsWith('.json'), () => JSON.parse(source)],
-        [endsWith('.js'), module => vm.run(source, module)],
+        [endsWith('.js'), vm.run(source, _)],
         [T, module => {
             throw new Error(`Unknown file type for ${module}`);
         }]

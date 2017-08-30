@@ -37,7 +37,7 @@ const compileCSS = pipe(
  */
 function compileProps(props) {
     const transformKey = when(equals('className'), always('class'));
-    const transformValue = ifElse(item => type(item) === 'Object',
+    const transformValue = ifElse(pipe(type, equals('Object')),
         compileCSS, unary(JSON.stringify));
 
     const result = props
@@ -79,7 +79,7 @@ export function compileHTML(tag, props, ...children) {
     ])(tag);
 
     const render = cond([
-        [item => type(item) === 'Array', join('')],
+        [pipe(type, equals('Array')), join('')],
         [T, identity]
     ]);
 
