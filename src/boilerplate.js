@@ -12,7 +12,6 @@ import {
     mapObjIndexed,
     merge,
     pick,
-    pipe,
     replace,
     split
 } from 'ramda';
