@@ -9,7 +9,6 @@ import {
     keys,
     map,
     merge,
-    pipe,
     reduce,
     toPairs
 } from 'ramda';
@@ -128,15 +127,13 @@ const components = {
  * @return {Object}
  */
 function toInquirerQuestion([name, config]) {
-    const transform = pipe(
-        renameKeys({ description: 'message' }),
-        merge(__, { name }));
-
     const component = has(config.type.name, components)
         ? components[config.type.name]
         : components.String;
 
-    return merge(transform(config), component(config));
+    return merge(config
+        | renameKeys({ description: 'message' })
+        | merge(__, { name }), component(config));
 }
 
 /**
