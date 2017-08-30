@@ -73,11 +73,7 @@
         "SwitchStatement",
         "VariableDeclaration[kind='var']",
         "VariableDeclaration[kind='let']",
-        "TryStatement",
-        {
-          "selector": "ImportDeclaration > ImportSpecifier[imported.name='pipe']",
-          "message": "Use the native pipe operator (|) instead of pipe function"
-        }
+        "TryStatement"
       ],
       "object-curly-spacing": [
         "error",
