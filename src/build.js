@@ -166,7 +166,7 @@ function listFiles(directory) {
  */
 function linkAutoComplete() {
     return listFiles('autocomplete')
-        .then(pipe(filter(endsWith('.js')), map(file => path.join('autocomplete', file))))
+        .then(pipe(filter(endsWith('.js')), map(path.join('autocomplete', _))))
         .tap(files => all(files.map(file => fs.readFileAsync(file)
             .then(ensureNoImports(file)))));
 }
@@ -180,7 +180,7 @@ function linkLocales() {
     return listFiles('locales')
         .then(pipe(
             filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
-            map(file => path.join('locales', file))))
+            map(path.join('locales', _))))
         .filter(location => fs.readFileAsync(location)
             .then(pipe(JSON.parse, is(Object)))
             .catchReturn(false))
@@ -224,7 +224,7 @@ function getProjectName(dir) {
  */
 const createZip = curry((dir, files) => {
     const zip = new Zip();
-    files.forEach(filename => addToZip(zip, dir, filename));
+    files.forEach(addToZip(zip, dir, _));
     return zip;
 });
 
