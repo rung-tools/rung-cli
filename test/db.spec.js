@@ -160,12 +160,9 @@ describe('db.js', () => {
             `);
 
             return runAndGetAlerts({ name: 'rung-cli', source }, {})
-                .then(() => {
-                    const stream = createStream(['db', 'read']);
-                    return stream.once('data')
-                        .then(yaml => {
-                            expect(yaml).to.equals('dragQueen: sharon\n');
-                        });
+                .then(() => createStream(['db', 'read']).once('data'))
+                .then(yaml => {
+                    expect(yaml).to.equals('dragQueen: sharon\n');
                 });
         }).timeout(10000);
 
@@ -179,13 +176,10 @@ describe('db.js', () => {
             `);
 
             return runAndGetAlerts({ name: extensionName, source }, {})
+                .then(() => createStream(['db', 'clear']).after())
                 .then(() => {
-                    const stream = createStream(['db', 'clear']);
-                    return stream.after()
-                        .then(() => {
-                            expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
-                                .to.not.be.a.path();
-                        });
+                    expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
+                        .to.not.be.a.path();
                 });
         }).timeout(20000);
     });

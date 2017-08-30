@@ -11,7 +11,7 @@ describe('input.js', () => {
 
         it('should return null for a required string', () => {
             const value = resolveValue('', Text, null, true);
-            expect(value).to.be.null;
+            void expect(value).to.be.null;
         });
 
         it('should accept the default value of a string', () => {

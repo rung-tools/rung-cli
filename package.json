@@ -76,8 +76,14 @@
         "globals": [
           "describe",
           "it",
-          "before"
-        ]
+          "before",
+          "_"
+        ],
+        "rules": {
+          "no-void": [
+            "off"
+          ]
+        }
       }
     ],
     "rules": {
@@ -109,6 +115,9 @@
         "off"
       ],
       "no-useless-call": [
+        "off"
+      ],
+      "no-template-curly-in-string": [
         "off"
       ]
     }

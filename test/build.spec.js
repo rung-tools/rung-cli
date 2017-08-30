@@ -1,6 +1,5 @@
-import { expect } from 'chai';
 import path from 'path';
-import fs from 'chai-fs';
+import { expect } from 'chai';
 import { createStream } from './helper';
 
 describe('build.js', () => {

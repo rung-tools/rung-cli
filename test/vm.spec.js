@@ -10,7 +10,7 @@ describe('vm.js', () => {
 
             return getProperties({ name: 'test-config', source })
                 .then(result => {
-                    expect(result).property('primaryKey').to.be.true;
+                    void expect(result).property('primaryKey').to.be.true;
                 });
         });
 
