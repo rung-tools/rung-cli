@@ -11,19 +11,19 @@ describe('i18n.js', () => {
         });
 
         it('should allow translation', () => {
-            const zh_CN = {
+            const simplifiedChinese = {
                 'I\'m 20 years old': '我是18岁'
             };
-            const _ = translator(zh_CN);
+            const _ = translator(simplifiedChinese);
 
             expect(_('I\'m 20 years old')).to.equals('我是18岁');
         });
 
         it('should allow string interpolation', () => {
-            const zh_CN = {
+            const simplifiedChinese = {
                 '{{name}} is {{age}} years old': '{{name}}是{{age}}岁'
             };
-            const _ = translator(zh_CN);
+            const _ = translator(simplifiedChinese);
             const sentence = _('{{name}} is {{age}} years old', {
                 name: 'Celão',
                 age: 20

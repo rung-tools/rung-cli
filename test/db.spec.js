@@ -60,7 +60,7 @@ describe('db.js', () => {
             `);
 
             return runAndGetAlerts({ name: extensionName, source }, {})
-                .then(result => {
+                .then(() => {
                     throw new Error('It should break');
                 })
                 .catch(err => {
@@ -166,7 +166,7 @@ describe('db.js', () => {
                         .then(yaml => {
                             expect(yaml).to.equals('dragQueen: sharon\n');
                         });
-                })
+                });
         }).timeout(10000);
 
         it('should drop database via rung db clear', () => {
@@ -186,7 +186,7 @@ describe('db.js', () => {
                             expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
                                 .to.not.be.a.path();
                         });
-                })
+                });
         }).timeout(20000);
     });
 });
