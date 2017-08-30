@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import { head, pipe, cond, equals, prop } from 'ramda';
+import { head, cond, equals, prop } from 'ramda';
 import { emitError } from './input';
 import build from './build';
 import run from './run';
@@ -10,7 +10,7 @@ import boilerplate from './boilerplate';
 import readme from './readme';
 import db from './db';
 
-const commandEquals = value => pipe(prop('_'), head, equals(value));
+const commandEquals = ({ _: [command] }) => command === value;
 
 const executeCommand = cond([
     [commandEquals('build'), build],
