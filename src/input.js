@@ -147,9 +147,8 @@ function toInquirerQuestion([name, config]) {
  * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
-    const toInquirerQuestions = pipe(toPairs, map(toInquirerQuestion));
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
-    return resolve(prompt(toInquirerQuestions(questions)))
+    return resolve(prompt(questions | toPairs | map(toInquirerQuestion)))
         .tap(console.log);
 }

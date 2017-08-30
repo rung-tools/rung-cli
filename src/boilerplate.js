@@ -29,12 +29,11 @@ const createFile = promisify(fs.writeFile);
  * @param {String} source
  * @return {String}
  */
-const format = pipe(
-    replace(/\n {8}/g, '\n'),
-    dropWhile(equals('\n')),
-    append('\n'),
-    join('')
-);
+const format = source => source
+    | replace(/\n {8}/g, '\n')
+    | dropWhile(equals('\n'))
+    | append('\n')
+    | join('');
 
 /**
  * Generate the answers from the stdin.

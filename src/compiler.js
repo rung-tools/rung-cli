@@ -41,12 +41,10 @@ function compileProps(props) {
     const transformValue = ifElse(item => type(item) === 'Object',
         compileCSS, unary(JSON.stringify));
 
-    const stringify = pipe(
-        toPairs,
-        map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`),
-        join(' ')
-    );
-    const result = stringify(props);
+    const result = props
+        | toPairs
+        | map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`)
+        | join(' ');
 
     return result.length === 0 ? '' : ` ${result}`;
 }

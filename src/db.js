@@ -107,7 +107,7 @@ function cliRead() {
     return getPackage()
         .then(({ name }) => read(name))
         .then(render)
-        .tap(console.log.bind(console))
+        .tap(console.log)
         .catch(() => reject(new Error('Unable to read database')));
 }
 
