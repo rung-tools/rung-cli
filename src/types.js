@@ -1,13 +1,17 @@
 import {
     T,
+    always,
     any,
+    complement,
     cond,
     lte,
+    pipe,
     prop,
     propEq,
     replace,
     split,
     take,
+    tryCatch,
     unary
 } from 'ramda';
 import { Just, Nothing } from 'data.maybe';
@@ -47,18 +51,20 @@ export const getTypeName = cond([
 ]);
 
 export const validator = {
-    Double: input => !isNaN(parseFloat(input)),
-    Integer: input => !isNaN(parseInt(input, 10)),
+    Double: complement(isNaN),
+    Integer: complement(isNaN),
     Natural: lte(0),
     Email: unary(isEmail),
     Url: unary(isURL),
-    Color: isHexColor
+    Color: isHexColor,
+    Money: complement(isNaN)
 };
 
 export const filter = {
     Char: take,
     Double: parseFloat,
-    Integer: input => parseInt(input, 10)
+    Integer: parseInt(_, 10),
+    Money: tryCatch(pipe(replace(',', '.'), parseFloat), always(NaN))
 };
 
 // Type validators
@@ -70,10 +76,6 @@ export const valueOrNothing = {
     DoubleRange: (input, { from, to }) => {
         const doubleValue = parseFloat(input);
         return isNaN(doubleValue) || doubleValue < from || doubleValue > to ? Nothing() : Just(doubleValue);
-    },
-    Money: input => {
-        const money = parseFloat(replace(',', '.', input));
-        return isNaN(money) ? Nothing() : Just(money);
     },
     AutoComplete: Just,
     IntegerMultiRange: (input, { from, to }) => {

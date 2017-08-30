@@ -4,7 +4,6 @@ import { all, promisify } from 'bluebird';
 import {
     always,
     curry,
-    identity,
     mapObjIndexed,
     mergeAll,
     pipe,

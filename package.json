@@ -66,6 +66,7 @@
   "xo": {
     "esnext": true,
     "space": 4,
+    "globals": ["_"],
     "rules": {
       "no-restricted-syntax": [
         "error",

@@ -115,7 +115,8 @@ const components = {
     Natural: () => ({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
     String: () => ({ type: 'input' }),
-    Url: () => ({ type: 'input', validate: validator.Url })
+    Url: () => ({ type: 'input', validate: validator.Url }),
+    Money: () => ({ type: 'input', validate: validator.Money, filter: filter.Money })
 };
 
 /**
