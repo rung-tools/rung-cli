@@ -7,8 +7,6 @@ import {
     T,
     cond,
     equals,
-    pipe,
-    prop,
     tryCatch,
     type
 } from 'ramda';
@@ -117,8 +115,8 @@ function cliClear() {
         .catch(() => reject(new Error('Unable to clear database')));
 }
 
-export default pipe(prop('option'), cond([
+export default ({ option }) => option | cond([
     [equals('read'), cliRead],
     [equals('clear'), cliClear],
     [T, option => reject(new Error(`Unknown option ${option}`))]
-]));
+]);

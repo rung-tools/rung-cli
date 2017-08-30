@@ -26,10 +26,12 @@ const percentOf = curry((value, percent) => value / 100 * percent);
 export const readFile = promisify(fs.readFile);
 
 function tableView(data) {
-    const size = percentOf(process.stdout.columns);
-    const colWidths = [10, 20, 35, 26].map(pipe(size, Math.round));
-    const valuesFrom = pipe(mapObjIndexed(({ title, content, comment }, key) =>
-        [key, title, content || '', comment || '']), values);
+    const colWidths = [10, 20, 35, 26].map(column => column
+        | percentOf(process.stdout.columns)
+        | Math.round);
+    const valuesFrom = object => object
+        | mapObjIndexed(({ title, content = '', comment = '' }, key) => [key, title, content, comment])
+        | values;
 
     const table = new Table({
         head: ['Key', 'Title', 'Content', 'Comment'],
@@ -61,5 +63,7 @@ export default function run(args) {
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
         .tap(() => spinner.stop(true))
-        .tap(pipe(args.raw ? identity : tableView, console.log));
+        .tap(item => item
+            | (args.raw ? identity : tableView)
+            | console.log);
 }
