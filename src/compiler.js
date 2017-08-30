@@ -9,7 +9,6 @@ import {
     ifElse,
     join,
     map,
-    pipe,
     toPairs,
     type,
     unary,
@@ -23,12 +22,11 @@ import { transform } from 'babel-core';
  * @param {Object} obj
  * @return {String}
  */
-const compileCSS = pipe(
-    toPairs,
-    map(([key, value]) => `${dasherize(key)}:${value}`),
-    join(';'),
-    JSON.stringify
-);
+const compileCSS = obj => obj
+    | toPairs
+    | map(([key, value]) => `${dasherize(key)}:${value}`)
+    | join(';')
+    | JSON.stringify;
 
 /**
  * Generates HTML string for element properties
