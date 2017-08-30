@@ -1,4 +1,4 @@
 {
     "presets": ["es2015"],
-    "plugins": ["pipe-operator-curry"]
+    "plugins": ["pipe-operator-curry", "transform-scala-lambda"]
 }
