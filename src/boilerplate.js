@@ -1,24 +1,27 @@
 import fs from 'fs';
 import path from 'path';
-import { promisify, reject, resolve } from 'bluebird';
+import { all, promisify, reject } from 'bluebird';
 import {
     append,
     dropWhile,
     equals,
     join,
     juxt,
-    keys,
     last,
-    mapObjIndexed,
+    map,
     merge,
     pick,
+    prop,
     replace,
     split
 } from 'ramda';
-import { gray } from 'colors';
+import semver from 'semver';
+import superagent from 'superagent';
+import inquirer from 'inquirer';
 import { version as rungCliVersion } from '../package';
-import { IO } from './input';
+import { emitSuccess } from './input';
 
+const request = superagent.agent();
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
 
@@ -39,29 +42,18 @@ const format = replace(/\n {8}/g, '\n')
  * @param {IO} io
  * @return {Promise}
  */
-export function askQuestions(io) {
-    // [Question description, Default value]
-    const questions = {
-        name: ['Project name', last(split('/', process.cwd()))],
-        version: ['Version', '1.0.0'],
-        title: ['Title', ''],
-        description: ['Description', ''],
-        category: ['Category', 'miscellaneous'],
-        license: ['License', 'MIT']
-    };
-
-    // We chain the blocking promises and they return the fulfilled answers
-    return keys(questions).reduce((promise, key) =>
-        promise.then(prevAnswers => {
-            const [description, defaultValue] = questions[key];
-            return io.read(gray(`${description} (${defaultValue})`))
-                .then(value => merge(
-                    prevAnswers,
-                    value.trim() === ''
-                        ? {}
-                        : { [key]: value }));
-        }),
-        resolve(mapObjIndexed(last, questions)));
+function askQuestions() {
+    return request.get('https://app.rung.com.br/api/categories')
+        .then(prop('body') & map(({ name, alias: value }) => ({ name, value })))
+        .then(categories => [
+            { name: 'name', message: 'Project name', default: process.cwd() | split('/') | last },
+            { name: 'version', message: 'Version', default: '1.0.0', validate: semver.valid & Boolean },
+            { name: 'title', message: 'Title' },
+            { name: 'description', message: 'Description' },
+            { name: 'category', type: 'list', message: 'Category', default: 'miscellaneous', choices: categories },
+            { name: 'license', message: 'license', default: 'MIT' }
+        ])
+        .then(inquirer.createPromptModule());
 }
 
 /**
@@ -87,7 +79,7 @@ function writeFileFromObject({ filename, content }) {
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
         .catch(() => reject(`Unable to create folder ${answers.name}`))
-        .thenReturn(answers);
+        .return(answers);
 }
 
 /**
@@ -180,10 +172,9 @@ function getIndexFile(answers) {
  * @return {Promise}
  */
 export default function boilerplate() {
-    const io = IO();
-    return askQuestions(io)
+    return askQuestions()
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
-        .map(writeFileFromObject)
-        .finally(io.close.bind(io));
+        .then(map(writeFileFromObject) & all)
+        .then(() => emitSuccess('project generated'));
 }

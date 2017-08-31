@@ -41,9 +41,9 @@
     "os-locale": "^2.0.0",
     "prettyjson": "^1.2.1",
     "ramda": "^0.24.1",
-    "read": "^1.0.7",
     "rimraf": "2.6.1",
     "rung-sdk": "1.0.7",
+    "semver": "5.4.1",
     "superagent": "^3.5.0",
     "superagent-promise": "^1.1.0",
     "tracking-correios": "1.1.4",
@@ -104,10 +104,6 @@
       "operator-linebreak": [
         "error",
         "before"
-      ],
-      "no-restricted-imports": [
-        "error",
-        "!colors"
       ],
       "import/no-dynamic-require": [
         "off"

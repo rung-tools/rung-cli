@@ -1,5 +1,4 @@
-import readline from 'readline';
-import { resolve, promisify } from 'bluebird';
+import { resolve } from 'bluebird';
 import {
     __,
     assoc,
@@ -14,7 +13,6 @@ import {
     toPairs
 } from 'ramda';
 import { green, red, yellow } from 'colors/safe';
-import read from 'read';
 import { createPromptModule } from 'inquirer';
 import DatePickerPrompt from 'inquirer-datepicker-prompt';
 import { cast, validator, filter } from './types';
@@ -42,31 +40,6 @@ export const emitError = concat(' ✗ Error: ') & red & console.log & resolve;
  * @return {Promise}
  */
 export const emitSuccess = concat(' ✔ Success: ') & green & console.log & resolve;
-
-/**
- * Returns an IO object that promisifies everything that is necessary and exposes
- * a clear API
- *
- * @author Marcelo Haskell Camargo
- * @return {Object}
- */
-export function IO() {
-    const io = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    return {
-        read: promisify((text, callback) => {
-            io.question(`${text}: `, callback.bind(null, null));
-        }),
-        close: io.close.bind(io),
-        password: promisify((text, callback) => {
-            io.close();
-            read({ prompt: `${text}: `, silent: true, replace: '*' }, callback);
-        })
-    };
-}
 
 /**
  * Returns the resolved value, based on required properties and default values
