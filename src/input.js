@@ -3,6 +3,7 @@ import { resolve, promisify } from 'bluebird';
 import {
     __,
     assoc,
+    concat,
     curry,
     has,
     is,
@@ -24,10 +25,7 @@ import { cast, validator, filter } from './types';
  * @param {String} message
  * @return {Promise}
  */
-export function emitWarning(message) {
-    console.log(yellow(` ⚠ Warning: ${message}`));
-    return resolve();
-}
+export const emitWarning = concat(' ⚠ Warning: ') & yellow & console.log & resolve;
 
 /**
  * Emits an error to stdout
@@ -35,10 +33,7 @@ export function emitWarning(message) {
  * @param {String} message
  * @return {Promise}
  */
-export function emitError(message) {
-    console.log(red(` ✗ Error: ${message}`));
-    return resolve();
-}
+export const emitError = concat(' ✗ Error: ') & red & console.log & resolve;
 
 /**
  * Emits a success message
@@ -46,10 +41,7 @@ export function emitError(message) {
  * @param {String} message
  * @return {Promise}
  */
-export function emitSuccess(message) {
-    console.log(green(` ✔ Success: ${message}`));
-    return resolve();
-}
+export const emitSuccess = concat(' ✔ Success: ') & green & console.log & resolve;
 
 /**
  * Returns an IO object that promisifies everything that is necessary and exposes
