@@ -148,7 +148,7 @@ describe('types.js', () => {
         it('should validate a checkbox', () => {
             const valid = valueOrNothing.Checkbox('y');
             const invalid = valueOrNothing.Checkbox('?');
-            expect(valid.get()).to.be.true;
+            void expect(valid.get()).to.be.true;
             expect(invalid.get).to.throw(TypeError);
         });
 
@@ -199,7 +199,7 @@ describe('types.js', () => {
 
         it('should return null when there is no fallback value and it fails', () => {
             const native = cast('foo', Integer);
-            expect(native).to.be.null;
+            void expect(native).to.be.null;
         });
     });
 });

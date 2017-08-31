@@ -16,13 +16,14 @@ describe('run.js', () => {
                     return stream.write('Harmony\n\n');
                 })
                 .then(() => {
-                    let result = '';
-                    const stopReading = intercept(text => result += text);
+                    const result = [];
+                    const unhook = intercept(result.push(_));
                     return delay(5000)
-                        .then(() => {
-                            stopReading();
-                            expect(result).to.equals('');
-                        });
+                        .tap(unhook)
+                        .return(result);
+                })
+                .then(result => {
+                    expect(result.join('')).to.equals('');
                 })
                 .finally(() => {
                     stream.close();
