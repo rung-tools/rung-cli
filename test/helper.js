@@ -1,5 +1,8 @@
+import path from 'path';
 import thread from 'child_process';
 import { promisify } from 'bluebird';
+
+export const binary = path.join(__dirname, '../dist/cli.js');
 
 const promisifyStream = fn => promisify((param, callback) => {
     fn(param, callback(null, _));

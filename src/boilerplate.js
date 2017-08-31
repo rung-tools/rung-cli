@@ -78,7 +78,7 @@ function writeFileFromObject({ filename, content }) {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
-        .catch(() => reject(`Unable to create folder ${answers.name}`))
+        .catch(() => reject(new Error(`Unable to create folder ${answers.name}`)))
         .return(answers);
 }
 

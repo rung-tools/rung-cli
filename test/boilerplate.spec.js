@@ -4,7 +4,8 @@ import chai, { expect } from 'chai';
 import fs from 'chai-fs';
 import json from 'chai-json-schema';
 import rimraf from 'rimraf';
-import { createStream } from './helper';
+import spawn, { ENTER } from 'inquirer-test';
+import { binary } from './helper';
 
 chai.use(fs);
 chai.use(json);
@@ -12,11 +13,23 @@ chai.use(json);
 const rm = promisify(rimraf);
 
 describe.only('boilerplate.js', () => {
-    describe('Input and output', () => {
-        it('should create a boilerplate', () => {
+    // describe('Input and output', () => {
+    //     it('should create a boilerplate', () => {
+    //         const flux = [
+    //             'boilerplate-project', ENTER,
+    //             '0.1.0', ENTER,
+    //             'Boilerplate title', ENTER,
+    //             'Boilerplate description', ENTER,
+    //             ENTER,
+    //             'MIT', ENTER
+    //         ];
+    //         return spawn(binary, flux)
+    //             .then(eita => {
+    //                 console.log(eita);
+    //             });
 
-        }).timeout(15000);
-    });
+    //     }).timeout(15000);
+    // });
 });
 
 /*
