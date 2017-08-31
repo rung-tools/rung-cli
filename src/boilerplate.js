@@ -116,9 +116,7 @@ function getReadMeMetaFile(answers) {
         - Use \`rung run\` to start the CLI wizard
     `);
 
-    return {
-        filename: path.join(answers.name, 'README.md'),
-        content };
+    return { filename: path.join(answers.name, 'README.md'), content };
 }
 
 /**
