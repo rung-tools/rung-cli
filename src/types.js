@@ -64,7 +64,7 @@ export const filter = {
     Char: take,
     Double: parseFloat,
     Integer: parseInt(_, 10),
-    Money: tryCatch(pipe(replace(',', '.'), parseFloat), always(NaN))
+    Money: tryCatch(replace(',', '.') & parseFloat, always(NaN))
 };
 
 // Type validators
