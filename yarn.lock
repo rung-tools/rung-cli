@@ -1155,7 +1155,7 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-concat-stream@^1.5.2:
+concat-stream@^1.5.1, concat-stream@^1.5.2:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.0.tgz#0aac662fd52be78964d5532f694784e70110acf7"
   dependencies:
@@ -2167,6 +2167,13 @@ inquirer-datepicker-prompt@0.3.3:
     inquirer "^3.1.1"
     lodash "^4.17.4"
     util "^0.10.3"
+
+inquirer-test@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/inquirer-test/-/inquirer-test-1.0.5.tgz#b467c11fdc3614ea29ebc3a90e621d45b9a7e593"
+  dependencies:
+    concat-stream "^1.5.1"
+    pinkie-promise "^2.0.0"
 
 inquirer@^0.12.0:
   version "0.12.0"
