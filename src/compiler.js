@@ -9,7 +9,6 @@ import {
     ifElse,
     join,
     map,
-    pipe,
     toPairs,
     type,
     unary,
@@ -23,11 +22,10 @@ import { transform } from 'babel-core';
  * @param {Object} obj
  * @return {String}
  */
-const compileCSS = pipe(
-    toPairs,
-    map(([key, value]) => `${dasherize(key)}:${value}`),
-    join(';'),
-    JSON.stringify);
+const compileCSS = toPairs
+    & map(([key, value]) => `${dasherize(key)}:${value}`)
+    & join(';')
+    & JSON.stringify;
 
 /**
  * Generates HTML string for element properties
@@ -37,7 +35,7 @@ const compileCSS = pipe(
  */
 function compileProps(props) {
     const transformKey = when(equals('className'), always('class'));
-    const transformValue = ifElse(pipe(type, equals('Object')),
+    const transformValue = ifElse(type & equals('Object'),
         compileCSS, unary(JSON.stringify));
 
     const result = props
@@ -79,7 +77,7 @@ export function compileHTML(tag, props, ...children) {
     ])(tag);
 
     const render = cond([
-        [pipe(type, equals('Array')), join('')],
+        [type & equals('Array'), join('')],
         [T, identity]
     ]);
 

@@ -6,7 +6,6 @@ import {
     curry,
     mapObjIndexed,
     mergeAll,
-    pipe,
     prop,
     values,
     when
@@ -27,14 +26,12 @@ const percentOf = curry((value, percent) => value / 100 * percent);
 export const readFile = promisify(fs.readFile);
 
 function tableView(data) {
-    const colWidths = [10, 20, 35, 26].map(pipe(percentOf(process.stdout.columns), Math.round));
-    const valuesFrom = pipe(
-        mapObjIndexed(({ title, content = '', comment = '' }, key) => [key, title, content, comment]),
-        values);
+    const valuesFrom = mapObjIndexed(({ title, content = '', comment = '' }, key) =>
+        [key, title, content, comment]) & values;
 
     const table = new Table({
         head: ['Key', 'Title', 'Content', 'Comment'],
-        colWidths
+        colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns) & Math.round)
     });
 
     table.push(...valuesFrom(data.alerts));
@@ -62,5 +59,5 @@ export default function run(args) {
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
         .tap(() => spinner.stop(true))
-        .tap(pipe(when(always(!args.raw), tableView), console.log));
+        .tap(when(always(!args.raw), tableView) & console.log);
 }

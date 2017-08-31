@@ -5,7 +5,6 @@ import {
     complement,
     cond,
     lte,
-    pipe,
     prop,
     propEq,
     replace,

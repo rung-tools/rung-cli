@@ -20,8 +20,6 @@ import {
     mapObjIndexed,
     merge,
     over,
-    pipe,
-    prop,
     propEq,
     replace,
     sort,
@@ -44,11 +42,9 @@ const fs = promisifyAll(require('fs'));
 const defaultFileOptions = { date: new Date(1149562800000) };
 const requiredFiles = ['package.json', 'index.js'];
 
-const localeByFile = pipe(
-    drop(8),
-    takeWhile(complement(equals('.'))),
-    join('')
-);
+const localeByFile = drop(8)
+    & takeWhile(complement(equals('.')))
+    & join('');
 
 /**
  * Converts a list of locale files to pairs containing locale string and content
@@ -166,7 +162,7 @@ function listFiles(directory) {
  */
 function linkAutoComplete() {
     return listFiles('autocomplete')
-        .then(pipe(filter(endsWith('.js')), map(path.join('autocomplete', _))))
+        .then(filter(endsWith('.js')) & map(path.join('autocomplete', _)))
         .tap(files => all(files.map(file => fs.readFileAsync(file)
             .then(ensureNoImports(file)))));
 }
@@ -178,11 +174,9 @@ function linkAutoComplete() {
  */
 function linkLocales() {
     return listFiles('locales')
-        .then(pipe(
-            filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
-            map(path.join('locales', _))))
+        .then(filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)) & map(path.join('locales', _)))
         .filter(location => fs.readFileAsync(location)
-            .then(pipe(JSON.parse, is(Object)))
+            .then(JSON.parse & is(Object))
             .catchReturn(false))
         .catchReturn([]);
 }
@@ -199,7 +193,7 @@ function linkLocales() {
 function linkFiles({ code, files }) {
     return all([linkLocales(), linkAutoComplete()])
         .spread(union)
-        .then(pipe(union(files), sort(subtract), files => ({ code, files })));
+        .then(union(files) & sort(subtract) & (files => ({ code, files })));
 }
 
 /**
@@ -211,7 +205,7 @@ function linkFiles({ code, files }) {
  */
 function getProjectName(dir) {
     return fs.readFileAsync(path.join(dir, 'package.json'))
-        .then(pipe(JSON.parse, prop('name')))
+        .then(JSON.parse & _.name)
         .catchThrow(new Error('Failed to parse package.json from the project'));
 }
 
