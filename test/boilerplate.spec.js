@@ -1,9 +1,11 @@
 import path from 'path';
+import { stdin } from 'process';
 import { all, delay, promisify } from 'bluebird';
 import chai, { expect } from 'chai';
 import fs from 'chai-fs';
 import json from 'chai-json-schema';
 import rimraf from 'rimraf';
+import boilerplate from '../src/boilerplate';
 
 chai.use(fs);
 chai.use(json);
@@ -13,7 +15,8 @@ const rm = promisify(rimraf);
 describe.only('boilerplate.js', () => {
     describe('Input and output', () => {
         it('should create a boilerplate', () => {
-
+            return all([boilerplate(), delay(500)
+                .then(() => stdin.write())]);
         }).timeout(15000);
     });
 });
