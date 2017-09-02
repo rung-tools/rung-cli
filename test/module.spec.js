@@ -46,11 +46,11 @@ describe('module.js', () => {
         it('should reject when required file has no loader', () => {
             const source = 'import config from "./_config.yml"';
             return compileModulesFromSource(source)
-                .then((x) => {
+                .then(() => {
                     throw new Error('Should never fall here');
                 })
-                .catch(({ message }) => {
-                    expect(message).to.match(/Unknown module loader for file/);
+                .catch(err => {
+                    expect(err.message).to.match(/Unknown module loader for file/);
                 });
         });
 

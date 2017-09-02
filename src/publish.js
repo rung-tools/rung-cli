@@ -1,14 +1,13 @@
 import path from 'path';
-import { all, promisify, resolve } from 'bluebird';
+import { promisify, resolve } from 'bluebird';
 import { curry, isNil } from 'ramda';
-import { gray } from 'colors';
-import { Spinner } from 'cli-spinner';
 import superagent from 'superagent';
 import { isURL } from 'validator';
-import { green } from 'colors/safe';
 import rimraf from 'rimraf';
-import { emitError, emitWarning, IO } from './input';
+import inquirer from 'inquirer';
+import { emitError, emitWarning } from './input';
 import build from './build';
+import { validator } from './types';
 
 const request = superagent.agent();
 const rm = promisify(rimraf);
@@ -63,21 +62,15 @@ function resolveInputFile(args) {
  * @return {Promise}
  */
 export default function publish(args) {
-    const io = IO();
     const api = fetchRungApi();
-    const spinner = new Spinner(green('%s publishing extension...'));
-    spinner.setSpinnerString(8);
 
-    return io.read(gray('Rung email'))
-        .then(email => all([email, io.password(gray('Rung password'))]))
-        .tap(() => spinner.start())
-        .spread((email, password) => request.post(`${api}/login`)
-            .send({ email, password }))
+    return inquirer.prompt([
+        { name: 'email', type: 'input', message: 'Rung email', validate: validator.Email },
+        { name: 'password', type: 'password', message: 'Rung password' }])
+        .then(payload => payload | request.post(`${api}/login`).send)
         .then(() => resolveInputFile(args))
         .then(publishFile(api, args.private))
-        .then(() => spinner.stop(true))
         .catch(err => {
-            spinner.stop(true);
             emitError(err.message);
         });
 }

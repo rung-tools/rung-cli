@@ -1,8 +1,9 @@
+import path from 'path';
 import thread from 'child_process';
 import { promisify } from 'bluebird';
 
 const promisifyStream = fn => promisify((param, callback) => {
-    fn(param, result => { callback(null, result); });
+    fn(param, callback(null, _));
 });
 
 export function createCustomStream(env, args, cmd = 'dist/cli.js') {

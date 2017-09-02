@@ -1,3 +1,8 @@
 {
-    "presets": ["es2015"]
+    "presets": ["es2015"],
+    "plugins": [
+        "function-composition",
+        "pipe-operator-curry",
+        "transform-scala-lambda"
+    ]
 }

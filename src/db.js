@@ -7,8 +7,6 @@ import {
     T,
     cond,
     equals,
-    pipe,
-    prop,
     tryCatch,
     type
 } from 'ramda';
@@ -107,7 +105,7 @@ function cliRead() {
     return getPackage()
         .then(({ name }) => read(name))
         .then(render)
-        .tap(console.log.bind(console))
+        .tap(console.log)
         .catch(() => reject(new Error('Unable to read database')));
 }
 
@@ -117,8 +115,8 @@ function cliClear() {
         .catch(() => reject(new Error('Unable to clear database')));
 }
 
-export default pipe(prop('option'), cond([
+export default ({ option }) => option | cond([
     [equals('read'), cliRead],
     [equals('clear'), cliClear],
     [T, option => reject(new Error(`Unknown option ${option}`))]
-]));
+]);

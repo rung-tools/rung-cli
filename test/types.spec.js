@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import {
-    AutoComplete,
     Char,
     DoubleRange,
     Integer,
@@ -149,7 +148,7 @@ describe('types.js', () => {
         it('should validate a checkbox', () => {
             const valid = valueOrNothing.Checkbox('y');
             const invalid = valueOrNothing.Checkbox('?');
-            expect(valid.get()).to.be.true;
+            void expect(valid.get()).to.be.true;
             expect(invalid.get).to.throw(TypeError);
         });
 
@@ -194,13 +193,13 @@ describe('types.js', () => {
 
     describe('Type casting', () => {
         it('should cast a string to an integer', () => {
-            const native = cast("10", Integer, 0);
+            const native = cast('10', Integer, 0);
             expect(native).to.equals(10);
         });
 
         it('should return null when there is no fallback value and it fails', () => {
             const native = cast('foo', Integer);
-            expect(native).to.be.null;
+            void expect(native).to.be.null;
         });
-    })
+    });
 });

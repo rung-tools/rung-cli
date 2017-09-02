@@ -1,27 +1,28 @@
 import path from 'path';
-import { delay, promisify } from 'bluebird';
+import { stdin } from 'process';
+import { all, delay, promisify } from 'bluebird';
 import chai, { expect } from 'chai';
 import fs from 'chai-fs';
 import json from 'chai-json-schema';
 import rimraf from 'rimraf';
-import { createStream } from './helper';
+import boilerplate from '../src/boilerplate';
 
 chai.use(fs);
 chai.use(json);
 
 const rm = promisify(rimraf);
 
-const answers = [
-    'boilerplate-project',
-    '0.1.0',
-    'Boilerplate title',
-    'Boilerplate description',
-    'miscellaneous',
-    'MIT'
-];
-
-describe('boilerplate.js', () => {
+describe.only('boilerplate.js', () => {
     describe('Input and output', () => {
+        it('should create a boilerplate', () => {
+            return all([boilerplate(), delay(500)
+                .then(() => stdin.write())]);
+        }).timeout(15000);
+    });
+});
+
+/*
+
         it('should answer the questions and create a valid extension', () => {
             const stream = createStream(['boilerplate']);
             const next = text => () => stream.write(`${text}\r`)
@@ -59,5 +60,6 @@ describe('boilerplate.js', () => {
                 .tap(() => rm('boilerplate-project'))
                 .finally(stream.close);
         }).timeout(20000);
-    })
+    });
 });
+*/

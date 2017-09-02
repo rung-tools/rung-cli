@@ -1,13 +1,17 @@
 import {
     T,
+    always,
     any,
+    complement,
     cond,
-    contains,
+    lte,
     prop,
     propEq,
     replace,
     split,
-    take
+    take,
+    tryCatch,
+    unary
 } from 'ramda';
 import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
@@ -46,27 +50,25 @@ export const getTypeName = cond([
     [T, prop('name')]
 ]);
 
+export const validator = {
+    Double: complement(isNaN),
+    Integer: complement(isNaN),
+    Natural: lte(0),
+    Email: unary(isEmail),
+    Url: unary(isURL),
+    Color: isHexColor,
+    Money: complement(isNaN)
+};
+
+export const filter = {
+    Char: take,
+    Double: parseFloat,
+    Integer: parseInt(_, 10),
+    Money: tryCatch(replace(',', '.') & parseFloat, always(NaN))
+};
+
 // Type validators
 export const valueOrNothing = {
-    Integer: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) ? Nothing() : Just(intValue);
-    },
-    Double: input => {
-        const doubleValue = parseFloat(input);
-        return isNaN(doubleValue) ? Nothing() : Just(doubleValue);
-    },
-    DateTime: input => {
-        const date = new Date(input);
-        return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
-    },
-    Natural: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) || intValue < 0 ? Nothing() : Just(intValue);
-    },
-    Char: (input, { length }) => {
-        return Just(take(length, input));
-    },
     IntegerRange: (input, { from, to }) => {
         const intValue = parseInt(input, 10);
         return isNaN(intValue) || intValue < from || intValue > to ? Nothing() : Just(intValue);
@@ -75,20 +77,7 @@ export const valueOrNothing = {
         const doubleValue = parseFloat(input);
         return isNaN(doubleValue) || doubleValue < from || doubleValue > to ? Nothing() : Just(doubleValue);
     },
-    Money: input => {
-        const money = parseFloat(replace(',', '.', input));
-        return isNaN(money) ? Nothing() : Just(money);
-    },
-    String: Just,
     AutoComplete: Just,
-    Color: input => isHexColor(input) ? Just(input) : Nothing(),
-    Email: input => isEmail(input) ? Just(input) : Nothing(),
-    Checkbox: input => {
-        const lowerCaseInput = input.toLowerCase();
-        return contains(lowerCaseInput, ['y', 'n']) ? Just(lowerCaseInput === 'y') : Nothing();
-    },
-    OneOf: (input, { values }) => contains(input, values) ? Just(input) : Nothing(),
-    Url: input => isURL(input) ? Just(input) : Nothing(),
     IntegerMultiRange: (input, { from, to }) => {
         const [left, right] = split(' ', input).map(item => parseInt(item, 10));
         if (any(isNaN, [left, right]) || left < from || right > to || left > right) {
@@ -106,15 +95,3 @@ export const valueOrNothing = {
     },
     Location: Just
 };
-
-/**
- * Returns the literal value by receiving the string input, the type and the
- * default value
- *
- * @author Marcelo Haskell Camargo
- * @param {String} input - The original string value
- * @param {Object} type - Type of the value to be casted
- * @param {Mixed} def - The value that may be taken in case of error. Null on error
- */
-export const cast = (input, type) =>
-    valueOrNothing[type.name](input, type).getOrElse(null);

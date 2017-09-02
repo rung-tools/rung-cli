@@ -9,7 +9,6 @@ import {
     map,
     merge,
     path,
-    pipe,
     startsWith,
     uniq
 } from 'ramda';
@@ -56,7 +55,7 @@ function compileModule(module) {
     return readFile(module, 'utf-8')
         .then(cond([
             [extensionIs('.js'), compileES6],
-            [extensionIs('.json'), pipe(JSON.parse, JSON.stringify)],
+            [extensionIs('.json'), JSON.parse & JSON.stringify],
             [T, () => reject(new Error(`Unknown module loader for file ${module}`))]]))
         .then(source => [module, source]);
 }
@@ -72,7 +71,7 @@ export const evaluateModules = (vm, modules) => fromPairs(map(([module, source])
     // JSON doesn't need to run on VM. We can directly parse it
     const convertToBytecode = cond([
         [endsWith('.json'), () => JSON.parse(source)],
-        [endsWith('.js'), module => vm.run(source, module)],
+        [endsWith('.js'), vm.run(source, _)],
         [T, module => {
             throw new Error(`Unknown file type for ${module}`);
         }]

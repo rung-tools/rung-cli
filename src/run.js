@@ -2,13 +2,13 @@ import fs from 'fs';
 import os from 'os';
 import { all, promisify } from 'bluebird';
 import {
+    always,
     curry,
-    identity,
     mapObjIndexed,
     mergeAll,
-    pipe,
     prop,
-    values
+    values,
+    when
 } from 'ramda';
 import { Spinner } from 'cli-spinner';
 import { green } from 'colors/safe';
@@ -26,14 +26,12 @@ const percentOf = curry((value, percent) => value / 100 * percent);
 export const readFile = promisify(fs.readFile);
 
 function tableView(data) {
-    const size = percentOf(process.stdout.columns);
-    const colWidths = [10, 20, 35, 26].map(pipe(size, Math.round));
-    const valuesFrom = pipe(mapObjIndexed(({ title, content, comment }, key) =>
-        [key, title, content || '', comment || '']), values);
+    const valuesFrom = mapObjIndexed(({ title, content = '', comment = '' }, key) =>
+        [key, title, content, comment]) & values;
 
     const table = new Table({
         head: ['Key', 'Title', 'Content', 'Comment'],
-        colWidths
+        colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns) & Math.round)
     });
 
     table.push(...valuesFrom(data.alerts));
@@ -61,5 +59,5 @@ export default function run(args) {
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
         .tap(() => spinner.stop(true))
-        .tap(pipe(args.raw ? identity : tableView, console.log));
+        .tap(when(always(!args.raw), tableView) & console.log);
 }
