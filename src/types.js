@@ -32,6 +32,7 @@ export const Url = { name: 'Url' };
 export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
 export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
+export const Location = { name: 'Location' };
 
 /**
  * Returns the human-readable name of a type
@@ -83,5 +84,13 @@ export const valueOrNothing = {
         }
 
         return Just([left, right]);
-    }
+    },
+    Calendar: input => {
+        // Default JS date constructor because MomentJS sucks for validation
+        const date = new Date(input);
+        return date.toString() === 'Invalid Date'
+            ? Nothing()
+            : Just(date);
+    },
+    Location: Just
 };
