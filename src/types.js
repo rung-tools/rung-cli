@@ -50,20 +50,20 @@ export const getTypeName = cond([
 ]);
 
 export const validator = {
-    Double: complement(isNaN),
-    Integer: complement(isNaN),
-    Natural: lte(0),
-    Email: unary(isEmail),
-    Url: unary(isURL),
     Color: isHexColor,
-    Money: complement(isNaN)
+    Double: complement(isNaN),
+    Email: unary(isEmail),
+    Integer: complement(isNaN),
+    Money: complement(isNaN),
+    Natural: lte(0),
+    Url: unary(isURL)
 };
 
 export const filter = {
     Char: take,
     Double: parseFloat,
     Integer: parseInt(_, 10),
-    Money: tryCatch(replace(',', '.') & parseFloat, always(NaN))
+    Money: tryCatch(replace(',', '.') & parseFloat, ~NaN)
 };
 
 // Type validators

@@ -65,7 +65,7 @@ function askQuestions() {
  */
 function writeFileFromObject({ filename, content }) {
     return createFile(filename, content)
-        .catch(() => reject(`Unable to create file ${filename}`));
+        .catch(~reject(`Unable to create file ${filename}`));
 }
 
 /**
@@ -78,7 +78,7 @@ function writeFileFromObject({ filename, content }) {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
-        .catch(() => reject(new Error(`Unable to create folder ${answers.name}`)))
+        .catch(~reject(new Error(`Unable to create folder ${answers.name}`)))
         .return(answers);
 }
 
@@ -174,5 +174,5 @@ export default function boilerplate() {
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
         .then(map(writeFileFromObject) & all)
-        .then(() => emitSuccess('project generated'));
+        .then(~emitSuccess('project generated'));
 }

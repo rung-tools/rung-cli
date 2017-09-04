@@ -54,6 +54,7 @@
   "devDependencies": {
     "babel-cli": "^6.23.0",
     "babel-plugin-function-composition": "0.1.1",
+    "babel-plugin-implicit-function": "0.1.1",
     "babel-plugin-pipe-operator-curry": "1.0.2",
     "babel-plugin-transform-scala-lambda": "1.0.0",
     "chai": "4.1.0",

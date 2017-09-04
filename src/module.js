@@ -50,13 +50,13 @@ export function compileModulesFromSource(source) {
  * @return {Promise}
  */
 function compileModule(module) {
-    const extensionIs = extension => () => endsWith(extension, module);
+    const extensionIs = extension => ~endsWith(extension, module);
 
     return readFile(module, 'utf-8')
         .then(cond([
             [extensionIs('.js'), compileES6],
             [extensionIs('.json'), JSON.parse & JSON.stringify],
-            [T, () => reject(new Error(`Unknown module loader for file ${module}`))]]))
+            [T, ~reject(new Error(`Unknown module loader for file ${module}`))]]))
         .then(source => [module, source]);
 }
 
@@ -70,7 +70,7 @@ function compileModule(module) {
 export const evaluateModules = (vm, modules) => fromPairs(map(([module, source]) => {
     // JSON doesn't need to run on VM. We can directly parse it
     const convertToBytecode = cond([
-        [endsWith('.json'), () => JSON.parse(source)],
+        [endsWith('.json'), ~JSON.parse(source)],
         [endsWith('.js'), vm.run(source, _)],
         [T, module => {
             throw new Error(`Unknown file type for ${module}`);
@@ -96,7 +96,7 @@ export function inspect(source) {
         presets: ['es2015', 'react'],
         plugins: [
             ['transform-react-jsx', { pragma: '__render__' }],
-            [() => ({
+            [~({
                 visitor: {
                     ImportDeclaration({ node }) {
                         modules.push(node.source.value);

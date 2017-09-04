@@ -416,6 +416,10 @@ babel-plugin-function-composition@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/babel-plugin-function-composition/-/babel-plugin-function-composition-0.1.1.tgz#c87d660c03a950b332d61b56cd025b98f41a2a59"
 
+babel-plugin-implicit-function@0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-implicit-function/-/babel-plugin-implicit-function-0.1.1.tgz#979301e583ac04bb61485da6e648335ef6950bc3"
+
 babel-plugin-pipe-operator-curry@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/babel-plugin-pipe-operator-curry/-/babel-plugin-pipe-operator-curry-1.0.2.tgz#1ef453b09f8ccc427007da6b63077363b1d0ca29"

@@ -62,7 +62,7 @@ export function upsert(name, store) {
     return store === undefined
         ? resolve()
         : resolveRungFolder()
-            .then(() => serialize(store))
+            .then(~serialize(store))
             .then(value => createFile(location(name), value));
 }
 
@@ -87,10 +87,10 @@ export function read(name) {
 function resolveRungFolder() {
     const folder = path.join(os.homedir(), '.rung');
     const createIfNotExists = tryCatch(
-        () => fs.lstatSync(folder).isDirectory()
+        ~fs.lstatSync(folder).isDirectory()
             ? resolve()
             : reject(new Error('~/.rung is not a directory')),
-        () => createFolder(folder)
+        ~createFolder(folder)
     );
 
     return createIfNotExists();
@@ -106,13 +106,13 @@ function cliRead() {
         .then(({ name }) => read(name))
         .then(render)
         .tap(console.log)
-        .catch(() => reject(new Error('Unable to read database')));
+        .catch(~reject(new Error('Unable to read database')));
 }
 
 function cliClear() {
     return getPackage()
         .then(({ name }) => clear(name))
-        .catch(() => reject(new Error('Unable to clear database')));
+        .catch(~reject(new Error('Unable to clear database')));
 }
 
 export default ({ option }) => option | cond([

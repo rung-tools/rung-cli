@@ -255,7 +255,7 @@ const saveZip = curry((dir, zip, name) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
             .pipe(fs.createWriteStream(target))
             .on('error', reject)
-            .on('finish', () => resolve(target));
+            .on('finish', ~resolve(target));
     });
 });
 
@@ -297,5 +297,5 @@ export default function build(args) {
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
         .spread(saveZip(args.output || '.'))
-        .tap(() => emitSuccess('Rung extension compilation'));
+        .tap(~emitSuccess('Rung extension compilation'));
 }

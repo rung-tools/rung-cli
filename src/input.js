@@ -69,19 +69,19 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const components = {
-    Calendar: () => ({ type: 'datetime', format: ['m', '/', 'd', '/', 'yy'] }),
+    Calendar: ~({ type: 'datetime', format: ['m', '/', 'd', '/', 'yy'] }),
     Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
-    Checkbox: () => ({ type: 'confirm' }),
-    Color: () => ({ type: 'input', validate: validator.Color }),
-    DateTime: () => ({ type: 'datetime' }),
-    Double: () => ({ type: 'input', validate: validator.Double, filter: filter.Double }),
-    Email: () => ({ type: 'input', validate: validator.Email }),
-    Integer: () => ({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
-    Natural: () => ({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
+    Checkbox: ~({ type: 'confirm' }),
+    Color: ~({ type: 'input', validate: validator.Color }),
+    DateTime: ~({ type: 'datetime' }),
+    Double: ~({ type: 'input', validate: validator.Double, filter: filter.Double }),
+    Email: ~({ type: 'input', validate: validator.Email }),
+    Integer: ~({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
+    Natural: ~({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
-    String: () => ({ type: 'input' }),
-    Url: () => ({ type: 'input', validate: validator.Url }),
-    Money: () => ({ type: 'input', validate: validator.Money, filter: filter.Money })
+    String: ~({ type: 'input' }),
+    Url: ~({ type: 'input', validate: validator.Url }),
+    Money: ~({ type: 'input', validate: validator.Money, filter: filter.Money })
 };
 
 /**

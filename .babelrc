@@ -2,6 +2,7 @@
     "presets": ["es2015"],
     "plugins": [
         "function-composition",
+        "implicit-function",
         "pipe-operator-curry",
         "transform-scala-lambda"
     ]
