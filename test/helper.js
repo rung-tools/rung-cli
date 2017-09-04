@@ -1,4 +1,4 @@
-import thread from 'child_process';
+import { spawn } from 'child_process';
 import { promisify } from 'bluebird';
 
 const promisifyStream = fn => promisify((param, callback) => {
@@ -6,7 +6,7 @@ const promisifyStream = fn => promisify((param, callback) => {
 });
 
 export function createCustomStream(env, args, cmd = 'dist/cli.js') {
-    const task = thread.spawn('node', [cmd, ...args], { stdio: 'pipe', env });
+    const task = spawn('node', [cmd, ...args], { stdio: 'pipe', env });
     task.stdout.setEncoding('utf-8');
 
     return {
