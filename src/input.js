@@ -54,26 +54,24 @@ const components = {
         format: ['m', '/', 'd', '/', 'yy'],
         filter: filter.Calendar,
         validate: validator.Calendar }),
-    Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
+    Char: ({ type }) => ({ filter: filter.Char(type.length) }),
     Checkbox: ~({ type: 'confirm' }),
-    Color: ~({ type: 'input', validate: validator.Color }),
+    Color: ~({ validate: validator.Color }),
     DoubleRange: ({ type }) => ({
-        type: 'input',
         filter: filter.Double,
         validate: validator.Range(type.from, type.to) }),
     DateTime: ~({ type: 'datetime' }),
-    Double: ~({ type: 'input', validate: validator.Double, filter: filter.Double }),
-    Email: ~({ type: 'input', validate: validator.Email }),
-    Integer: ~({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
+    Double: ~({ validate: validator.Double, filter: filter.Double }),
+    Email: ~({ validate: validator.Email }),
+    Integer: ~({ validate: validator.Integer, filter: filter.Integer }),
     IntegerRange: ({ type }) => ({
-        type: 'input',
         filter: filter.Integer,
         validate: validator.Range(type.from, type.to) }),
-    Natural: ~({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
+    Natural: ~({ validate: validator.Natural, filter: filter.Integer }),
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
     String: ~({ type: 'input' }),
-    Url: ~({ type: 'input', validate: validator.Url }),
-    Money: ~({ type: 'input', validate: validator.Money, filter: filter.Money })
+    Url: ~({ validate: validator.Url }),
+    Money: ~({ validate: validator.Money, filter: filter.Money })
 };
 
 /**
