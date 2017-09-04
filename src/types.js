@@ -1,8 +1,10 @@
 import {
     T,
     any,
+    clamp,
     complement,
     cond,
+    equals,
     lte,
     prop,
     propEq,
@@ -12,7 +14,6 @@ import {
     tryCatch,
     unary
 } from 'ramda';
-import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
 
 export const Integer = { name: 'Integer' };
@@ -57,6 +58,7 @@ export const validator = {
     Integer: complement(isNaN),
     Money: complement(isNaN),
     Natural: lte(0),
+    Range: (from, to) => clamp(from, to, _) === _,
     Url: unary(isURL)
 };
 
@@ -70,15 +72,6 @@ export const filter = {
 
 // Type validators
 export const valueOrNothing = {
-    IntegerRange: (input, { from, to }) => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) || intValue < from || intValue > to ? Nothing() : Just(intValue);
-    },
-    DoubleRange: (input, { from, to }) => {
-        const doubleValue = parseFloat(input);
-        return isNaN(doubleValue) || doubleValue < from || doubleValue > to ? Nothing() : Just(doubleValue);
-    },
-    AutoComplete: Just,
     IntegerMultiRange: (input, { from, to }) => {
         const [left, right] = split(' ', input).map(item => parseInt(item, 10));
         if (any(isNaN, [left, right]) || left < from || right > to || left > right) {

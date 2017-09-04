@@ -5,7 +5,6 @@ import {
     concat,
     curry,
     has,
-    is,
     keys,
     map,
     merge,
@@ -15,7 +14,7 @@ import {
 import { green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
 import DatePickerPrompt from 'inquirer-datepicker-prompt';
-import { cast, validator, filter } from './types';
+import { validator, filter } from './types';
 
 /**
  * Emits a warning to stdout
@@ -58,10 +57,18 @@ const components = {
     Char: ({ type }) => ({ type: 'input', filter: filter.Char(type.length) }),
     Checkbox: ~({ type: 'confirm' }),
     Color: ~({ type: 'input', validate: validator.Color }),
+    DoubleRange: ({ type }) => ({
+        type: 'input',
+        filter: filter.Double,
+        validate: validator.Range(type.from, type.to) }),
     DateTime: ~({ type: 'datetime' }),
     Double: ~({ type: 'input', validate: validator.Double, filter: filter.Double }),
     Email: ~({ type: 'input', validate: validator.Email }),
     Integer: ~({ type: 'input', validate: validator.Integer, filter: filter.Integer }),
+    IntegerRange: ({ type }) => ({
+        type: 'input',
+        filter: filter.Integer,
+        validate: validator.Range(type.from, type.to) }),
     Natural: ~({ type: 'input', validate: validator.Natural, filter: filter.Integer }),
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
     String: ~({ type: 'input' }),
