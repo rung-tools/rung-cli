@@ -82,4 +82,3 @@ export const filter = {
     IntegerMultiRange: split(' ') & map(parseInt(_, 10)),
     Money: tryCatch(replace(',', '.') & parseFloat, ~NaN)
 };
-
