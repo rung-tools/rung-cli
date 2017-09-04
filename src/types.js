@@ -1,18 +1,26 @@
 import {
+    __,
     T,
-    any,
+    all,
+    allPass,
     clamp,
     complement,
     cond,
     equals,
+    evolve,
+    gte,
+    identity,
+    length,
     lte,
-    prop,
+    map,
+    none,
     propEq,
     replace,
     split,
     take,
     tryCatch,
-    unary
+    unary,
+    values
 } from 'ramda';
 import { isEmail, isHexColor, isURL } from 'validator';
 
@@ -47,7 +55,7 @@ export const getTypeName = cond([
     [propEq('name', 'IntegerRange'), t => `IntegerRange(${t.from}, ${t.to})`],
     [propEq('name', 'DoubleRange'), t => `DoubleRange(${t.from}, ${t.to})`],
     [propEq('name', 'OneOf'), t => `OneOf([${t.values.join(', ')}])`],
-    [T, prop('name')]
+    [T, _.name]
 ]);
 
 export const validator = {
@@ -56,6 +64,10 @@ export const validator = {
     Double: complement(isNaN),
     Email: unary(isEmail),
     Integer: complement(isNaN),
+    IntegerMultiRange: (from, to) => allPass([
+        length & equals(2),
+        none(isNaN),
+        evolve([gte(__, from), lte(__, to)]) & values & all(identity)]),
     Money: complement(isNaN),
     Natural: lte(0),
     Range: (from, to) => clamp(from, to, _) === _,
@@ -67,17 +79,7 @@ export const filter = {
     Char: take,
     Double: parseFloat,
     Integer: parseInt(_, 10),
+    IntegerMultiRange: split(' ') & map(parseInt(_, 10)),
     Money: tryCatch(replace(',', '.') & parseFloat, ~NaN)
 };
 
-// Type validators
-export const valueOrNothing = {
-    IntegerMultiRange: (input, { from, to }) => {
-        const [left, right] = split(' ', input).map(item => parseInt(item, 10));
-        if (any(isNaN, [left, right]) || left < from || right > to || left > right) {
-            return Nothing();
-        }
-
-        return Just([left, right]);
-    }
-};

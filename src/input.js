@@ -68,6 +68,9 @@ const components = {
     IntegerRange: ({ type }) => ({
         filter: filter.Integer,
         validate: validator.Range(type.from, type.to) }),
+    IntegerMultiRange: ({ type }) => ({
+        filter: filter.IntegerMultiRange,
+        validate: validator.IntegerMultiRange(type.from, type.to) }),
     Natural: ~({ validate: validator.Natural, filter: filter.Integer }),
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
     String: ~({ type: 'input' }),
