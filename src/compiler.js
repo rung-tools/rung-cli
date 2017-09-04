@@ -1,10 +1,8 @@
 import dasherize from 'dasherize';
 import {
-    T,
-    cond,
+    __,
     contains,
     equals,
-    identity,
     ifElse,
     join,
     map,
@@ -69,17 +67,8 @@ function compileSelfClosingTag(tag, props) {
  * @return {String}
  */
 export function compileHTML(tag, props, ...children) {
-    const filteredTag = cond([
-        [equals('script'), ~'span'],
-        [equals('style'), ~'span'],
-        [T, identity]
-    ])(tag);
-
-    const render = cond([
-        [type & equals('Array'), join('')],
-        [T, identity]
-    ]);
-
+    const filteredTag = tag | when(contains(__, ['style', 'script']), ~'span');
+    const render = when(type & equals('Array'), join(''));
     return children.length === 0
         ? compileSelfClosingTag(filteredTag, props)
         : `<${filteredTag}${compileProps(props)}>${children.map(render).join('')}</${filteredTag}>`;
