@@ -1,4 +1,3 @@
-import path from 'path';
 import thread from 'child_process';
 import { promisify } from 'bluebird';
 
