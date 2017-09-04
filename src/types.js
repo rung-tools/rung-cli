@@ -50,6 +50,7 @@ export const getTypeName = cond([
 ]);
 
 export const validator = {
+    Calendar: String & equals('Invalid Date'),
     Color: isHexColor,
     Double: complement(isNaN),
     Email: unary(isEmail),
@@ -60,6 +61,7 @@ export const validator = {
 };
 
 export const filter = {
+    Calendar: date => new Date(date),
     Char: take,
     Double: parseFloat,
     Integer: parseInt(_, 10),
@@ -84,13 +86,5 @@ export const valueOrNothing = {
         }
 
         return Just([left, right]);
-    },
-    Calendar: input => {
-        // Default JS date constructor because MomentJS sucks for validation
-        const date = new Date(input);
-        return date.toString() === 'Invalid Date'
-            ? Nothing()
-            : Just(date);
-    },
-    Location: Just
+    }
 };
