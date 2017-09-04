@@ -42,25 +42,6 @@ export const emitError = concat(' ✗ Error: ') & red & console.log & resolve;
 export const emitSuccess = concat(' ✔ Success: ') & green & console.log & resolve;
 
 /**
- * Returns the resolved value, based on required properties and default values
- *
- * @param {String} text
- * @param {Object} type
- * @param {Mixed} def
- * @param {Boolean} required
- */
-export function resolveValue(text, type, def, required) {
-    if (required && text.trim() === '') {
-        return null;
-    }
-
-    const nativeValue = cast(text, type);
-    const isEmptyString = value => is(String, value) && value.trim() === '';
-
-    return nativeValue === null || isEmptyString(nativeValue) ? def : nativeValue;
-}
-
-/**
  * Renames the keys of an object
  *
  * @sig {a: b} -> {a: *} -> {b: *}
