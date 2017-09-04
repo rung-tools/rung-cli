@@ -48,7 +48,7 @@ function askQuestions() {
         .then(categories => [
             { name: 'name', message: 'Project name', default: process.cwd() | split('/') | last },
             { name: 'version', message: 'Version', default: '1.0.0', validate: semver.valid & Boolean },
-            { name: 'title', message: 'Title' },
+            { name: 'title', message: 'Title', default: 'Untitled' },
             { name: 'description', message: 'Description' },
             { name: 'category', type: 'list', message: 'Category', default: 'miscellaneous', choices: categories },
             { name: 'license', message: 'license', default: 'MIT' }
