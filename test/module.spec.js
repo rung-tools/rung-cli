@@ -64,7 +64,7 @@ describe('module.js', () => {
                 `]
             ];
             const vm = createVM({});
-            expect(() => evaluateModules(vm, modules))
+            expect(~evaluateModules(vm, modules))
                 .to.throw('Unknown file type for Main.hs');
         });
     });

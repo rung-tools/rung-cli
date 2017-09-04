@@ -7,7 +7,7 @@ import { createStream } from './helper';
 const rm = promisify(rimraf);
 
 describe('readme.js', () => {
-    before(() => rm('./test/data/hello-world/README.md'));
+    before(~rm('./test/data/hello-world/README.md'));
 
     describe('Generation', () => {
         it('should generate README for a hello world', () => {

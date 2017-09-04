@@ -18,7 +18,7 @@ const rungPath = path.join(home, '.rung');
 const dbPath = path.join(rungPath, `${extensionName}.db`);
 
 describe('db.js', () => {
-    before(() => rm(rungPath));
+    before(~rm(rungPath));
 
     describe('Database', () => {
         it('should get undefined when reading from empty db', () => {
@@ -176,7 +176,7 @@ describe('db.js', () => {
             `);
 
             return runAndGetAlerts({ name: extensionName, source }, {})
-                .then(() => createStream(['db', 'clear']).after())
+                .then(~createStream(['db', 'clear']).after())
                 .then(() => {
                     expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
                         .to.not.be.a.path();

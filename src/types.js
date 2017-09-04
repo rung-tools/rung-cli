@@ -1,6 +1,5 @@
 import {
     T,
-    always,
     any,
     complement,
     cond,

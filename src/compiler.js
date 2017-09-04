@@ -1,7 +1,6 @@
 import dasherize from 'dasherize';
 import {
     T,
-    always,
     cond,
     contains,
     equals,
@@ -34,7 +33,7 @@ const compileCSS = toPairs
  * @return {String}
  */
 function compileProps(props) {
-    const transformKey = when(equals('className'), always('class'));
+    const transformKey = when(equals('className'), ~'class');
     const transformValue = ifElse(type & equals('Object'),
         compileCSS, unary(JSON.stringify));
 
@@ -71,8 +70,8 @@ function compileSelfClosingTag(tag, props) {
  */
 export function compileHTML(tag, props, ...children) {
     const filteredTag = cond([
-        [equals('script'), always('span')],
-        [equals('style'), always('span')],
+        [equals('script'), ~'span'],
+        [equals('style'), ~'span'],
         [T, identity]
     ])(tag);
 

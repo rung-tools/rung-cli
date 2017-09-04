@@ -84,7 +84,7 @@ export function getProperties(extension, strings, modules) {
 export function runAndGetAlerts(extension, context, strings, modules) {
     return runInSandbox(extension.name, extension.source, strings, modules)
         .then(app => {
-            const runExtension = () => new Promise((resolve, reject) => {
+            const runExtension = ~new Promise((resolve, reject) => {
                 if (type(app.extension) !== 'Function') {
                     return reject(new TypeError('Expected default exported expression to be a function'));
                 }

@@ -15,7 +15,7 @@ export function createCustomStream(env, args, cmd = 'dist/cli.js') {
         on: promisifyStream(task.stdout.on.bind(task.stdout)),
         write: promisifyStream(task.stdin.write.bind(task.stdin)),
         after: promisifyStream(task.stdin.on.bind(task.stdin, 'close')),
-        close: () => task.kill('SIGTERM')
+        close: ~task.kill('SIGTERM')
     };
 }
 

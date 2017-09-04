@@ -2,7 +2,6 @@ import fs from 'fs';
 import os from 'os';
 import { all, promisify } from 'bluebird';
 import {
-    always,
     curry,
     mapObjIndexed,
     mergeAll,
@@ -55,9 +54,9 @@ export default function run(args) {
                 .then(prop('params'))
                 .then(ask)
                 .then(mergeAll)
-                .tap(() => spinner.start())
+                .tap(~spinner.start())
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
-        .tap(() => spinner.stop(true))
-        .tap(when(always(!args.raw), tableView) & console.log);
+        .tap(~spinner.stop(true))
+        .tap(when(~!args.raw, tableView) & console.log);
 }

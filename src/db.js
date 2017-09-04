@@ -87,9 +87,9 @@ export function read(name) {
 function resolveRungFolder() {
     const folder = path.join(os.homedir(), '.rung');
     const createIfNotExists = tryCatch(
-        ~fs.lstatSync(folder).isDirectory()
+        ~(fs.lstatSync(folder).isDirectory()
             ? resolve()
-            : reject(new Error('~/.rung is not a directory')),
+            : reject(new Error('~/.rung is not a directory'))),
         ~createFolder(folder)
     );
 
