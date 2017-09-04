@@ -1010,6 +1010,13 @@ chai@^3.5.0:
     deep-eql "^0.1.3"
     type-detect "^1.0.0"
 
+chalk-pipe@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/chalk-pipe/-/chalk-pipe-1.0.0.tgz#474a419ab00bf1ac9ddc2c750d3194d3a5a37d6c"
+  dependencies:
+    chalk "^2.1.0"
+    css-color-names "0.0.4"
+
 chalk@^1.0.0, chalk@^1.1.0, chalk@^1.1.1, chalk@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-1.1.3.tgz#a8115c55e4a702fe4d150abd3872822a7e09fc98"
@@ -1023,6 +1030,14 @@ chalk@^1.0.0, chalk@^1.1.0, chalk@^1.1.1, chalk@^1.1.3:
 chalk@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.0.1.tgz#dbec49436d2ae15f536114e76d14656cdbc0f44d"
+  dependencies:
+    ansi-styles "^3.1.0"
+    escape-string-regexp "^1.0.5"
+    supports-color "^4.0.0"
+
+chalk@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.1.0.tgz#ac5becf14fa21b99c6c92ca7a7d7cfd5b17e743e"
   dependencies:
     ansi-styles "^3.1.0"
     escape-string-regexp "^1.0.5"
@@ -1247,6 +1262,10 @@ crypto-random-string@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
 
+css-color-names@0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/css-color-names/-/css-color-names-0.0.4.tgz#808adc2e79cf84738069b646cb20ec27beb629e0"
+
 currently-unhandled@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/currently-unhandled/-/currently-unhandled-0.4.1.tgz#988df33feab191ef799a61369dd76c17adf957ea"
@@ -1269,7 +1288,7 @@ dasherize@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/dasherize/-/dasherize-2.0.0.tgz#6d809c9cd0cf7bb8952d80fc84fa13d47ddb1308"
 
-data.maybe@1.2.2, data.maybe@^1.2.2:
+data.maybe@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/data.maybe/-/data.maybe-1.2.2.tgz#f955e4b5572b2eb5047eab93d8bb3a1cc76a2dc3"
 
@@ -2160,6 +2179,13 @@ ini@~1.3.0:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.4.tgz#0537cb79daf59b59a1a517dff706c86ec039162e"
 
+inquirer-chalk-pipe@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/inquirer-chalk-pipe/-/inquirer-chalk-pipe-1.1.0.tgz#db52ab87ab78f01e015af5b4e247fc74808df993"
+  dependencies:
+    chalk-pipe "^1.0.0"
+    inquirer "^3.2.3"
+
 inquirer-datepicker-prompt@0.3.3:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/inquirer-datepicker-prompt/-/inquirer-datepicker-prompt-0.3.3.tgz#b4a8a7a0efd53e21dde985277867ebc30905cae0"
@@ -2212,6 +2238,25 @@ inquirer@^3.1.1:
 inquirer@^3.2.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-3.2.1.tgz#06ceb0f540f45ca548c17d6840959878265fa175"
+  dependencies:
+    ansi-escapes "^2.0.0"
+    chalk "^2.0.0"
+    cli-cursor "^2.1.0"
+    cli-width "^2.0.0"
+    external-editor "^2.0.4"
+    figures "^2.0.0"
+    lodash "^4.3.0"
+    mute-stream "0.0.7"
+    run-async "^2.2.0"
+    rx-lite "^4.0.8"
+    rx-lite-aggregates "^4.0.8"
+    string-width "^2.1.0"
+    strip-ansi "^4.0.0"
+    through "^2.3.6"
+
+inquirer@^3.2.3:
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-3.2.3.tgz#1c7b1731cf77b934ec47d22c9ac5aa8fe7fbe095"
   dependencies:
     ansi-escapes "^2.0.0"
     chalk "^2.0.0"

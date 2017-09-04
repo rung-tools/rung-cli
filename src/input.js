@@ -14,6 +14,7 @@ import {
 import { green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
 import DatePickerPrompt from 'inquirer-datepicker-prompt';
+import ChalkPipe from 'inquirer-chalk-pipe';
 import { validator, filter } from './types';
 
 /**
@@ -56,7 +57,7 @@ const components = {
         validate: validator.Calendar }),
     Char: ({ type }) => ({ filter: filter.Char(type.length) }),
     Checkbox: ~({ type: 'confirm' }),
-    Color: ~({ validate: validator.Color }),
+    Color: ~({ type: 'chalk-pipe' }),
     DoubleRange: ({ type }) => ({
         filter: filter.Double,
         validate: validator.Range(type.from, type.to) }),
@@ -102,6 +103,7 @@ function toInquirerQuestion([name, config]) {
 export function ask(questions) {
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
+    prompt.registerPrompt('chalk-pipe', ChalkPipe);
     return resolve(prompt(questions | toPairs | map(toInquirerQuestion)))
         .tap(console.log);
 }
