@@ -10,7 +10,7 @@ install:
 script:
   - yarn lint
   - yarn lint:tests
-  - yarn test
+  - yarn test:travis
   - yarn report-coverage
 
 cache:
