@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { promisify } from 'bluebird';
 import rimraf from 'rimraf';
 import { split } from 'ramda';
-import { createStream } from './helper';
 import work, { keyboard } from '../salete/salete';
+import { createStream } from './helper';
 
 const rm = promisify(rimraf);
 const { wait } = keyboard;

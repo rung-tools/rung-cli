@@ -8,6 +8,7 @@ import {
     is,
     join,
     map,
+    multiply,
     split,
     takeWhile,
     when
@@ -52,6 +53,11 @@ export const keyboard = {
         UP: '\x1B\x5B\x41'
     }
 };
+
+/**
+ * Tells Salete to keep calm for at max n seconds
+ */
+export const keepCalm = multiply(1000);
 
 // Salete is lazy on Travis CI
 const multiplier = process.env.FAST_TEST === '1' ? 1 : 2;
