@@ -12,7 +12,7 @@ const { wait } = keyboard;
 
 describe('build.js', () => {
     describe('Compile boilerplate', () => {
-        // after(~rm('very-cool-project'));
+        after(~rm('very-cool-project'));
 
         it.only('should compile the generated boilerplate', () => {
             process.chdir('very-cool-project');

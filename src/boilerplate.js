@@ -18,7 +18,6 @@ import {
 import semver from 'semver';
 import superagent from 'superagent';
 import inquirer from 'inquirer';
-import { version as rungCliVersion } from '../package';
 import { emitSuccess } from './input';
 
 const request = superagent.agent();
@@ -80,7 +79,7 @@ function createBoilerplateFolder(answers) {
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'license', 'category'];
     const packageObject = merge(pick(packageFields, answers),
-        { dependencies: { 'rung-cli': rungCliVersion } });
+        { dependencies: { 'rung-cli': '0.9.4' } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
