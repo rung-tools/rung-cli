@@ -1,6 +1,10 @@
 import path from 'path';
 import { expect } from 'chai';
+import { promisify } from 'bluebird';
+import rimraf from 'rimraf';
 import { createStream } from './helper';
+
+const rm = promisify(rimraf);
 
 describe('build.js', () => {
     describe('Failures', () => {

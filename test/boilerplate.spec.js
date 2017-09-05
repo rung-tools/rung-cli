@@ -15,10 +15,10 @@ const { press, type, wait } = keyboard;
 const salete = {
     runs: ['node', 'dist/cli.js', 'boilerplate'],
     does: [
-        type('very-cool-project' + press.ENTER), wait(200),
-        type('0.2.1' + press.ENTER), wait(200),
-        type('Very Cool Project'), wait(50), press.ENTER, wait(200),
-        type('This is only a test' + press.ENTER), wait(200),
+        type('very-cool-project' + press.ENTER), wait(400),
+        type('0.2.1' + press.ENTER), wait(400),
+        type('Very Cool Project'), wait(50), press.ENTER, wait(400),
+        type('This is only a test' + press.ENTER), wait(400),
         press.UP + press.ENTER,
         press.ENTER
     ],
@@ -26,9 +26,8 @@ const salete = {
     clear: true
 };
 
-describe.only('boilerplate.js', () => {
+describe('boilerplate.js', () => {
     describe('Input and output', () => {
-        after(~rm('very-cool-project'));
         before(~rm('very-cool-project'));
 
         it('should correctly generate a boilerplate', () => {
