@@ -26,7 +26,7 @@ const salete = {
     clear: true
 };
 
-describe('boilerplate.js', () => {
+describe.only('boilerplate.js', () => {
     describe('Input and output', () => {
         before(~rm('very-cool-project'));
 
