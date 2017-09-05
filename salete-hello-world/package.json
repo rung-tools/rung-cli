@@ -1,9 +1,0 @@
-{
-  "name": "salete-hello-world",
-  "version": "0.2.1",
-  "license": "MIT",
-  "category": "games",
-  "dependencies": {
-    "rung-cli": "0.9.4"
-  }
-}
