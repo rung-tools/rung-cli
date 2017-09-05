@@ -58,15 +58,15 @@ export const keyboard = {
 };
 
 /**
- * Spawns a monkey to work.
+ * Spawns Salete to work.
  * Creates an IO event loop to work on dynamic buffered input and output.
  * Receives a stream, a combo and a timeout, where the combo may contain
  * ansi escape codes to common CLI operations.
  *
  * @param {Object} stream - the promisified stream object
- * @param {Object} opts - The options to the monkey
+ * @param {Object} opts - The options to Salete
  */
-export function spawnMonkey(stream, { combo = [], procrastination = 500 }) {
+export function spawnSalete(stream, { combo = [], procrastination = 500 }) {
     const task = stream.process();
 
     const eventLoop = ([head, ...tail]) => {

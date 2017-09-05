@@ -8,7 +8,7 @@ import {
     clearAnsiEscapes,
     createStream,
     keyboard,
-    spawnMonkey
+    spawnSalete
 } from './helper';
 
 chai.use(fs);
@@ -33,7 +33,7 @@ describe('boilerplate.js', () => {
                 press.ENTER,
             ];
 
-            return spawnMonkey(stream, { combo, procrastination: 1000 })
+            return spawnSalete(stream, { combo, procrastination: 1000 })
                 .then(clearAnsiEscapes)
                 .tap(output => {
                     const expected = [
