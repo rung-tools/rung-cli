@@ -64,7 +64,7 @@ describe.only('boilerplate.js', () => {
                     expect('very-cool-project').to.be.a.directory()
                         .with.files(['README.md', 'index.js', 'package.json']);
                 });
-        }).timeout(30000);
+        }).timeout(60000);
 
         it('should raise error when the folder of the project already exists', () => {
             return work(salete)
@@ -72,6 +72,6 @@ describe.only('boilerplate.js', () => {
                     expect('very-cool-project').to.be.a.directory();
                     expect(output).to.match(/Unable to create folder very-cool-project/);
                 });
-        }).timeout(30000);
+        }).timeout(60000);
     });
 });
