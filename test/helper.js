@@ -5,6 +5,8 @@ import {
     complement,
     equals,
     join,
+    identity,
+    is,
     map,
     split,
     takeWhile
@@ -45,10 +47,14 @@ export const clearAnsiEscapes = split('\n')
 /**
  * Ansi escape codes for keypress
  */
-export const press = {
-    ENTER: '\x0D',
-    DOWN: '\x1B\x5B\x42',
-    UP: '\x1B\x5B\x41'
+export const keyboard = {
+    type: identity,
+    wait: identity,
+    press: {
+        ENTER: '\x0D',
+        DOWN: '\x1B\x5B\x42',
+        UP: '\x1B\x5B\x41'
+    }
 };
 
 /**
@@ -65,9 +71,11 @@ export function spawnMonkey(stream, { combo = [], procrastination = 500 }) {
 
     const eventLoop = ([head, ...tail]) => {
         if (head) {
-            return delay(procrastination)
-                .tap(~stream.write(head))
-                .tap(~eventLoop(tail));
+            const interval = is(Number, head)
+                ? delay(head)
+                : delay(procrastination).tap(~stream.write(head));
+
+            return interval.tap(~eventLoop(tail));
         }
 
         task.stdin.end();

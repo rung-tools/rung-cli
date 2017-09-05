@@ -7,7 +7,7 @@ import rimraf from 'rimraf';
 import {
     clearAnsiEscapes,
     createStream,
-    press,
+    keyboard,
     spawnMonkey
 } from './helper';
 
@@ -15,6 +15,7 @@ chai.use(fs);
 chai.use(json);
 
 const rm = promisify(rimraf);
+const { press, type, wait } = keyboard;
 
 describe('boilerplate.js', () => {
     describe('Input and output', () => {
@@ -24,12 +25,12 @@ describe('boilerplate.js', () => {
         it.only('should correctly deal with the questions', () => {
             const stream = createStream(['boilerplate']);
             const combo = [
-                'very-cool-project', press.ENTER,
-                '0.2.1', press.ENTER,
-                'Very Cool Project', press.ENTER,
-                'This is only a test', press.ENTER,
-                press.UP, press.ENTER, // Navigate in categories list
-                press.ENTER
+                type('very-cool-project' + press.ENTER), wait(100),
+                type('0.2.1' + press.ENTER), wait(100),
+                type('Very Cool Project' + press.ENTER), wait(100),
+                type('This is only a test' + press.ENTER), wait(100),
+                press.UP + press.ENTER,
+                press.ENTER,
             ];
 
             return spawnMonkey(stream, { combo, procrastination: 1000 })
