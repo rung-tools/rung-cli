@@ -52,7 +52,6 @@
     "yargs": "^8.0.1"
   },
   "devDependencies": {
-    "ansi-escapes": "2.0.0",
     "babel-cli": "^6.23.0",
     "babel-plugin-function-composition": "0.1.1",
     "babel-plugin-implicit-function": "0.1.1",
@@ -80,6 +79,7 @@
         "globals": [
           "describe",
           "it",
+          "after",
           "before",
           "_"
         ],
