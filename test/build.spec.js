@@ -1,5 +1,4 @@
 import path from 'path';
-import process from 'process';
 import { expect } from 'chai';
 import { promisify } from 'bluebird';
 import rimraf from 'rimraf';
@@ -18,16 +17,15 @@ describe('build.js', () => {
             process.chdir('very-cool-project');
             const npm = {
                 runs: ['npm', 'install'],
-                does: [wait(60000)]
+                does: [wait(5 * 60 * 1000)]
             };
             const compile = {
                 runs: ['node', '../dist/cli.js', 'build'],
-                does: [wait(20000)]
+                does: [wait(20 * 1000)]
             };
 
             return work(npm)
                 .then(output => {
-                    expect(output).to.match(/(added \d+ packages)|(up to date)/);
                     void expect('node_modules').to.be.a.directory().and.not.empty;
                     return work(compile);
                 })

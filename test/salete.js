@@ -53,6 +53,9 @@ export const keyboard = {
     }
 };
 
+// Salete is lazy on Travis CI
+const multiplier = process.env.FAST_TEST === '1' ? 1 : 2;
+
 /**
  * Spawns Salete to work.
  * Creates an IO event loop to work on dynamic buffered input and output.
@@ -75,8 +78,8 @@ export default function salete({
     const eventLoop = ([head, ...tail]) => {
         if (head) {
             const interval = is(Number, head)
-                ? delay(head)
-                : delay(procrastination).tap(~stream.write(head));
+                ? delay(head * multiplier)
+                : delay(procrastination * multiplier).tap(~stream.write(head));
 
             return interval.tap(~eventLoop(tail));
         }

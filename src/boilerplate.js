@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import process from 'process';
 import { all, promisify, reject } from 'bluebird';
 import {
     append,
