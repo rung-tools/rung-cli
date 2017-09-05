@@ -17,7 +17,7 @@ describe('boilerplate.js', () => {
         after(~rm('very-cool-project'));
         before(~rm('very-cool-project'));
 
-        it.only('should correctly deal with the questions', () => {
+        it.only('should correctly generate a boilerplate', () => {
             const salete = {
                 runs: ['node', 'dist/cli.js', 'boilerplate'],
                 does: [
@@ -62,6 +62,8 @@ describe('boilerplate.js', () => {
                     ] | join('\n');
 
                     expect(output).to.equals(expected);
+                    expect('very-cool-project').to.be.a.directory()
+                        .with.files(['README.md', 'index.js', 'package.json']);
                 });
         }).timeout(30000);
     });
