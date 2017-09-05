@@ -3,8 +3,8 @@ import {
     compileModulesFromSource,
     evaluateModules,
     inspect
-} from '../src/module';
-import { createVM } from '../src/vm';
+} from '../../src/module';
+import { createVM } from '../../src/vm';
 
 describe('module.js', () => {
     describe('Module compilation', () => {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getLocale, translator } from '../src/i18n';
+import { getLocale, translator } from '../../src/i18n';
 
 describe('i18n.js', () => {
     describe('Locale', () => {

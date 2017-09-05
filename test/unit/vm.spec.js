@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getProperties, runAndGetAlerts } from '../src/vm';
+import { getProperties, runAndGetAlerts } from '../../src/vm';
 
 describe('vm.js', () => {
     describe('Virtual machine runtime', () => {

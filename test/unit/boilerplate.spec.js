@@ -4,7 +4,7 @@ import { join } from 'ramda';
 import fs from 'chai-fs';
 import json from 'chai-json-schema';
 import rimraf from 'rimraf';
-import work, { keyboard } from './salete';
+import work, { keyboard } from '../salete/salete';
 
 chai.use(fs);
 chai.use(json);

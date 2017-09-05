@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { promisifyStream } from './salete';
+import { promisifyStream } from '../salete/salete';
 
 export function createCustomStream(env, args = [], cmd = 'dist/cli.js') {
     const task = spawn('node', [cmd, ...args], { stdio: 'pipe', env });

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { runAndGetAlerts } from '../src/vm';
-import { compileES6 } from '../src/compiler';
+import { runAndGetAlerts } from '../../src/vm';
+import { compileES6 } from '../../src/compiler';
 
 describe('compiler.js', () => {
     describe('Babel compiler and JSX', () => {

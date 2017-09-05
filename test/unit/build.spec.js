@@ -4,16 +4,16 @@ import { promisify } from 'bluebird';
 import rimraf from 'rimraf';
 import { split } from 'ramda';
 import { createStream } from './helper';
-import work, { keyboard } from './salete';
+import work, { keyboard } from '../salete/salete';
 
 const rm = promisify(rimraf);
 const { wait } = keyboard;
 
 describe('build.js', () => {
-    describe('Compile boilerplate', () => {
+    describe.only('Compile boilerplate', () => {
         after(~rm('very-cool-project'));
 
-        it.only('should compile the generated boilerplate', () => {
+        it('should compile the generated boilerplate', () => {
             process.chdir('very-cool-project');
             const npm = {
                 runs: ['npm', 'install'],
@@ -21,7 +21,7 @@ describe('build.js', () => {
             };
             const compile = {
                 runs: ['node', '../dist/cli.js', 'build'],
-                does: [wait(20 * 1000)]
+                does: [wait(30 * 1000)]
             };
 
             return work(npm)

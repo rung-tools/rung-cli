@@ -7,7 +7,7 @@ import {
     IntegerMultiRange,
     OneOf,
     getTypeName
-} from '../src/types';
+} from '../../src/types';
 
 describe('types.js', () => {
     describe('Existing types', () => {

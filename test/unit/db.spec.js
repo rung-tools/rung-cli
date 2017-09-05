@@ -4,9 +4,9 @@ import chai, { expect } from 'chai';
 import { promisify } from 'bluebird';
 import rimraf from 'rimraf';
 import fs from 'chai-fs';
-import { runAndGetAlerts } from '../src/vm';
-import { compileES6 } from '../src/compiler';
-import { read } from '../src/db';
+import { runAndGetAlerts } from '../../src/vm';
+import { compileES6 } from '../../src/compiler';
+import { read } from '../../src/db';
 import { createStream } from './helper';
 
 chai.use(fs);
