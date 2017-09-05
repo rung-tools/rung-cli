@@ -25,7 +25,7 @@ describe('build.js', () => {
             };
 
             return work(npm)
-                .then(output => {
+                .then(() => {
                     void expect('node_modules').to.be.a.directory().and.not.empty;
                     return work(compile);
                 })
