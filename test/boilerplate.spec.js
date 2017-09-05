@@ -12,26 +12,26 @@ chai.use(json);
 const rm = promisify(rimraf);
 const { press, type, wait } = keyboard;
 
-describe('boilerplate.js', () => {
+const salete = {
+    runs: ['node', 'dist/cli.js', 'boilerplate'],
+    does: [
+        type('very-cool-project' + press.ENTER), wait(200),
+        type('0.2.1' + press.ENTER), wait(200),
+        type('Very Cool Project'), wait(50), press.ENTER, wait(200),
+        type('This is only a test' + press.ENTER), wait(200),
+        press.UP + press.ENTER,
+        press.ENTER
+    ],
+    procrastination: 1000,
+    clear: true
+};
+
+describe.only('boilerplate.js', () => {
     describe('Input and output', () => {
         after(~rm('very-cool-project'));
         before(~rm('very-cool-project'));
 
-        it.only('should correctly generate a boilerplate', () => {
-            const salete = {
-                runs: ['node', 'dist/cli.js', 'boilerplate'],
-                does: [
-                    type('very-cool-project' + press.ENTER), wait(100),
-                    type('0.2.1' + press.ENTER), wait(100),
-                    type('Very Cool Project' + press.ENTER), wait(100),
-                    type('This is only a test' + press.ENTER), wait(100),
-                    press.UP + press.ENTER,
-                    press.ENTER
-                ],
-                procrastination: 1000,
-                clear: true
-            };
-
+        it('should correctly generate a boilerplate', () => {
             return work(salete)
                 .tap(output => {
                     const expected = [
@@ -64,6 +64,14 @@ describe('boilerplate.js', () => {
                     expect(output).to.equals(expected);
                     expect('very-cool-project').to.be.a.directory()
                         .with.files(['README.md', 'index.js', 'package.json']);
+                });
+        }).timeout(30000);
+
+        it('should raise error when the folder of the project already exists', () => {
+            return work(salete)
+                .then(output => {
+                    expect('very-cool-project').to.be.a.directory();
+                    expect(output).to.match(/Unable to create folder very-cool-project/);
                 });
         }).timeout(30000);
     });

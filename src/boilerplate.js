@@ -57,18 +57,6 @@ function askQuestions() {
 }
 
 /**
- * Creates a file with the passed content. Receives the format
- * { filename :: String, content :: String }
- *
- * @param {Object} {filename, content}
- * @return {Promise}
- */
-function writeFileFromObject({ filename, content }) {
-    return createFile(filename, content)
-        .catch(~reject(`Unable to create file ${filename}`));
-}
-
-/**
  * Creates the folder for the boilerplate based on package name. If the folder
  * already exists, throw an error
  * Queria estar morta
@@ -173,6 +161,6 @@ export default function boilerplate() {
     return askQuestions()
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
-        .then(map(writeFileFromObject) & all)
+        .then(map(({ filename, content }) => createFile(filename, content)) & all)
         .then(~emitSuccess('project generated'));
 }
