@@ -4,12 +4,7 @@ import { join } from 'ramda';
 import fs from 'chai-fs';
 import json from 'chai-json-schema';
 import rimraf from 'rimraf';
-import {
-    clearAnsiEscapes,
-    createStream,
-    keyboard,
-    spawnSalete
-} from './helper';
+import work, { keyboard } from './salete';
 
 chai.use(fs);
 chai.use(json);
@@ -23,18 +18,21 @@ describe('boilerplate.js', () => {
         before(~rm('very-cool-project'));
 
         it.only('should correctly deal with the questions', () => {
-            const stream = createStream(['boilerplate']);
-            const combo = [
-                type('very-cool-project' + press.ENTER), wait(100),
-                type('0.2.1' + press.ENTER), wait(100),
-                type('Very Cool Project' + press.ENTER), wait(100),
-                type('This is only a test' + press.ENTER), wait(100),
-                press.UP + press.ENTER,
-                press.ENTER,
-            ];
+            const salete = {
+                runs: ['node', 'dist/cli.js', 'boilerplate'],
+                does: [
+                    type('very-cool-project' + press.ENTER), wait(100),
+                    type('0.2.1' + press.ENTER), wait(100),
+                    type('Very Cool Project' + press.ENTER), wait(100),
+                    type('This is only a test' + press.ENTER), wait(100),
+                    press.UP + press.ENTER,
+                    press.ENTER
+                ],
+                procrastination: 1000,
+                clear: true
+            };
 
-            return spawnSalete(stream, { combo, procrastination: 1000 })
-                .then(clearAnsiEscapes)
+            return work(salete)
                 .tap(output => {
                     const expected = [
                         '? Project name (rung-cli) ',
