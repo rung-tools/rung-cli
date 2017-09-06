@@ -8,10 +8,10 @@ import build from './build.feat';
 const rm = promisify(rimraf);
 
 export default () => {
-    before(~rm('salete-hello-world'));
+    // before(~rm('salete-hello-world'));
+    // after(~rm('salete-hello-world'));
     describe('help.feat', help);
     describe('version.feat', version);
     describe('boilerplate.feat', boilerplate);
     describe('build.feat', build);
-    after(~rm('salete-hello-world'));
 };
