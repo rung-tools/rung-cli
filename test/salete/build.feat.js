@@ -1,16 +1,13 @@
-import fs from 'fs';
 import process from 'process';
-import Promise, { promisify } from 'bluebird';
 import { expect } from 'chai';
 import { split } from 'ramda';
-import agent from 'superagent';
-import promisifyAgent from 'superagent-promise';
-import work, { keepCalm } from './salete';
-
-const request = promisifyAgent(agent, Promise);
-const createFolder = promisify(fs.mkdir);
-const createFile = promisify(fs.writeFile);
-const renameFile = promisify(fs.rename);
+import work, {
+    createFile,
+    createFolder,
+    keepCalm,
+    renameFile,
+    request
+} from './salete';
 
 const npm = {
     runs: ['npm', 'install'],

@@ -1,5 +1,9 @@
+import fs from 'fs';
 import { spawn } from 'child_process';
 import concat from 'concat-stream';
+import agent from 'superagent';
+import rimraf from 'rimraf';
+import promisifyAgent from 'superagent-promise';
 import Promise, { delay, promisify } from 'bluebird';
 import {
     complement,
@@ -13,6 +17,12 @@ import {
     takeWhile,
     when
 } from 'ramda';
+
+export const request = promisifyAgent(agent, Promise);
+export const createFolder = promisify(fs.mkdir);
+export const createFile = promisify(fs.writeFile);
+export const renameFile = promisify(fs.rename);
+export const remove = promisify(rimraf);
 
 export const promisifyStream = fn => promisify((param, callback) => {
     fn(param, callback(null, _));
