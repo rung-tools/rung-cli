@@ -1,5 +1,5 @@
 import fs from 'fs';
-import prepend from 'prepend-file';
+import process from 'process';
 import Promise, { promisify } from 'bluebird';
 import { expect } from 'chai';
 import { split } from 'ramda';
@@ -11,7 +11,6 @@ const request = promisifyAgent(agent, Promise);
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
 const renameFile = promisify(fs.rename);
-const prependFile = promisify(prepend);
 
 const npm = {
     runs: ['npm', 'install'],
