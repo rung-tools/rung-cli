@@ -29,22 +29,19 @@ export default () => {
     it('should at least try to reference a *.rung binary to upload to another api', () => {
         return work(
             publish(['--file=salete-hello-world.rung', '--private']), {
-                RUNG_API: 'http://35.165.157.18/api/'
+                RUNG_API: 'http://35.165.157.18/api'
             })
             .then(output => {
-                expect(output).to.contain('Unauthorized');
+                expect(output).to.contain('Error');
             });
     }).timeout(keepCalm(60));
 
     it('should emit warning for a wrong URL', () => {
-        return work(
-            publish(['--file=salete-hello-world.rung', '--private']), {
-                RUNG_API: 'trololololololo'
-            })
+        return work(publish([], { RUNG_API: 'trololololololo' }))
             .then(output => {
                 expect(output).to.contain('invalid API for Rung');
             });
-    })
+    }).timeout(keepCalm(60));
 
     after(~process.chdir('..'));
 };
