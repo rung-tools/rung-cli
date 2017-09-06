@@ -15,5 +15,5 @@ export default () => {
             .tap(version => {
                 expect(version | trim).to.equals(rungCliVersion);
             });
-    }).timeout(10000);
+    }).timeout(keepCalm(10));
 };

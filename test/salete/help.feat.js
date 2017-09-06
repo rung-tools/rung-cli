@@ -16,5 +16,5 @@ export default () => {
                 expect(output).to.contain('Commands');
                 expect(output).to.contain('Options');
             });
-    }).timeout(10000);
+    }).timeout(keepCalm(10));
 };
