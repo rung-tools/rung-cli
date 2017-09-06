@@ -71,5 +71,17 @@ export default () => {
             });
     }).timeout(keepCalm(30));
 
+    it('should add a simple autocomplete file', () => {
+        return createFolder('autocomplete')
+            .then(~createFile('autocomplete/name.js', `
+                export default function name({ input }) {
+                    return [
+                        'Marcelo', 'Paulo', 'Vitor', 'Larissa', 'William'
+                    ].filter(name => name.startsWith(input));
+                };
+            `))
+            .then(~work(compile));
+    }).timeout(keepCalm(30));
+
     after(~process.chdir('..'));
 };
