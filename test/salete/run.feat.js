@@ -18,7 +18,7 @@ const run = (args = []) => ({
 export default () => {
     before(~process.chdir('salete-hello-world'));
 
-    it.only('should run the Hello World from Salete (raw)', () => {
+    it('should run the Hello World from Salete (raw)', () => {
         return work(run(['--raw']))
             .then(output => {
                 expect(output).to.contain('What is your name?');
@@ -31,7 +31,7 @@ export default () => {
             });
     }).timeout(keepCalm(20));
 
-    it.only('should run the Hello World from Salete with table view', () => {
+    it('should run the Hello World from Salete with table view', () => {
         return work(run())
             .then(output => {
                 expect(output).to.contain('What is your name?');
