@@ -10,6 +10,7 @@ import work, { keepCalm } from './salete';
 const request = promisifyAgent(agent, Promise);
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
+const renameFile = promisify(fs.rename);
 const prependFile = promisify(prepend);
 
 const npm = {
@@ -81,6 +82,15 @@ export default () => {
                 };
             `))
             .then(~work(compile));
+    }).timeout(keepCalm(30));
+
+    it('should refuse compiling when salete removes package.json', () => {
+        return renameFile('package.json', 'package.hs')
+            .then(~work(compile))
+            .then(output => {
+                expect(output).to.contain('missing package.json from the project');
+            })
+            .finally(~renameFile('package.hs', 'package.json'));
     }).timeout(keepCalm(30));
 
     after(~process.chdir('..'));
