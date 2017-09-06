@@ -88,8 +88,8 @@ export default function salete({
     runs: [command, ...args],
     procrastination = 500,
     does = [],
-    clear = false } = {},
-    env = {}) {
+    clear = false,
+    env = {} } = {}) {
     const stream = createStream(command, args, env);
     const task = stream.process();
     const eventLoop = ([head, ...tail]) => {
