@@ -50,6 +50,10 @@ cli(yargs
         describe: 'Display returned data as it is',
         type: 'boolean'
     })
+    .option('file', {
+        describe: 'File to publish to Rung Store',
+        type: 'string'
+    })
     .strict()
     .demandCommand(1)
     .recommendCommands()

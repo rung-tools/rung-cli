@@ -65,7 +65,7 @@ export default function publish(args) {
     const api = fetchRungApi();
 
     return inquirer.prompt([
-        { name: 'email', type: 'input', message: 'Rung email', validate: validator.Email },
+        { name: 'email', message: 'Rung email', validate: validator.Email },
         { name: 'password', type: 'password', message: 'Rung password' }])
         .then(payload => payload | request.post(`${api}/login`).send)
         .then(~resolveInputFile(args))
