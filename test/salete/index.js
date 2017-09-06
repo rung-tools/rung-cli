@@ -10,8 +10,11 @@ import db from './db.feat';
 import run from './run.feat';
 import publish from './publish.feat';
 
-export default () => {
+describe('Human tests', () => {
     before(~remove('salete-hello-world') & ~remove(path.join(os.homedir(), '.rung', 'rung-cli.db')));
+    after(() => {
+        remove('salete-hello-world');
+    });
     describe('help.feat', help);
     describe('version.feat', version);
     describe('boilerplate.feat', boilerplate);
@@ -20,5 +23,4 @@ export default () => {
     describe('db.feat', db);
     describe('run.feat', run);
     describe('publish.feat', publish);
-    after(~remove('salete-hello-world'));
-};
+});

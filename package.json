@@ -16,8 +16,10 @@
     "lint:tests": "xo test/**/*",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
-    "test": "FAST_TEST=1 nyc mocha --compilers js:babel-core/register test/index.js",
-    "test:travis": "nyc mocha --compilers js:babel-core/register test/index.js",
+    "test:unit": "nyc mocha --compilers js:babel-core/register test/unit/index.js",
+    "test:salete": "FAST_TEST=1 nyc mocha --compilers js:babel-core/register test/salete/index.js",
+    "test": "FAST_TEST=1 nyc mocha --compilers js:babel-core/register test/{unit,salete}/index.js",
+    "test:travis": "nyc mocha --compilers js:babel-core/register test/{unit,salete}/index.js",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "coverage": "nyc --reporter=html yarn test:travis"
   },
