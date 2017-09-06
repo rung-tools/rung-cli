@@ -278,8 +278,6 @@ function addToZip(zip, dir, filename) {
         return map(file => addToZip(zip.folder(filename), filePath, file),
             fs.readdirSync(filePath));
     }
-
-    throw new Error(`Invalid file type for ${filePath}`);
 }
 
 /**
