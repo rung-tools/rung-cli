@@ -89,6 +89,14 @@
             "off"
           ]
         }
+      },
+      {
+        "files": "test/salete/build.feat.js",
+        "rules": {
+          "camelcase": [
+            "off"
+          ]
+        }
       }
     ],
     "rules": {

@@ -1,10 +1,10 @@
 import fs from 'fs';
 import Promise, { promisify } from 'bluebird';
 import { expect } from 'chai';
-import { prop, split } from 'ramda';
+import { split } from 'ramda';
 import agent from 'superagent';
 import promisifyAgent from 'superagent-promise';
-import work, { keepCalm, keyboard } from './salete';
+import work, { keepCalm } from './salete';
 
 const request = promisifyAgent(agent, Promise);
 const createFolder = promisify(fs.mkdir);
