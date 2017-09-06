@@ -54,6 +54,15 @@ export default () => {
                 });
         });
 
+        it('should compile JSON', () => {
+            const source = 'import pkg from "./package.json"';
+            return compileModulesFromSource(source)
+                .then(pairs => {
+                    expect(pairs).to.be.an('array').and.have.lengthOf(1);
+                    expect(pairs[0][0]).to.equals('./package.json');
+                });
+        });
+
         it('should reject compilation of unknown file', () => {
             const modules = [
                 ['Main.hs', `
