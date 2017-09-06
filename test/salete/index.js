@@ -7,6 +7,7 @@ import boilerplate from './boilerplate.feat';
 import build from './build.feat';
 import readme from './readme.feat';
 import db from './db.feat';
+import run from './run.feat';
 
 export default () => {
     before(~remove(path.join(os.homedir(), '.rung', 'rung-cli.db')));
@@ -18,4 +19,5 @@ export default () => {
     describe('build.feat', build);
     describe('readme.feat', readme);
     describe('db.feat', db);
+    describe('run.feat', run);
 };

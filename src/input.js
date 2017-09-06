@@ -107,6 +107,5 @@ export function ask(questions) {
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
-    return resolve(prompt(questions | toPairs | map(toInquirerQuestion)))
-        .tap(console.log);
+    return resolve(prompt(questions | toPairs | map(toInquirerQuestion)));
 }

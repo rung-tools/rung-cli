@@ -30,7 +30,7 @@ function tableView(data) {
 
     const table = new Table({
         head: ['Key', 'Title', 'Content', 'Comment'],
-        colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns) & Math.round)
+        colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns || 100) & Math.round)
     });
 
     table.push(...valuesFrom(data.alerts));
@@ -51,12 +51,12 @@ export default function run(args) {
         .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
         .spread((name, db, strings, locale) => compileSources()
             .spread((source, modules) => getProperties({ name, source }, strings, modules)
-                .then(prop('params'))
-                .then(ask)
+                .then(prop('params') & ask)
                 .then(mergeAll)
                 .tap(~spinner.start())
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
         .tap(~spinner.stop(true))
-        .tap(when(~!args.raw, tableView) & console.log);
+        .then(when(~!args.raw, tableView))
+        .tap(console.log);
 }
