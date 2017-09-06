@@ -69,6 +69,9 @@ export default () => {
                         }
                     }
                 });
+            })
+            .finally(() => {
+                process.chdir('..');
             });
     }).timeout(keepCalm(30));
 };
