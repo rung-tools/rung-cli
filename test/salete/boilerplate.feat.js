@@ -52,7 +52,7 @@ export default () => {
                 expect('salete-hello-world').to.be.a.directory()
                     .with.files(['README.md', 'index.js', 'package.json']);
             });
-    }).timeout(keepCalm(10));
+    }).timeout(keepCalm(30));
 
     it('should raise error when the folder of the project already exists', () => {
         return work(salete)

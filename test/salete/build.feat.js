@@ -1,4 +1,5 @@
 import fs from 'fs';
+import prepend from 'prepend-file';
 import Promise, { promisify } from 'bluebird';
 import { expect } from 'chai';
 import { split } from 'ramda';
@@ -9,6 +10,7 @@ import work, { keepCalm } from './salete';
 const request = promisifyAgent(agent, Promise);
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
+const prependFile = promisify(prepend);
 
 const npm = {
     runs: ['npm', 'install'],
@@ -24,8 +26,9 @@ const putSomeIcon = ~request.get('http://www.randomkittengenerator.com/cats/rota
     .then(({ body }) => createFile('icon.png', body));
 
 export default () => {
+    before(~process.chdir('salete-hello-world'));
+
     it('should compile the generated boilerplate', () => {
-        process.chdir('salete-hello-world');
         return work(npm)
             .then(() => {
                 void expect('node_modules').to.be.a.directory().and.not.empty;
@@ -36,14 +39,10 @@ export default () => {
                 expect(warning).to.contain('compiling extension without providing an icon.png file');
                 expect(success).to.contain('Rung extension compilation');
                 expect('salete-hello-world.rung').to.be.a.file();
-            })
-            .finally(() => {
-                process.chdir('..');
             });
     }).timeout(keepCalm(90));
 
-    it.only('should link locales and icon to compilation', () => {
-        process.chdir('salete-hello-world');
+    it('should link locales and icon to compilation', () => {
         return createFolder('locales')
             .then(() => createFile('locales/pt_BR.json', JSON.stringify({
                 'Very Cool Project': 'Projeto Muito Legal'
@@ -69,9 +68,8 @@ export default () => {
                         }
                     }
                 });
-            })
-            .finally(() => {
-                process.chdir('..');
             });
     }).timeout(keepCalm(30));
+
+    after(~process.chdir('..'));
 };
