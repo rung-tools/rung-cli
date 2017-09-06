@@ -16,7 +16,7 @@ export default () => {
                 expect(output).to.contain('generated README.md');
                 expect('README.md').to.be.a.file();
             });
-    });
+    }).timeout(keepCalm(30));
 
     after(~process.chdir('..'));
 };
