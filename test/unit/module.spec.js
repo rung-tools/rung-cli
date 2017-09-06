@@ -6,7 +6,7 @@ import {
 } from '../../src/module';
 import { createVM } from '../../src/vm';
 
-describe('module.js', () => {
+export default () => {
     describe('Module compilation', () => {
         it('should compile and evaluate modules', () => {
             const modules = [
@@ -68,4 +68,4 @@ describe('module.js', () => {
                 .to.throw('Unknown file type for Main.hs');
         });
     });
-});
+};

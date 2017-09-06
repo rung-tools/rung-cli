@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { getLocale, translator } from '../../src/i18n';
 
-describe('i18n.js', () => {
+export default () => {
     describe('Locale', () => {
         it('should get locale from machine', () => {
             return getLocale()
@@ -32,4 +32,4 @@ describe('i18n.js', () => {
             expect(sentence).to.equals('Celão是20岁');
         });
     });
-});
+};

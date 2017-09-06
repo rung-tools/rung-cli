@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { runAndGetAlerts } from '../../src/vm';
 import { compileES6 } from '../../src/compiler';
 
-describe('compiler.js', () => {
+export default () => {
     describe('Babel compiler and JSX', () => {
         it('should compile and run ES6 features using Babel compiler', () => {
             const source = compileES6(`
@@ -110,4 +110,4 @@ describe('compiler.js', () => {
                 });
         });
     });
-});
+};

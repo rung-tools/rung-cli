@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { getProperties, runAndGetAlerts } from '../../src/vm';
 
-describe('vm.js', () => {
+export default () => {
     describe('Virtual machine runtime', () => {
         it('should get the config of an extension', () => {
             const source = `module.exports = { default:
@@ -102,4 +102,4 @@ describe('vm.js', () => {
                 });
         });
     });
-});
+};

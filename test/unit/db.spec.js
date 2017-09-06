@@ -1,23 +1,18 @@
 import os from 'os';
 import path from 'path';
-import chai, { expect } from 'chai';
-import { promisify } from 'bluebird';
-import rimraf from 'rimraf';
-import fs from 'chai-fs';
+import { expect } from 'chai';
 import { runAndGetAlerts } from '../../src/vm';
 import { compileES6 } from '../../src/compiler';
 import { read } from '../../src/db';
+import { remove } from '../salete/salete';
 
-chai.use(fs);
-
-const rm = promisify(rimraf);
 const home = os.homedir();
 const extensionName = 'rung-database-test';
 const rungPath = path.join(home, '.rung');
 const dbPath = path.join(rungPath, `${extensionName}.db`);
 
-describe('db.js', () => {
-    before(~rm(rungPath));
+export default () => {
+    before(~remove(rungPath));
 
     describe('Database', () => {
         it('should get undefined when reading from empty db', () => {
@@ -129,4 +124,4 @@ describe('db.js', () => {
                 });
         });
     });
-});
+};
