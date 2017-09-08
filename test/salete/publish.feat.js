@@ -1,7 +1,23 @@
 import process from 'process';
 import { expect } from 'chai';
+import {
+    complement,
+    contains,
+    find,
+    identity,
+    isNil,
+    match,
+    nth,
+    split,
+    tryCatch,
+    when
+} from 'ramda';
+import { Maybe } from 'ramda-fantasy';
+import Promise from 'bluebird';
+import jsonServer from 'json-server';
 import work, { keepCalm, keyboard } from './salete';
 
+const FAKE_SERVER_PORT = 3666;
 const { press, type } = keyboard;
 const publish = (args = [], env = {}) => ({
     runs: ['node', '../dist/cli.js', 'publish', ...args],
@@ -9,13 +25,51 @@ const publish = (args = [], env = {}) => ({
         type('salete'), press.ENTER,
         type('salete@rung.com.br'), press.ENTER,
         type('ilovecapybaras'), press.ENTER,
-        keepCalm(10)
+        keepCalm(60)
     ],
     env
 });
 
+/**
+ * Prepares and starts a fake server to publication
+ */
+function prepareRungServer() {
+    const server = jsonServer.create();
+    const middlewares = jsonServer.defaults({
+        logger: false
+    });
+
+    server.use(middlewares);
+    server.post('/login', (req, res) => {
+        res.sendStatus(200);
+    });
+    server.post('/metaExtensions', (req, res) => {
+        res.sendStatus(201);
+    });
+    return new Promise(server.listen(FAKE_SERVER_PORT, _));
+}
+
+/**
+ * Finds the running fake server pid and kills it
+ */
+function killRungServer() {
+    return work({ runs: ['/bin/netstat', '-anp'] })
+        .then(output => {
+            const pid = output
+                | split('\n')
+                | find(contains(`:${FAKE_SERVER_PORT}`))
+                | when(complement(isNil), match(/(\d+)\/nodejs/) & nth(1))
+                | Maybe.of;
+
+            pid.chain(tryCatch(parseInt(_, 10) & process.kill, identity));
+        });
+}
+
 export default () => {
-    before(~process.chdir('salete-hello-world'));
+    before(() => {
+        process.chdir('salete-hello-world');
+        return prepareRungServer();
+    });
 
     it('should refuse publishing because Salete doesn\'t remember her password', () => {
         return work(publish())
@@ -43,5 +97,15 @@ export default () => {
             });
     }).timeout(keepCalm(60));
 
-    after(~process.chdir('..'));
+    it('should publish the extension for the fake server', () => {
+        return work(publish([], { RUNG_API: `http://localhost:${FAKE_SERVER_PORT}` }))
+            .then(output => {
+                expect(output).to.not.contain('Error');
+            });
+    }).timeout(keepCalm(120));
+
+    after(() => {
+        process.chdir('..');
+        return killRungServer();
+    });
 };
