@@ -25,6 +25,7 @@ const components = {
     string: { type: t.String },
     color: { type: t.Color },
     email: { type: t.Email },
+    checkbox: { type: t.Checkbox },
     oneOf: { type: t.OneOf(['Haskell', 'Scala', 'Clojure']) },
     url: { type: t.Url },
     integerMultiRange: { type: t.IntegerMultiRange(0, 50) },
@@ -45,6 +46,7 @@ const actions = [
     type('Java is bad' + press.ENTER), // String
     type('#FF0000' + press.ENTER), // Color
     type('invalid-email' + press.ENTER), type('celao@no-spam.net' + press.ENTER), // Email
+    type('Y' + press.ENTER), // Checkbox
     press.DOWN, press.ENTER, // OneOf
     type('https://github.com/rung-tools/' + press.ENTER), // Url
     type('10 20' + press.ENTER), // IntegerMultiRange
@@ -90,6 +92,7 @@ export default () => {
                 expect(result.string).to.equals('Java is bad');
                 expect(result.color).to.equals('#FF0000');
                 expect(result.email).to.equals('celao@no-spam.net');
+                void expect(result.checkbox).to.be.true;
                 expect(result.oneOf).to.equals('Scala');
                 expect(result.url).to.equals('https://github.com/rung-tools/');
                 expect(result.integerMultiRange).to.deep.equals([10, 20]);
