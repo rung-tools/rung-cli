@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { all, promisify, resolve } from 'bluebird';
+import { promisify, resolve } from 'bluebird';
 import osLocale from 'os-locale';
 import { curry, propOr, replace } from 'ramda';
 
