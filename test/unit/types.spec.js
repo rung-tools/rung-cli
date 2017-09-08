@@ -18,4 +18,8 @@ export default () => {
             'IntegerMultiRange(10, 20)'
         ]);
     });
+
+    it('should cover what Salete didn\'t', () => {
+        expect(t.filter.Calendar(0)).to.be.instanceOf(Date);
+    });
 };

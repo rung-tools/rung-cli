@@ -60,7 +60,6 @@ export const getTypeName = cond([
 ]);
 
 export const validator = {
-    Calendar: String & equals('Invalid Date'),
     Color: isHexColor,
     Double: complement(isNaN),
     Email: unary(isEmail),

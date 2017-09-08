@@ -53,8 +53,7 @@ const components = {
     Calendar: ~({
         type: 'datetime',
         format: ['m', '/', 'd', '/', 'yy'],
-        filter: filter.Calendar,
-        validate: validator.Calendar }),
+        filter: filter.Calendar }),
     Char: ({ type }) => ({ filter: filter.Char(type.length) }),
     Checkbox: ~({ type: 'confirm' }),
     Color: ~({ type: 'chalk-pipe' }),
