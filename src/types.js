@@ -55,6 +55,7 @@ export const getTypeName = cond([
     [propEq('name', 'IntegerRange'), t => `IntegerRange(${t.from}, ${t.to})`],
     [propEq('name', 'DoubleRange'), t => `DoubleRange(${t.from}, ${t.to})`],
     [propEq('name', 'OneOf'), t => `OneOf([${t.values.join(', ')}])`],
+    [propEq('name', 'IntegerMultiRange'), t => `IntegerMultiRange(${t.from}, ${t.to})`],
     [T, _.name]
 ]);
 
