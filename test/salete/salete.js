@@ -6,21 +6,16 @@ import rimraf from 'rimraf';
 import promisifyAgent from 'superagent-promise';
 import Promise, { delay, promisify } from 'bluebird';
 import {
-    append,
+    adjust,
     complement,
-    concat,
-    converge,
     equals,
-    head,
     identity,
     is,
     join,
-    last,
     map,
     multiply,
     remove as removeAt,
     split,
-    splitAt,
     takeWhile,
     when
 } from 'ramda';
@@ -34,11 +29,8 @@ export const remove = promisify(rimraf);
 export const removeChunk = (file, from, upTo = 1) => readFile(file, 'utf-8')
     .then(split('\n') & removeAt(from - 1, upTo) & join('\n'))
     .then(createFile(file, _));
-export const addAfter = (file, line, source) => readFile(file, 'utf-8')
-    .then(split('\n')
-        & splitAt(line)
-        & converge(concat, [head & append(source), last])
-        & join('\n'))
+export const replaceLine = (file, line, content) => readFile(file, 'utf-8')
+    .then(split('\n') & adjust(~content, line - 1) & join('\n'))
     .then(createFile(file, _));
 
 export const promisifyStream = fn => promisify((param, callback) => {

@@ -1,95 +1,103 @@
 import { expect } from 'chai';
-import { dec, equals, ifElse, last, unary } from 'ramda';
+import {
+    assoc,
+    head,
+    map,
+    match,
+    nth,
+    reverse,
+    split
+} from 'ramda';
 import * as t from '../../src/types';
-import work, { addAfter, keepCalm, keyboard, removeChunk } from './salete';
+import work, { keepCalm, keyboard, removeChunk, replaceLine } from './salete';
 
 const { type, press } = keyboard;
-const run = does => ({
-    runs: ['node', '../dist/cli.js', 'run', '--raw'],
-    does
-});
 
-/**
- * Makes Salete code the component on index.js and run.
- * The default line for parameters is 18
- *
- * @param {Object} component - Component to run
- * @param {Number} from - Starting line to remove/replace
- * @param {Number} upTo - Final line to remove/replace
- */
-const saleteWillCode = (component, from = 18, upTo) => removeChunk('index.js', from, upTo)
-    .then(~addAfter('index.js', from - 1, `const params = ${JSON.stringify(component)}`));
+const components = {
+    integer: { type: t.Integer },
+    double: { type: t.Double },
+    natural: { type: t.Natural },
+    dateTime: { type: t.DateTime },
+    char: { type: t.Char(5) },
+    integerRange: { type: t.IntegerRange(10, 20) },
+    doubleRange: { type: t.DoubleRange(10, 20) },
+    money: { type: t.Money },
+    string: { type: t.String },
+    color: { type: t.Color },
+    email: { type: t.Email },
+    oneOf: { type: t.OneOf(['Haskell', 'Scala', 'Clojure']) },
+    url: { type: t.Url },
+    integerMultiRange: { type: t.IntegerMultiRange(0, 50) },
+    calendar: { type: t.Calendar },
+    autocomplete: { type: t.AutoComplete },
+    location: { type: t.Location }
+} | map(assoc('description', 'question'));
+
+const actions = [
+    type('foo' + press.ENTER), type('-10.5' + press.ENTER), keepCalm(1), // Integer
+    type('66.6' + press.ENTER), keepCalm(1), // Double
+    type('-100' + press.ENTER), type('200' + press.ENTER), // Natural
+    press.UP, press.ENTER, keepCalm(1), // DateTime
+    type('Lorem ipsum dolor sit amet' + press.ENTER), // Char
+    type('5' + press.ENTER), type('15' + press.ENTER), // IntegerRange
+    type('5' + press.ENTER), type('15.5' + press.ENTER), // DoubleRange
+    type('10,25' + press.ENTER), // Money
+    type('Java is bad' + press.ENTER), // String
+    type('#FF0000' + press.ENTER), // Color
+    type('invalid-email' + press.ENTER), type('celao@no-spam.net' + press.ENTER), // Email
+    press.DOWN, press.ENTER, // OneOf
+    type('https://github.com/rung-tools/' + press.ENTER), // Url
+    type('10 20' + press.ENTER), // IntegerMultiRange
+    press.ENTER, // Calendar
+    type('strawberry' + press.ENTER), // Autocomplete
+    type('New York' + press.ENTER), // Location
+    keepCalm(15)
+];
 
 export default () => {
     before(() => {
         process.chdir('salete-hello-world');
-        // Remove line with import from types
-        return removeChunk('index.js', 2)
-            .then(~removeChunk('index.js', 4))
-            .then(~addAfter('index.js', 3, `return "Got: " + JSON.stringify(name);`));
+        return removeChunk('index.js', 2, 5)
+            .then(~replaceLine('index.js', 8, 'content: JSON.stringify(context.params),'))
+            .then(~removeChunk('index.js', 26));
     });
 
-    it('should use integer component', () => {
-        const component = {
-            name: {
-                type: t.Integer,
-                description: 'Give me a number'
-            }
-        };
-
-        return saleteWillCode(component, 18, 6)
-            .then(~work(run([
-                type('abc'), press.ENTER,
-                type('-10.3'), press.ENTER,
-                keepCalm(15)
-            ])))
+    it('should test all the component types', () => {
+        return removeChunk('index.js', 15, 5)
+            .then(~replaceLine('index.js', 14, `const params = ${JSON.stringify(components)};`))
+            .then(~work({
+                runs: ['node', '../dist/cli.js', 'run', '--raw'],
+                does: actions,
+                clear: true
+            }))
             .then(output => {
-                expect(output).to.contain('Got: -10');
+                // Get the line with the results and parse to JS object
+                const result = output
+                    | split('\n')
+                    | reverse
+                    | nth(2)
+                    | match(/\{.*\}/)
+                    | head
+                    | JSON.parse;
+
+                expect(result.integer).to.equals(-10);
+                expect(result.double).to.equals(66.6);
+                void expect(new Date(result.dateTime).valueOf()).to.not.be.NaN;
+                expect(result.char).to.equals('Lorem');
+                expect(result.integerRange).to.equals(15);
+                expect(result.doubleRange).to.equals(15.5);
+                expect(result.money).to.equals(10.25);
+                expect(result.string).to.equals('Java is bad');
+                expect(result.color).to.equals('#FF0000');
+                expect(result.email).to.equals('celao@no-spam.net');
+                expect(result.oneOf).to.equals('Scala');
+                expect(result.url).to.equals('https://github.com/rung-tools/');
+                expect(result.integerMultiRange).to.deep.equals([10, 20]);
+                expect(result.calendar).to.be.a('string');
+                expect(result.autocomplete).to.equals('strawberry');
+                expect(result.location).to.equals('New York');
             });
-    }).timeout(keepCalm(30));
-
-    it('should use the double component', () => {
-        const component = {
-            name: {
-                type: t.Double,
-                description: 'Give me a double'
-            }
-        };
-
-        return saleteWillCode(component)
-            .then(~work(run([
-                type('20.5'), press.ENTER,
-                keepCalm(15)
-            ])))
-            .then(output => {
-                expect(output).to.contain('Got: 20.5');
-            });
-    }).timeout(keepCalm(30));
-
-    it('should use the datetime component', () => {
-        const component = {
-            name: {
-                type: t.DateTime,
-                description: 'Give me a datetime'
-            }
-        };
-
-        return saleteWillCode(component)
-            .then(~work(run([
-                keepCalm(0.5), press.UP, press.ENTER,
-                keepCalm(15)
-            ])))
-            .then(output => {
-                // Salete pressed up in the month, so the current month should
-                // be the returned month - 1
-                const expectedCurrentMonth = output.match(/Got: "\d{4}-(\d{2})/m)
-                    | last
-                    | unary(parseInt)
-                    | ifElse(equals(1), ~12, dec);
-                const now = new Date().getMonth() + 1;
-                expect(expectedCurrentMonth).to.equals(now);
-            });
-    }).timeout(keepCalm(30));
+    }).timeout(keepCalm(90));
 
     after(~process.chdir('..'));
 };
