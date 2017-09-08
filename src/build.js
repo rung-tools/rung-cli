@@ -267,17 +267,7 @@ const saveZip = curry((dir, zip, name) => {
  * @param {String} filename
  */
 function addToZip(zip, dir, filename) {
-    const filePath = path.join(dir, filename);
-    const lstat = fs.lstatSync(filePath);
-
-    if (lstat.isFile()) {
-        return zip.file(filename, fs.readFileSync(filePath), defaultFileOptions);
-    }
-
-    if (lstat.isDirectory()) {
-        return map(file => addToZip(zip.folder(filename), filePath, file),
-            fs.readdirSync(filePath));
-    }
+    return zip.file(filename, fs.readFileSync(path.join(dir, filename)), defaultFileOptions);
 }
 
 /**
