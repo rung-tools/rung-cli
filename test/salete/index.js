@@ -11,6 +11,7 @@ import build from './build.feat';
 import readme from './readme.feat';
 import db from './db.feat';
 import run from './run.feat';
+import input from './input.feat';
 import publish from './publish.feat';
 
 chai.use(fs);
@@ -28,5 +29,6 @@ describe('Human tests', () => {
     describe('readme.feat', readme);
     describe('db.feat', db);
     describe('run.feat', run);
+    describe('input.feat', input);
     describe('publish.feat', publish);
 });

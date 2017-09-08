@@ -1,19 +1,26 @@
 import fs from 'fs';
 import { spawn } from 'child_process';
-import concat from 'concat-stream';
+import concatStream from 'concat-stream';
 import agent from 'superagent';
 import rimraf from 'rimraf';
 import promisifyAgent from 'superagent-promise';
 import Promise, { delay, promisify } from 'bluebird';
 import {
+    append,
     complement,
+    concat,
+    converge,
     equals,
+    head,
     identity,
     is,
     join,
+    last,
     map,
     multiply,
+    remove as removeAt,
     split,
+    splitAt,
     takeWhile,
     when
 } from 'ramda';
@@ -21,8 +28,18 @@ import {
 export const request = promisifyAgent(agent, Promise);
 export const createFolder = promisify(fs.mkdir);
 export const createFile = promisify(fs.writeFile);
+export const readFile = promisify(fs.readFile);
 export const renameFile = promisify(fs.rename);
 export const remove = promisify(rimraf);
+export const removeChunk = (file, from, upTo = 1) => readFile(file, 'utf-8')
+    .then(split('\n') & removeAt(from - 1, upTo) & join('\n'))
+    .then(createFile(file, _));
+export const addAfter = (file, line, source) => readFile(file, 'utf-8')
+    .then(split('\n')
+        & splitAt(line)
+        & converge(concat, [head & append(source), last])
+        & join('\n'))
+    .then(createFile(file, _));
 
 export const promisifyStream = fn => promisify((param, callback) => {
     fn(param, callback(null, _));
@@ -105,6 +122,6 @@ export default function salete({
     };
 
     eventLoop(does);
-    return new Promise(concat & task.stdout.pipe)
+    return new Promise(concatStream & task.stdout.pipe)
         .then(when(~clear, clearAnsiEscapes));
 }
