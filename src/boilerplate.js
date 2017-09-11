@@ -3,7 +3,9 @@ import path from 'path';
 import process from 'process';
 import { all, promisify, reject } from 'bluebird';
 import {
+    T,
     append,
+    cond,
     dropWhile,
     equals,
     join,
@@ -14,7 +16,8 @@ import {
     pick,
     prop,
     replace,
-    split
+    split,
+    startsWith
 } from 'ramda';
 import semver from 'semver';
 import superagent from 'superagent';
@@ -37,6 +40,17 @@ const format = replace(/\n {8}/g, '\n')
     & join('');
 
 /**
+ * Returns the default name for the project according to the OS
+ *
+ * @param {String} directory
+ * @return {String}
+ */
+const getDefaultName = cond([
+    [~startsWith('win32', process.platform), split('\\')],
+    [T, split('/')]
+]) & last;
+
+/**
  * Generate the answers from the stdin.
  *
  * @param {IO} io
@@ -46,7 +60,7 @@ function askQuestions() {
     return request.get('https://app.rung.com.br/api/categories')
         .then(prop('body') & map(({ name, alias: value }) => ({ name, value })))
         .then(categories => [
-            { name: 'name', message: 'Project name', default: process.cwd() | split('/') | last },
+            { name: 'name', message: 'Project name', default: getDefaultName(process.cwd()) },
             { name: 'version', message: 'Version', default: '1.0.0', validate: semver.valid & Boolean },
             { name: 'title', message: 'Title', default: 'Untitled' },
             { name: 'description', message: 'Description' },
@@ -80,7 +94,7 @@ function createBoilerplateFolder(answers) {
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'license', 'category'];
     const packageObject = merge(pick(packageFields, answers),
-        { dependencies: { 'rung-cli': '0.9.4' } });
+        { dependencies: { 'rung-cli': '1.0.0' } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
