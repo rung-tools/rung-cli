@@ -53,6 +53,10 @@ function prepareRungServer() {
  * Finds the running fake server pid and kills it
  */
 function killRungServer() {
+    if (!/linux/.test(process.platform)) {
+        return;
+    }
+
     return work({ runs: ['/bin/netstat', '-anp'] })
         .then(output => {
             const pid = output
@@ -62,8 +66,7 @@ function killRungServer() {
                 | Maybe.of;
 
             pid.chain(tryCatch(parseInt(_, 10) & process.kill, identity));
-        })
-        .catch(() => {});
+        });
 }
 
 export default () => {
