@@ -3,10 +3,10 @@ import {
     compileModulesFromSource,
     evaluateModules,
     inspect
-} from '../src/module';
-import { createVM } from '../src/vm';
+} from '../../src/module';
+import { createVM } from '../../src/vm';
 
-describe('module.js', () => {
+export default () => {
     describe('Module compilation', () => {
         it('should compile and evaluate modules', () => {
             const modules = [
@@ -46,11 +46,20 @@ describe('module.js', () => {
         it('should reject when required file has no loader', () => {
             const source = 'import config from "./_config.yml"';
             return compileModulesFromSource(source)
-                .then((x) => {
+                .then(() => {
                     throw new Error('Should never fall here');
                 })
-                .catch(({ message }) => {
-                    expect(message).to.match(/Unknown module loader for file/);
+                .catch(err => {
+                    expect(err.message).to.match(/Unknown module loader for file/);
+                });
+        });
+
+        it('should compile JSON', () => {
+            const source = 'import pkg from "./package.json"';
+            return compileModulesFromSource(source)
+                .then(pairs => {
+                    expect(pairs).to.be.an('array').and.have.lengthOf(1);
+                    expect(pairs[0][0]).to.equals('./package.json');
                 });
         });
 
@@ -64,8 +73,8 @@ describe('module.js', () => {
                 `]
             ];
             const vm = createVM({});
-            expect(() => evaluateModules(vm, modules))
+            expect(~evaluateModules(vm, modules))
                 .to.throw('Unknown file type for Main.hs');
         });
     });
-});
+};

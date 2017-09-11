@@ -1,25 +1,27 @@
 import fs from 'fs';
 import path from 'path';
-import { promisify, reject, resolve } from 'bluebird';
+import process from 'process';
+import { all, promisify, reject } from 'bluebird';
 import {
     append,
     dropWhile,
     equals,
     join,
     juxt,
-    keys,
     last,
-    mapObjIndexed,
+    map,
     merge,
     pick,
-    pipe,
+    prop,
     replace,
     split
 } from 'ramda';
-import { gray } from 'colors';
-import { version as rungCliVersion } from '../package';
-import { IO } from './input';
+import semver from 'semver';
+import superagent from 'superagent';
+import inquirer from 'inquirer';
+import { emitSuccess } from './input';
 
+const request = superagent.agent();
 const createFolder = promisify(fs.mkdir);
 const createFile = promisify(fs.writeFile);
 
@@ -29,12 +31,10 @@ const createFile = promisify(fs.writeFile);
  * @param {String} source
  * @return {String}
  */
-const format = pipe(
-    replace(/\n {8}/g, '\n'),
-    dropWhile(equals('\n')),
-    append('\n'),
-    join('')
-);
+const format = replace(/\n {8}/g, '\n')
+    & dropWhile(equals('\n'))
+    & append('\n')
+    & join('');
 
 /**
  * Generate the answers from the stdin.
@@ -42,41 +42,18 @@ const format = pipe(
  * @param {IO} io
  * @return {Promise}
  */
-export function askQuestions(io) {
-    // [Question description, Default value]
-    const questions = {
-        name: ['Project name', last(split('/', process.cwd()))],
-        version: ['Version', '1.0.0'],
-        title: ['Title', ''],
-        description: ['Description', ''],
-        category: ['Category', 'miscellaneous'],
-        license: ['License', 'MIT']
-    };
-
-    // We chain the blocking promises and they return the fulfilled answers
-    return keys(questions).reduce((promise, key) =>
-        promise.then(prevAnswers => {
-            const [description, defaultValue] = questions[key];
-            return io.read(gray(`${description} (${defaultValue})`))
-                .then(value => merge(
-                    prevAnswers,
-                    value.trim() === ''
-                        ? {}
-                        : { [key]: value }));
-        }),
-        resolve(mapObjIndexed(last, questions)));
-}
-
-/**
- * Creates a file with the passed content. Receives the format
- * { filename :: String, content :: String }
- *
- * @param {Object} {filename, content}
- * @return {Promise}
- */
-function writeFileFromObject({ filename, content }) {
-    return createFile(filename, content)
-        .catch(() => reject(`Unable to create file ${filename}`));
+function askQuestions() {
+    return request.get('https://app.rung.com.br/api/categories')
+        .then(prop('body') & map(({ name, alias: value }) => ({ name, value })))
+        .then(categories => [
+            { name: 'name', message: 'Project name', default: process.cwd() | split('/') | last },
+            { name: 'version', message: 'Version', default: '1.0.0', validate: semver.valid & Boolean },
+            { name: 'title', message: 'Title', default: 'Untitled' },
+            { name: 'description', message: 'Description' },
+            { name: 'category', type: 'list', message: 'Category', default: 'miscellaneous', choices: categories },
+            { name: 'license', message: 'license', default: 'MIT' }
+        ])
+        .then(inquirer.createPromptModule());
 }
 
 /**
@@ -89,8 +66,8 @@ function writeFileFromObject({ filename, content }) {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
-        .catch(() => reject(`Unable to create folder ${answers.name}`))
-        .thenReturn(answers);
+        .catch(~reject(new Error(`Unable to create folder ${answers.name}`)))
+        .return(answers);
 }
 
 /**
@@ -103,7 +80,7 @@ function createBoilerplateFolder(answers) {
 function getPackageMetaFile(answers) {
     const packageFields = ['name', 'version', 'license', 'category'];
     const packageObject = merge(pick(packageFields, answers),
-        { dependencies: { 'rung-cli': rungCliVersion } });
+        { dependencies: { 'rung-cli': '0.9.4' } });
 
     return {
         filename: path.join(answers.name, 'package.json'),
@@ -127,9 +104,7 @@ function getReadMeMetaFile(answers) {
         - Use \`rung run\` to start the CLI wizard
     `);
 
-    return {
-        filename: path.join(answers.name, 'README.md'),
-        content };
+    return { filename: path.join(answers.name, 'README.md'), content };
 }
 
 /**
@@ -183,10 +158,9 @@ function getIndexFile(answers) {
  * @return {Promise}
  */
 export default function boilerplate() {
-    const io = IO();
-    return askQuestions(io)
+    return askQuestions()
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
-        .map(writeFileFromObject)
-        .finally(io.close.bind(io));
+        .then(map(({ filename, content }) => createFile(filename, content)) & all)
+        .then(~emitSuccess('project generated'));
 }

@@ -3,12 +3,11 @@ import os from 'os';
 import { all, promisify } from 'bluebird';
 import {
     curry,
-    identity,
     mapObjIndexed,
     mergeAll,
-    pipe,
     prop,
-    values
+    values,
+    when
 } from 'ramda';
 import { Spinner } from 'cli-spinner';
 import { green } from 'colors/safe';
@@ -26,14 +25,12 @@ const percentOf = curry((value, percent) => value / 100 * percent);
 export const readFile = promisify(fs.readFile);
 
 function tableView(data) {
-    const size = percentOf(process.stdout.columns);
-    const colWidths = [10, 20, 35, 26].map(pipe(size, Math.round));
-    const valuesFrom = pipe(mapObjIndexed(({ title, content, comment }, key) =>
-        [key, title, content || '', comment || '']), values);
+    const valuesFrom = mapObjIndexed(({ title, content = '', comment = '' }, key) =>
+        [key, title, content, comment]) & values;
 
     const table = new Table({
         head: ['Key', 'Title', 'Content', 'Comment'],
-        colWidths
+        colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns || 100) & Math.round)
     });
 
     table.push(...valuesFrom(data.alerts));
@@ -54,12 +51,12 @@ export default function run(args) {
         .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
         .spread((name, db, strings, locale) => compileSources()
             .spread((source, modules) => getProperties({ name, source }, strings, modules)
-                .then(prop('params'))
-                .then(ask)
+                .then(prop('params') & ask)
                 .then(mergeAll)
-                .tap(() => spinner.start())
+                .tap(~spinner.start())
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
-        .tap(() => spinner.stop(true))
-        .tap(pipe(args.raw ? identity : tableView, console.log));
+        .tap(~spinner.stop(true))
+        .then(when(~!args.raw, tableView))
+        .tap(console.log);
 }

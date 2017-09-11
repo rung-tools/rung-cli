@@ -1,6 +1,6 @@
 {
   "name": "rung-cli",
-  "version": "0.9.4",
+  "version": "1.0.0",
   "description": "Command line interface for Rung",
   "main": "./dist/vm.js",
   "bin": {
@@ -13,11 +13,15 @@
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps",
     "lint": "xo src/**",
+    "lint:tests": "xo test/**/*",
     "fix-lint": "xo src/** --fix",
     "prepublish": "npm run compile",
-    "test": "nyc mocha --compilers js:babel-core/register --recursive -s 0 test/*.spec.js",
+    "test:unit": "nyc mocha --compilers js:babel-core/register test/unit/index.js",
+    "test:salete": "FAST_TEST=1 nyc mocha --compilers js:babel-core/register test/salete/index.js",
+    "test": "FAST_TEST=1 nyc mocha --compilers js:babel-core/register test/{unit,salete}/index.js",
+    "test:travis": "nyc mocha --compilers js:babel-core/register test/{unit,salete}/index.js",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
-    "coverage": "nyc --reporter=html yarn test"
+    "coverage": "nyc --reporter=html yarn test:travis"
   },
   "dependencies": {
     "babel-core": "^6.25.0",
@@ -30,17 +34,19 @@
     "colors": "1.1.2",
     "commander": "2.9.0",
     "dasherize": "^2.0.0",
-    "data.maybe": "1.2.2",
     "deepmerge": "^1.3.2",
     "handlebars": "^4.0.10",
+    "inquirer": "^3.2.1",
+    "inquirer-chalk-pipe": "1.1.0",
+    "inquirer-datepicker-prompt": "0.3.3",
     "jszip": "^3.1.3",
     "moment": "^2.18.1",
     "os-locale": "^2.0.0",
     "prettyjson": "^1.2.1",
     "ramda": "^0.24.1",
-    "read": "^1.0.7",
     "rimraf": "2.6.1",
     "rung-sdk": "1.0.7",
+    "semver": "5.4.1",
     "superagent": "^3.5.0",
     "superagent-promise": "^1.1.0",
     "tracking-correios": "1.1.4",
@@ -50,18 +56,53 @@
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
+    "babel-plugin-function-composition": "0.1.1",
+    "babel-plugin-implicit-function": "0.1.1",
+    "babel-plugin-pipe-operator-curry": "1.0.2",
+    "babel-plugin-transform-scala-lambda": "1.0.0",
     "chai": "4.1.0",
     "chai-fs": "^1.0.0",
     "chai-json-schema": "1.5.0",
     "codecov": "^2.2.0",
+    "concat-stream": "1.6.0",
     "intercept-stdout": "^0.1.2",
+    "json-server": "^0.12.0",
     "mocha": "^3.4.2",
     "nyc": "^11.0.3",
+    "ramda-fantasy": "^0.8.0",
     "xo": "^0.18.2"
   },
   "xo": {
     "esnext": true,
     "space": 4,
+    "globals": [
+      "_"
+    ],
+    "overrides": [
+      {
+        "files": "test/**/*.js",
+        "globals": [
+          "describe",
+          "it",
+          "after",
+          "before",
+          "_"
+        ],
+        "rules": {
+          "no-void": [
+            "off"
+          ]
+        }
+      },
+      {
+        "files": "test/salete/build.feat.js",
+        "rules": {
+          "camelcase": [
+            "off"
+          ]
+        }
+      }
+    ],
     "rules": {
       "no-restricted-syntax": [
         "error",
@@ -80,10 +121,6 @@
         "error",
         "before"
       ],
-      "no-restricted-imports": [
-        "error",
-        "!colors"
-      ],
       "import/no-dynamic-require": [
         "off"
       ],
@@ -91,6 +128,9 @@
         "off"
       ],
       "no-useless-call": [
+        "off"
+      ],
+      "no-template-curly-in-string": [
         "off"
       ]
     }

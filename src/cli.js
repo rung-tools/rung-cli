@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import { head, pipe, cond, equals, prop } from 'ramda';
+import { cond } from 'ramda';
 import { emitError } from './input';
 import build from './build';
 import run from './run';
@@ -10,7 +10,7 @@ import boilerplate from './boilerplate';
 import readme from './readme';
 import db from './db';
 
-const commandEquals = value => pipe(prop('_'), head, equals(value));
+const commandEquals = value => ({ _: [command] }) => value === command;
 
 const executeCommand = cond([
     [commandEquals('build'), build],
@@ -49,6 +49,10 @@ cli(yargs
     .option('raw', {
         describe: 'Display returned data as it is',
         type: 'boolean'
+    })
+    .option('file', {
+        describe: 'File to publish to Rung Store',
+        type: 'string'
     })
     .strict()
     .demandCommand(1)

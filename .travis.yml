@@ -8,9 +8,7 @@ install:
   - yarn compile
 
 script:
-  - yarn lint
-  - yarn test
-  - yarn report-coverage
+  - yarn lint && yarn test:travis && yarn report-coverage
 
 cache:
   yarn: true

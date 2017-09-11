@@ -1,24 +1,18 @@
 import os from 'os';
 import path from 'path';
-import chai, { expect } from 'chai';
-import { promisify } from 'bluebird';
-import rimraf from 'rimraf';
-import fs from 'chai-fs';
-import { runAndGetAlerts } from '../src/vm';
-import { compileES6 } from '../src/compiler';
-import { read } from '../src/db';
-import { createStream } from './helper';
+import { expect } from 'chai';
+import { runAndGetAlerts } from '../../src/vm';
+import { compileES6 } from '../../src/compiler';
+import { read } from '../../src/db';
+import { remove } from '../salete/salete';
 
-chai.use(fs);
-
-const rm = promisify(rimraf);
 const home = os.homedir();
 const extensionName = 'rung-database-test';
 const rungPath = path.join(home, '.rung');
 const dbPath = path.join(rungPath, `${extensionName}.db`);
 
-describe('db.js', () => {
-    before(() => rm(rungPath));
+export default () => {
+    before(~remove(rungPath));
 
     describe('Database', () => {
         it('should get undefined when reading from empty db', () => {
@@ -60,7 +54,7 @@ describe('db.js', () => {
             `);
 
             return runAndGetAlerts({ name: extensionName, source }, {})
-                .then(result => {
+                .then(() => {
                     throw new Error('It should break');
                 })
                 .catch(err => {
@@ -130,63 +124,4 @@ describe('db.js', () => {
                 });
         });
     });
-
-    describe('Command line database', () => {
-        it('should cause an error on invalid option', () => {
-            const stream = createStream(['db', 'write']);
-
-            return stream.once('data')
-                .then(result => {
-                    expect(result).to.match(/Unknown option write/);
-                })
-                .finally(stream.close);
-        }).timeout(5000);
-
-        it('should fail to read database when a file doesn\'t exist', () => {
-            const stream = createStream(['db', 'read']);
-            return stream.once('data')
-                .then(error => {
-                    expect(error).to.match(/Unable to read database/);
-                });
-        }).timeout(5000);
-
-        it('should read database via rung-cli', () => {
-            const source = compileES6(`
-                export default {
-                    extension(context) { return { alerts: {}, db: {
-                        dragQueen: 'sharon'
-                    } }; }
-                };
-            `);
-
-            return runAndGetAlerts({ name: 'rung-cli', source }, {})
-                .then(() => {
-                    const stream = createStream(['db', 'read']);
-                    return stream.once('data')
-                        .then(yaml => {
-                            expect(yaml).to.equals('dragQueen: sharon\n');
-                        });
-                })
-        }).timeout(10000);
-
-        it('should drop database via rung db clear', () => {
-            const source = compileES6(`
-                export default {
-                    extension(context) { return { alerts: {}, db: {
-                        dragQueen: 'alaska'
-                    } }; }
-                };
-            `);
-
-            return runAndGetAlerts({ name: extensionName, source }, {})
-                .then(() => {
-                    const stream = createStream(['db', 'clear']);
-                    return stream.after()
-                        .then(() => {
-                            expect(path.join(os.homedir(), '.rung', 'rung-cli.db'))
-                                .to.not.be.a.path();
-                        });
-                })
-        }).timeout(20000);
-    });
-});
+};

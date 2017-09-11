@@ -47,3 +47,6 @@ rung-cli-*.tgz
 # Extra test files
 boilerplate-project
 coverage.lcov
+
+# Salete tests
+salete-hello-world
