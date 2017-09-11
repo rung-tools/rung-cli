@@ -62,7 +62,8 @@ function killRungServer() {
                 | Maybe.of;
 
             pid.chain(tryCatch(parseInt(_, 10) & process.kill, identity));
-        });
+        })
+        .catch(() => {});
 }
 
 export default () => {
