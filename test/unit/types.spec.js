@@ -9,6 +9,7 @@ export default () => {
             t.IntegerRange(10, 20),
             t.DoubleRange(10, 20),
             t.OneOf(['Scala', 'Haskell', 'Elixir']),
+            t.SelectBox({ haskell: 'Good', java: 'Bad' }),
             t.IntegerMultiRange(10, 20),
             t.Color
         ] | map(t.getTypeName)).to.deep.equals([
@@ -16,6 +17,7 @@ export default () => {
             'IntegerRange(10, 20)',
             'DoubleRange(10, 20)',
             'OneOf([Scala, Haskell, Elixir])',
+            'SelectBox({"haskell":"Good","java":"Bad"})',
             'IntegerMultiRange(10, 20)',
             'Color'
         ]);

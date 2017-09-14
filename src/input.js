@@ -74,7 +74,12 @@ const components = {
     OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
     String: ~({ type: 'input' }),
     Url: ~({ validate: validator.Url }),
-    Money: ~({ validate: validator.Money, filter: filter.Money })
+    Money: ~({ validate: validator.Money, filter: filter.Money }),
+    SelectBox: ({ type }) => ({
+        type: 'list',
+        choices: type.values
+            | toPairs
+            | map(([value, name]) => ({ name, value })) })
 };
 
 /**
