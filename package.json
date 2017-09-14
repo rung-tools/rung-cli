@@ -121,16 +121,7 @@
         "error",
         "before"
       ],
-      "import/no-dynamic-require": [
-        "off"
-      ],
       "new-cap": [
-        "off"
-      ],
-      "no-useless-call": [
-        "off"
-      ],
-      "no-template-curly-in-string": [
         "off"
       ]
     }

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs';
-import { cond } from 'ramda';
 import { emitError } from './input';
 import build from './build';
 import run from './run';
@@ -10,19 +9,13 @@ import boilerplate from './boilerplate';
 import readme from './readme';
 import db from './db';
 
-const commandEquals = value => ({ _: [command] }) => value === command;
-
-const executeCommand = cond([
-    [commandEquals('build'), build],
-    [commandEquals('run'), run],
-    [commandEquals('publish'), publish],
-    [commandEquals('boilerplate'), boilerplate],
-    [commandEquals('readme'), readme],
-    [commandEquals('db'), db]
-]);
+const commands = {
+    build, run, publish, boilerplate, readme, db
+};
 
 function cli(args) {
-    executeCommand(args)
+    const { _: [command] } = args;
+    commands[command](args)
         .catch(err => {
             emitError(err.message);
             process.exit(1);
