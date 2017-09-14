@@ -15,7 +15,7 @@ export default () => {
         });
 
         it('should get the alerts of a synchronous extension', () => {
-            const source = 'module.exports = { extension: ctx => ([\'Hello \' + ctx.name]) };';
+            const source = 'module.exports = { extension: ctx => ([\'Hello, \' + ctx.name + \'!\']) };';
 
             return runAndGetAlerts({ name: 'test-alerts', source }, { name: 'Marcelo' })
                 .then(alerts => {
