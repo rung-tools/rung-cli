@@ -1,30 +1,25 @@
 #!/usr/bin/env node
-
 import yargs from 'yargs';
-import { cond } from 'ramda';
-import { emitError } from './input';
-import build from './build';
-import run from './run';
-import publish from './publish';
-import boilerplate from './boilerplate';
-import readme from './readme';
-import db from './db';
+import { concat, memoize } from 'ramda';
 
-const commandEquals = value => ({ _: [command] }) => value === command;
+/**
+ * Lazy loading and cache of an internal ES6 module
+ *
+ * @param {String} module - Module to evaluate
+ * @return {*}
+ */
+const getModule = memoize(concat('./') & require);
 
-const executeCommand = cond([
-    [commandEquals('build'), build],
-    [commandEquals('run'), run],
-    [commandEquals('publish'), publish],
-    [commandEquals('boilerplate'), boilerplate],
-    [commandEquals('readme'), readme],
-    [commandEquals('db'), db]
-]);
-
+/**
+ * Entry point of Rung CLI
+ *
+ * @param {Object} args
+ */
 function cli(args) {
-    executeCommand(args)
+    const { _: [command] } = args;
+    return getModule(command).default(args)
         .catch(err => {
-            emitError(err.message);
+            getModule('input').emitError(err.message);
             process.exit(1);
         });
 }

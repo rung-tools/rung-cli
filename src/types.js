@@ -42,6 +42,7 @@ export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', fro
 export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
 export const Location = { name: 'Location' };
+export const SelectBox = values => ({ name: 'SelectBox', values });
 
 /**
  * Returns the human-readable name of a type
@@ -55,6 +56,7 @@ export const getTypeName = cond([
     [propEq('name', 'IntegerRange'), t => `IntegerRange(${t.from}, ${t.to})`],
     [propEq('name', 'DoubleRange'), t => `DoubleRange(${t.from}, ${t.to})`],
     [propEq('name', 'OneOf'), t => `OneOf([${t.values.join(', ')}])`],
+    [propEq('name', 'SelectBox'), t => `SelectBox(${JSON.stringify(t.values)})`],
     [propEq('name', 'IntegerMultiRange'), t => `IntegerMultiRange(${t.from}, ${t.to})`],
     [T, _.name]
 ]);
