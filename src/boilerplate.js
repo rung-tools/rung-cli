@@ -53,7 +53,6 @@ const getDefaultName = cond([
 /**
  * Generate the answers from the stdin.
  *
- * @param {IO} io
  * @return {Promise}
  */
 function askQuestions() {
