@@ -6,6 +6,7 @@ import {
     ifElse,
     join,
     map,
+    prop,
     toPairs,
     type,
     unary,

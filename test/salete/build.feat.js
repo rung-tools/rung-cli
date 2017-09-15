@@ -1,8 +1,10 @@
 import process from 'process';
 import { expect } from 'chai';
-import { split } from 'ramda';
+import { keys, prop, split } from 'ramda';
+import JSZip from 'jszip';
 import work, {
     createFile,
+    readFile,
     createFolder,
     keepCalm,
     renameFile,
@@ -19,13 +21,17 @@ const compile = {
     does: [keepCalm(30)]
 };
 
+const zipInfo = path => readFile(path)
+    .then(new JSZip().loadAsync(_))
+    .then(prop('files') & keys);
+
 const putSomeIcon = ~request.get('http://www.randomkittengenerator.com/cats/rotator.php')
     .then(({ body }) => createFile('icon.png', body));
 
 export default () => {
     before(~process.chdir('salete-hello-world'));
 
-    it('should compile the generated boilerplate', () => {
+    it.only('should compile the generated boilerplate', () => {
         return work(npm)
             .then(() => {
                 void expect('node_modules').to.be.a.directory().and.not.empty;
@@ -36,6 +42,10 @@ export default () => {
                 expect(warning).to.contain('compiling extension without providing an icon.png file');
                 expect(success).to.contain('Rung extension compilation');
                 expect('salete-hello-world.rung').to.be.a.file();
+                return zipInfo('./salete-hello-world.rung');
+            })
+            .then(files => {
+                expect(files).to.contain('README.md');
             });
     }).timeout(keepCalm(90));
 
