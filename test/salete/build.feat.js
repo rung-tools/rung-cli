@@ -31,7 +31,7 @@ const putSomeIcon = ~request.get('http://www.randomkittengenerator.com/cats/rota
 export default () => {
     before(~process.chdir('salete-hello-world'));
 
-    it.only('should compile the generated boilerplate', () => {
+    it('should compile the generated boilerplate', () => {
         return work(npm)
             .then(() => {
                 void expect('node_modules').to.be.a.directory().and.not.empty;

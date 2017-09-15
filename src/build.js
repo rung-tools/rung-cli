@@ -1,6 +1,6 @@
 import path from 'path';
 import Zip from 'jszip';
-import Promise, { all, promisifyAll, resolve } from 'bluebird';
+import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
 import {
     complement,
     concat,
@@ -123,15 +123,14 @@ function precompile({ code, files }) {
  */
 function filterFiles(files) {
     const clearModule = replace(/^\.\//, '');
-    const missingFiles = without(files, requiredFiles);
-    const hasIcon = contains('icon.png', files);
-    const resources = hasIcon ? ['icon.png'] : [];
+    const resources = files | filter(test(/^((icon\.png)|(README(\.\w+)?\.md))$/));
+    const missing = without(files, requiredFiles);
 
-    if (missingFiles.length > 0) {
-        throw new Error(`missing ${missingFiles.join(', ')} from the project`);
+    if (missing.length > 0) {
+        return reject(Error(`missing ${missing.join(', ')} from the project`));
     }
 
-    if (!hasIcon) {
+    if (!contains('icon.png', files)) {
         emitWarning('compiling extension without providing an icon.png file');
     }
 
