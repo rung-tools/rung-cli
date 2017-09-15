@@ -59,6 +59,7 @@ const getDefaultName = cond([
 function askQuestions() {
     return request.get('https://app.rung.com.br/api/categories')
         .then(prop('body') & map(({ name, alias: value }) => ({ name, value })))
+        .catch(~[{ name: 'Miscellaneous', value: 'miscellaneous' }])
         .then(categories => [
             { name: 'name', message: 'Project name', default: getDefaultName(process.cwd()) },
             { name: 'version', message: 'Version', default: '1.0.0', validate: semver.valid & Boolean },
