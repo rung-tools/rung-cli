@@ -217,7 +217,9 @@ function getProjectName(dir) {
  */
 const createZip = curry((dir, files) => {
     const zip = new Zip();
-    files.forEach(addToZip(zip, dir, _));
+    files.forEach(filename => {
+        zip.file(filename, fs.readFileSync(path.join(dir, filename)), defaultFileOptions);
+    });
     return zip;
 });
 
@@ -257,17 +259,6 @@ const saveZip = curry((dir, zip, name) => {
             .on('finish', ~resolve(target));
     });
 });
-
-/**
- * Appends a file or folder to the zip buffer
- *
- * @param {Zip} zip
- * @param {String} dir
- * @param {String} filename
- */
-function addToZip(zip, dir, filename) {
-    return zip.file(filename, fs.readFileSync(path.join(dir, filename)), defaultFileOptions);
-}
 
 /**
  * Precompiles an extension and generates a .rung package
