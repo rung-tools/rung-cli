@@ -1,8 +1,10 @@
-import { resolve } from 'bluebird';
+import Promise, { resolve } from 'bluebird';
 import {
+    T,
     __,
     assoc,
     concat,
+    cond,
     curry,
     has,
     keys,
@@ -15,7 +17,9 @@ import { green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
 import DatePickerPrompt from 'inquirer-datepicker-prompt';
 import ChalkPipe from 'inquirer-chalk-pipe';
+import AutocompletePrompt from 'inquirer-autocomplete-prompt';
 import { validator, filter } from './types';
+import getAutocompleteSources, { stdlib, stringToClosure } from './autocomplete';
 
 /**
  * Emits a warning to stdout
@@ -83,6 +87,31 @@ const components = {
 };
 
 /**
+ * Custom autocomplete component
+ *
+ * @param {String} name
+ * @param {String} source
+ * @return {Function}
+ */
+const getAutocompleteComponent = (name, source) => {
+    // TODO:
+    // - Deal with rejections of promise
+    // - Better debugging for autocomplete
+    // - Error when it doesn't export a function
+    //
+    if (!source) {
+        emitWarning(`missing autocomplete source for parameter \`${name}'`);
+    }
+
+    const closure = stringToClosure(source);
+    return ~({
+        type: 'autocomplete',
+        source: (params, input) => new Promise(closure({
+            params, input, lib: stdlib, c: console }, _))
+    });
+};
+
+/**
  * Converts a Rung CLI question object to an Inquirer question object
  *
  * @author Marcelo Haskell Camargo
@@ -90,15 +119,18 @@ const components = {
  * @param {Object} config
  * @return {Object}
  */
-function toInquirerQuestion([name, config]) {
-    const component = has(config.type.name, components)
-        ? components[config.type.name]
-        : components.String;
+const toInquirerQuestion = curry((sources, [name, config]) => {
+    const component = components
+        | cond([
+            [~(config.type.name === 'AutoComplete'), ~getAutocompleteComponent(name, sources[name])],
+            [has(config.type.name), _[config.type.name]],
+            [T, _.String]
+        ]);
 
     return merge(config
         | renameKeys({ description: 'message' })
         | merge(__, { name }), component(config));
-}
+});
 
 /**
  * Returns the pure JS values from received questions that will be answered
@@ -111,5 +143,10 @@ export function ask(questions) {
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
-    return resolve(prompt(questions | toPairs | map(toInquirerQuestion)));
+    prompt.registerPrompt('autocomplete', AutocompletePrompt);
+    // Read the autocomplete folder to hold their sources in the memory
+    return getAutocompleteSources()
+        .then(sources => prompt(questions
+            | toPairs
+            | map(toInquirerQuestion(sources))));
 }
