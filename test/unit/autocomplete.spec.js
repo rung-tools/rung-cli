@@ -28,8 +28,6 @@ export default function ({ input, lib }, done) {
 `;
 
 export default () => {
-    before(~process.chdir('salete-hello-world'));
-
     it('should refuse compiling a non-function', () => {
         expect(~compileClosure('failure', 'export default 1;')).to.throw(TypeError);
     });
@@ -58,13 +56,4 @@ export default () => {
                 expect(pokemons).to.contain('Pikachu');
             });
     }).timeout(5000);
-
-    it('should get the autocomplete files from previous tests', () => {
-        return getAll()
-            .then(files => {
-                expect(files.name).to.be.a('string');
-            });
-    }).timeout(5000);
-
-    after(~process.chdir('..'));
 };
