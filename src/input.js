@@ -15,9 +15,6 @@ import {
 } from 'ramda';
 import { green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
-import DatePickerPrompt from 'inquirer-datepicker-prompt';
-import ChalkPipe from 'inquirer-chalk-pipe';
-import AutocompletePrompt from 'inquirer-autocomplete-prompt';
 import { validator, filter } from './types';
 import getAutocompleteSources, { compileClosure } from './autocomplete';
 
@@ -131,6 +128,10 @@ const toInquirerQuestion = curry((sources, [name, config]) => {
  * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
+    const DatePickerPrompt = require('inquirer-datepicker-prompt');
+    const ChalkPipe = require('inquirer-chalk-pipe');
+    const AutocompletePrompt = require('inquirer-autocomplete-prompt');
+
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
