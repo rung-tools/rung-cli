@@ -31,7 +31,8 @@ const components = {
     integerMultiRange: { type: t.IntegerMultiRange(0, 50) },
     calendar: { type: t.Calendar },
     location: { type: t.Location },
-    selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) }
+    selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) },
+    name: { type: t.AutoComplete },
 } | map(assoc('description', 'question'));
 
 const actions = [
@@ -53,6 +54,7 @@ const actions = [
     press.ENTER, // Calendar
     type('New York' + press.ENTER), // Location
     press.DOWN, press.ENTER, keepCalm(1), // SelectBox
+    keepCalm(1), type('Lari'), keepCalm(1), press.ENTER, keepCalm(1), // AutoComplete
     keepCalm(15)
 ];
 
@@ -99,6 +101,7 @@ export default () => {
                 expect(result.calendar).to.be.a('string');
                 expect(result.location).to.equals('New York');
                 expect(result.selectBox).to.equals('erlang');
+                expect(result.name).to.equal('Larissa');
             });
     }).timeout(keepCalm(90));
 
