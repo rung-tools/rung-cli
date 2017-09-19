@@ -62,7 +62,7 @@ export default () => {
     it('should get the autocomplete files from previous tests', () => {
         return getAll()
             .then(files => {
-                console.log(files);
+                expect(files.name).to.be.a('string');
             });
     }).timeout(5000);
 
