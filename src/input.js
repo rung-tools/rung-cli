@@ -1,4 +1,4 @@
-import Promise, { resolve } from 'bluebird';
+import { resolve } from 'bluebird';
 import {
     T,
     __,
@@ -19,7 +19,7 @@ import DatePickerPrompt from 'inquirer-datepicker-prompt';
 import ChalkPipe from 'inquirer-chalk-pipe';
 import AutocompletePrompt from 'inquirer-autocomplete-prompt';
 import { validator, filter } from './types';
-import getAutocompleteSources, { stdlib, stringToClosure } from './autocomplete';
+import getAutocompleteSources, { compileClosure } from './autocomplete';
 
 /**
  * Emits a warning to stdout
@@ -54,34 +54,34 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const components = {
-    Calendar: ~({
+    Calendar: ~{
         type: 'datetime',
         format: ['m', '/', 'd', '/', 'yy'],
-        filter: filter.Calendar }),
-    Char: ({ type }) => ({ filter: filter.Char(type.length) }),
-    Checkbox: ~({ type: 'confirm' }),
-    Color: ~({ type: 'chalk-pipe' }),
-    DoubleRange: ({ type }) => ({
+        filter: filter.Calendar },
+    Char: ({ length }) => ({ filter: filter.Char(length) }),
+    Checkbox: ~{ type: 'confirm' },
+    Color: ~{ type: 'chalk-pipe' },
+    DoubleRange: ({ from, to }) => ({
         filter: filter.Double,
-        validate: validator.Range(type.from, type.to) }),
-    DateTime: ~({ type: 'datetime' }),
-    Double: ~({ validate: validator.Double, filter: filter.Double }),
-    Email: ~({ validate: validator.Email }),
-    Integer: ~({ validate: validator.Integer, filter: filter.Integer }),
-    IntegerRange: ({ type }) => ({
+        validate: validator.Range(from, to) }),
+    DateTime: ~{ type: 'datetime' },
+    Double: ~{ validate: validator.Double, filter: filter.Double },
+    Email: ~{ validate: validator.Email },
+    Integer: ~{ validate: validator.Integer, filter: filter.Integer },
+    IntegerRange: ({ from, to }) => ({
         filter: filter.Integer,
-        validate: validator.Range(type.from, type.to) }),
-    IntegerMultiRange: ({ type }) => ({
+        validate: validator.Range(from, to) }),
+    IntegerMultiRange: ({ from, to }) => ({
         filter: filter.IntegerMultiRange,
-        validate: validator.IntegerMultiRange(type.from, type.to) }),
-    Natural: ~({ validate: validator.Natural, filter: filter.Integer }),
-    OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
-    String: ~({ type: 'input' }),
-    Url: ~({ validate: validator.Url }),
-    Money: ~({ validate: validator.Money, filter: filter.Money }),
-    SelectBox: ({ type }) => ({
+        validate: validator.IntegerMultiRange(from, to) }),
+    Natural: ~{ validate: validator.Natural, filter: filter.Integer },
+    OneOf: ({ values }) => ({ type: 'list', choices: values }),
+    String: ~{ type: 'input' },
+    Url: ~{ validate: validator.Url },
+    Money: ~{ validate: validator.Money, filter: filter.Money },
+    SelectBox: ({ values }) => ({
         type: 'list',
-        choices: type.values
+        choices: values
             | toPairs
             | map(([value, name]) => ({ name, value })) })
 };
@@ -94,27 +94,18 @@ const components = {
  * @return {Function}
  */
 const getAutocompleteComponent = (name, source) => {
-    // TODO:
-    // - Deal with rejections of promise
-    // - Better debugging for autocomplete
-    // - Error when it doesn't export a function
-    //
     if (!source) {
-        emitWarning(`missing autocomplete source for parameter \`${name}'`);
+        throw new Error(`aren't you missing 'autocomplete/${name}.js'?`);
     }
 
-    const closure = stringToClosure(source);
-    return ~({
-        type: 'autocomplete',
-        source: (params, input) => new Promise(closure({
-            params, input, lib: stdlib, c: console }, _))
-    });
+    return ~{ type: 'autocomplete', source: compileClosure(name, source) };
 };
 
 /**
  * Converts a Rung CLI question object to an Inquirer question object
  *
  * @author Marcelo Haskell Camargo
+ * @param {String[]} sources
  * @param {String} name
  * @param {Object} config
  * @return {Object}
@@ -129,7 +120,7 @@ const toInquirerQuestion = curry((sources, [name, config]) => {
 
     return merge(config
         | renameKeys({ description: 'message' })
-        | merge(__, { name }), component(config));
+        | merge(__, { name }), component(config.type));
 });
 
 /**
@@ -144,9 +135,9 @@ export function ask(questions) {
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
     prompt.registerPrompt('autocomplete', AutocompletePrompt);
-    // Read the autocomplete folder to hold their sources in the memory
     return getAutocompleteSources()
-        .then(sources => prompt(questions
+        .then(autocompleteSources => questions
             | toPairs
-            | map(toInquirerQuestion(sources))));
+            | map(toInquirerQuestion(autocompleteSources))
+            | prompt);
 }
