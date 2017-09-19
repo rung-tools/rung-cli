@@ -1,6 +1,7 @@
-import { NodeVM } from 'vm2';
+import { NodeVM, VM } from 'vm2';
 import Promise, { reject, resolve } from 'bluebird';
 import {
+    curry,
     propOr,
     tryCatch,
     type
@@ -9,6 +10,16 @@ import { compileHTML } from './compiler';
 import { upsert } from './db';
 import { translator } from './i18n';
 import { evaluateModules } from './module';
+
+/**
+ * Safely evaluates a piece of JS code as if it were running in the browser.
+ *
+ * @param {Object} sandbox
+ * @param {String} code
+ * @return {*}
+ */
+export const runInBrowser = curry((sandbox, code) =>
+    new VM({ sandbox }).run(code));
 
 /**
  * Returns an instance of the Rung virtual machine

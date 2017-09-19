@@ -1,8 +1,10 @@
 import { resolve } from 'bluebird';
 import {
+    T,
     __,
     assoc,
     concat,
+    cond,
     curry,
     has,
     keys,
@@ -13,9 +15,8 @@ import {
 } from 'ramda';
 import { green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
-import DatePickerPrompt from 'inquirer-datepicker-prompt';
-import ChalkPipe from 'inquirer-chalk-pipe';
 import { validator, filter } from './types';
+import getAutocompleteSources, { compileClosure } from './autocomplete';
 
 /**
  * Emits a warning to stdout
@@ -50,55 +51,74 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
 const components = {
-    Calendar: ~({
+    Calendar: ~{
         type: 'datetime',
         format: ['m', '/', 'd', '/', 'yy'],
-        filter: filter.Calendar }),
-    Char: ({ type }) => ({ filter: filter.Char(type.length) }),
-    Checkbox: ~({ type: 'confirm' }),
-    Color: ~({ type: 'chalk-pipe' }),
-    DoubleRange: ({ type }) => ({
+        filter: filter.Calendar },
+    Char: ({ length }) => ({ filter: filter.Char(length) }),
+    Checkbox: ~{ type: 'confirm' },
+    Color: ~{ type: 'chalk-pipe' },
+    DoubleRange: ({ from, to }) => ({
         filter: filter.Double,
-        validate: validator.Range(type.from, type.to) }),
-    DateTime: ~({ type: 'datetime' }),
-    Double: ~({ validate: validator.Double, filter: filter.Double }),
-    Email: ~({ validate: validator.Email }),
-    Integer: ~({ validate: validator.Integer, filter: filter.Integer }),
-    IntegerRange: ({ type }) => ({
+        validate: validator.Range(from, to) }),
+    DateTime: ~{ type: 'datetime' },
+    Double: ~{ validate: validator.Double, filter: filter.Double },
+    Email: ~{ validate: validator.Email },
+    Integer: ~{ validate: validator.Integer, filter: filter.Integer },
+    IntegerRange: ({ from, to }) => ({
         filter: filter.Integer,
-        validate: validator.Range(type.from, type.to) }),
-    IntegerMultiRange: ({ type }) => ({
+        validate: validator.Range(from, to) }),
+    IntegerMultiRange: ({ from, to }) => ({
         filter: filter.IntegerMultiRange,
-        validate: validator.IntegerMultiRange(type.from, type.to) }),
-    Natural: ~({ validate: validator.Natural, filter: filter.Integer }),
-    OneOf: ({ type }) => ({ type: 'list', choices: type.values }),
-    String: ~({ type: 'input' }),
-    Url: ~({ validate: validator.Url }),
-    Money: ~({ validate: validator.Money, filter: filter.Money }),
-    SelectBox: ({ type }) => ({
+        validate: validator.IntegerMultiRange(from, to) }),
+    Natural: ~{ validate: validator.Natural, filter: filter.Integer },
+    OneOf: ({ values }) => ({ type: 'list', choices: values }),
+    String: ~{ type: 'input' },
+    Url: ~{ validate: validator.Url },
+    Money: ~{ validate: validator.Money, filter: filter.Money },
+    SelectBox: ({ values }) => ({
         type: 'list',
-        choices: type.values
+        choices: values
             | toPairs
             | map(([value, name]) => ({ name, value })) })
+};
+
+/**
+ * Custom autocomplete component
+ *
+ * @param {String} name
+ * @param {String} source
+ * @return {Function}
+ */
+const getAutocompleteComponent = (name, source) => {
+    if (!source) {
+        throw new Error(`aren't you missing 'autocomplete/${name}.js'?`);
+    }
+
+    return ~{ type: 'autocomplete', source: compileClosure(name, source) };
 };
 
 /**
  * Converts a Rung CLI question object to an Inquirer question object
  *
  * @author Marcelo Haskell Camargo
+ * @param {String[]} sources
  * @param {String} name
  * @param {Object} config
  * @return {Object}
  */
-function toInquirerQuestion([name, config]) {
-    const component = has(config.type.name, components)
-        ? components[config.type.name]
-        : components.String;
+const toInquirerQuestion = curry((sources, [name, config]) => {
+    const component = components
+        | cond([
+            [~(config.type.name === 'AutoComplete'), ~getAutocompleteComponent(name, sources[name])],
+            [has(config.type.name), _[config.type.name]],
+            [T, _.String]
+        ]);
 
     return merge(config
         | renameKeys({ description: 'message' })
-        | merge(__, { name }), component(config));
-}
+        | merge(__, { name }), component(config.type));
+});
 
 /**
  * Returns the pure JS values from received questions that will be answered
@@ -108,8 +128,17 @@ function toInquirerQuestion([name, config]) {
  * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
+    const DatePickerPrompt = require('inquirer-datepicker-prompt');
+    const ChalkPipe = require('inquirer-chalk-pipe');
+    const AutocompletePrompt = require('inquirer-autocomplete-prompt');
+
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
-    return resolve(prompt(questions | toPairs | map(toInquirerQuestion)));
+    prompt.registerPrompt('autocomplete', AutocompletePrompt);
+    return getAutocompleteSources()
+        .then(autocompleteSources => questions
+            | toPairs
+            | map(toInquirerQuestion(autocompleteSources))
+            | prompt);
 }

@@ -9,7 +9,7 @@ import {
     split
 } from 'ramda';
 import * as t from '../../src/types';
-import work, { keepCalm, keyboard, removeChunk, replaceLine } from './salete';
+import work, { keepCalm, keyboard, removeChunk, remove, replaceLine } from './salete';
 
 const { type, press } = keyboard;
 
@@ -30,9 +30,9 @@ const components = {
     url: { type: t.Url },
     integerMultiRange: { type: t.IntegerMultiRange(0, 50) },
     calendar: { type: t.Calendar },
-    autocomplete: { type: t.AutoComplete },
     location: { type: t.Location },
-    selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) }
+    selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) },
+    name: { type: t.AutoComplete }
 } | map(assoc('description', 'question'));
 
 const actions = [
@@ -52,9 +52,9 @@ const actions = [
     type('https://github.com/rung-tools/' + press.ENTER), // Url
     type('10 20' + press.ENTER), // IntegerMultiRange
     press.ENTER, // Calendar
-    type('strawberry' + press.ENTER), // Autocomplete
     type('New York' + press.ENTER), // Location
     press.DOWN, press.ENTER, keepCalm(1), // SelectBox
+    keepCalm(1), type('Lari'), keepCalm(1), press.ENTER, keepCalm(1), // AutoComplete
     keepCalm(15)
 ];
 
@@ -99,11 +99,23 @@ export default () => {
                 expect(result.url).to.equals('https://github.com/rung-tools/');
                 expect(result.integerMultiRange).to.deep.equals([10, 20]);
                 expect(result.calendar).to.be.a('string');
-                expect(result.autocomplete).to.equals('strawberry');
                 expect(result.location).to.equals('New York');
                 expect(result.selectBox).to.equals('erlang');
+                expect(result.name).to.equal('Larissa');
             });
     }).timeout(keepCalm(90));
+
+    it('should throw an error when we don\'t provide an autocomplete file', () => {
+        return remove('autocomplete/name.js')
+            .then(~work({
+                runs: ['node', '../dist/cli.js', 'run', '--raw'],
+                does: [keepCalm(3)],
+                clear: true
+            }))
+            .then(output => {
+                expect(output).to.contain('aren\'t you missing \'autocomplete/name.js\'?');
+            });
+    }).timeout(keepCalm(15));
 
     after(~process.chdir('..'));
 };
