@@ -17,7 +17,7 @@ const salete = {
 };
 
 export default () => {
-    it.only('should create a default project boilerplate to work on', () => {
+    it('should create a default project boilerplate to work on', () => {
         return work(salete)
             .tap(output => {
                 expect(output).to.contain('project generated');

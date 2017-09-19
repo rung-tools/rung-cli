@@ -25,8 +25,8 @@ describe('Human tests', () => {
     });
     describe('help.feat', help);
     describe('version.feat', version);
-    describe.only('boilerplate.feat', boilerplate);
-    describe.only('autocomplete.feat', autocomplete);
+    describe('boilerplate.feat', boilerplate);
+    describe('autocomplete.feat', autocomplete);
     describe('build.feat', build);
     describe('readme.feat', readme);
     describe('db.feat', db);

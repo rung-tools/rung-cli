@@ -1,7 +1,4 @@
-import { expect } from 'chai';
-import { pipeP } from 'ramda';
 import { createFile, createFolder } from './salete';
-import { getAutocompleteSources } from '../../src/autocomplete';
 
 export default () => {
     before(() => {

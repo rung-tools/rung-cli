@@ -30,7 +30,6 @@ const components = {
     url: { type: t.Url },
     integerMultiRange: { type: t.IntegerMultiRange(0, 50) },
     calendar: { type: t.Calendar },
-    autocomplete: { type: t.AutoComplete },
     location: { type: t.Location },
     selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) }
 } | map(assoc('description', 'question'));
@@ -52,7 +51,6 @@ const actions = [
     type('https://github.com/rung-tools/' + press.ENTER), // Url
     type('10 20' + press.ENTER), // IntegerMultiRange
     press.ENTER, // Calendar
-    type('strawberry' + press.ENTER), // Autocomplete
     type('New York' + press.ENTER), // Location
     press.DOWN, press.ENTER, keepCalm(1), // SelectBox
     keepCalm(15)
@@ -99,7 +97,6 @@ export default () => {
                 expect(result.url).to.equals('https://github.com/rung-tools/');
                 expect(result.integerMultiRange).to.deep.equals([10, 20]);
                 expect(result.calendar).to.be.a('string');
-                expect(result.autocomplete).to.equals('strawberry');
                 expect(result.location).to.equals('New York');
                 expect(result.selectBox).to.equals('erlang');
             });
