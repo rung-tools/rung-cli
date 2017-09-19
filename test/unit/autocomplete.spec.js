@@ -1,6 +1,5 @@
-import process from 'process';
 import { expect } from 'chai';
-import getAll, { compileClosure } from '../../src/autocomplete';
+import { compileClosure } from '../../src/autocomplete';
 
 const sourceLogic = `lib
     .request.get('https://raw.githubusercontent.com/BrunnerLivio/PokemonDataGraber/master/output.json')
@@ -12,8 +11,6 @@ const sourceLogic = `lib
             : name => name && name.toLowerCase().startsWith(input.toLowerCase())
     ))
 `;
-
-const wrongSource = 'export default 666;';
 
 const promiseSource = `
 export default function ({ input, lib }) {

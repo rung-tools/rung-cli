@@ -9,7 +9,7 @@ import {
     split
 } from 'ramda';
 import * as t from '../../src/types';
-import work, { keepCalm, keyboard, removeChunk, replaceLine } from './salete';
+import work, { keepCalm, keyboard, removeChunk, remove, replaceLine } from './salete';
 
 const { type, press } = keyboard;
 
@@ -32,7 +32,7 @@ const components = {
     calendar: { type: t.Calendar },
     location: { type: t.Location },
     selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) },
-    name: { type: t.AutoComplete },
+    name: { type: t.AutoComplete }
 } | map(assoc('description', 'question'));
 
 const actions = [
@@ -104,6 +104,18 @@ export default () => {
                 expect(result.name).to.equal('Larissa');
             });
     }).timeout(keepCalm(90));
+
+    it('should throw an error when we don\'t provide an autocomplete file', () => {
+        return remove('autocomplete/name.js')
+            .then(~work({
+                runs: ['node', '../dist/cli.js', 'run', '--raw'],
+                does: [keepCalm(3)],
+                clear: true
+            }))
+            .then(output => {
+                expect(output).to.contain('aren\'t you missing \'autocomplete/name.js\'?');
+            });
+    });
 
     after(~process.chdir('..'));
 };
