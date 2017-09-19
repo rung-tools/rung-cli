@@ -43,8 +43,8 @@ export function compileClosure(name, source) {
         throw new TypeError(`autocomplete/${name}.js must export a function`);
     }
 
-    return (params, input = '') => new Promise(resolve => {
-        const context = { params, input, lib };
+    return (params, input) => new Promise(resolve => {
+        const context = { params, input: input || '', lib };
         if (functor.length < 2) {
             return resolve(functor(context));
         }
