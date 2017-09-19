@@ -115,7 +115,7 @@ export default () => {
             .then(output => {
                 expect(output).to.contain('aren\'t you missing \'autocomplete/name.js\'?');
             });
-    });
+    }).timeout(keepCalm(15));
 
     after(~process.chdir('..'));
 };
