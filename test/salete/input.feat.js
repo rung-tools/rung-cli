@@ -32,6 +32,7 @@ const components = {
     calendar: { type: t.Calendar },
     location: { type: t.Location },
     selectBox: { type: t.SelectBox({ haskell: 'Haskell', erlang: 'Erlang' }) },
+    multiSelectBox: { type: t.MultiSelectBox({ a: 'A', b: 'B', c: 'C', d: 'D' }) },
     name: { type: t.AutoComplete }
 } | map(assoc('description', 'question'));
 
@@ -54,6 +55,7 @@ const actions = [
     press.ENTER, // Calendar
     type('New York' + press.ENTER), // Location
     press.DOWN, press.ENTER, keepCalm(1), // SelectBox
+    press.SPACE + press.DOWN + press.DOWN + press.SPACE + press.ENTER, keepCalm(1), // MultiSelectBox
     keepCalm(1), type('Lari'), keepCalm(1), press.ENTER, keepCalm(1), // AutoComplete
     keepCalm(15)
 ];
@@ -102,6 +104,7 @@ export default () => {
                 expect(result.location).to.equals('New York');
                 expect(result.selectBox).to.equals('erlang');
                 expect(result.name).to.equal('Larissa');
+                expect(result.multiSelectBox).to.deep.equals(['a', 'c']);
             });
     }).timeout(keepCalm(90));
 

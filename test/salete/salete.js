@@ -69,7 +69,8 @@ export const keyboard = {
     press: {
         ENTER: '\x0D',
         DOWN: '\x1B\x5B\x42',
-        UP: '\x1B\x5B\x41'
+        UP: '\x1B\x5B\x41',
+        SPACE: '\x20'
     }
 };
 
