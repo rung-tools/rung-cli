@@ -43,6 +43,7 @@ export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
 export const Location = { name: 'Location' };
 export const SelectBox = values => ({ name: 'SelectBox', values });
+export const MultiSelectBox = values => ({ name: 'MultiSelectBox', values });
 
 /**
  * Returns the human-readable name of a type
@@ -58,6 +59,7 @@ export const getTypeName = cond([
     [propEq('name', 'OneOf'), t => `OneOf([${t.values.join(', ')}])`],
     [propEq('name', 'SelectBox'), t => `SelectBox(${JSON.stringify(t.values)})`],
     [propEq('name', 'IntegerMultiRange'), t => `IntegerMultiRange(${t.from}, ${t.to})`],
+    [propEq('name', 'MultiSelectBox'), t => `MultiSelectBox(${JSON.stringify(t.values)})`],
     [T, _.name]
 ]);
 

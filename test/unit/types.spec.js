@@ -10,6 +10,7 @@ export default () => {
             t.DoubleRange(10, 20),
             t.OneOf(['Scala', 'Haskell', 'Elixir']),
             t.SelectBox({ haskell: 'Good', java: 'Bad' }),
+            t.MultiSelectBox({ erlang: 'Erlang', php: 'PHP', perl: 'Perl' }),
             t.IntegerMultiRange(10, 20),
             t.Color
         ] | map(t.getTypeName)).to.deep.equals([
@@ -18,6 +19,7 @@ export default () => {
             'DoubleRange(10, 20)',
             'OneOf([Scala, Haskell, Elixir])',
             'SelectBox({"haskell":"Good","java":"Bad"})',
+            'MultiSelectBox({"erlang":"Erlang","php":"PHP","perl":"Perl"})',
             'IntegerMultiRange(10, 20)',
             'Color'
         ]);

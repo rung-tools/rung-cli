@@ -110,7 +110,7 @@ function precompile({ code, files }) {
         .then(localesToPairs)
         .then(runInAllLocales(code))
         .then(createMetaFile)
-        .thenReturn(['.meta', ...files]);
+        .return(['.meta', ...files]);
 }
 
 /**

@@ -50,6 +50,8 @@ export const emitSuccess = concat(' ✔ Success: ') & green & console.log & reso
 const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
     assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
+const objectToChoices = toPairs & map(([value, name]) => ({ name, value }));
+
 const components = {
     Calendar: ~{
         type: 'datetime',
@@ -78,9 +80,10 @@ const components = {
     Money: ~{ validate: validator.Money, filter: filter.Money },
     SelectBox: ({ values }) => ({
         type: 'list',
-        choices: values
-            | toPairs
-            | map(([value, name]) => ({ name, value })) })
+        choices: objectToChoices(values) }),
+    MultiSelectBox: ({ values }) => ({
+        type: 'checkbox',
+        choices: objectToChoices(values) })
 };
 
 /**
