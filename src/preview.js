@@ -6,11 +6,25 @@ import { promisify } from 'bluebird';
 import { compile } from 'handlebars';
 import { readFile } from './run';
 
-temp.track();
-
 const mkDir = promisify(temp.mkdir);
 const writeFile = promisify(fs.writeFile);
 const readDirectory = promisify(fs.readdir);
+
+/**
+ * Copies a file
+ *
+ * @param {String} source
+ * @param {String} target
+ * @return {Promise}
+ */
+const copyFile = (source, target) => new Promise((resolve, reject) => {
+    const read = fs.createReadStream(source);
+    read.on('error', reject);
+    const write = fs.createWriteStream(target);
+    write.on('error', reject);
+    write.on('close', resolve);
+    read.pipe(write);
+});
 
 /**
  * Returns the source Handlebars template as string
@@ -32,10 +46,9 @@ const copyResources = target => {
     const resources = path.join(__dirname, '../resources/preview');
     return readDirectory(resources)
         .map(filename => {
-            const fullPath = path.join(resources, filename);
+            const sourcePath = path.join(resources, filename);
             const targetPath = path.join(target, filename);
-            return fs.createReadStream(fullPath)
-                .pipe(fs.createWriteStream(targetPath));
+            return copyFile(sourcePath, targetPath);
         });
 };
 
