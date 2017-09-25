@@ -11,6 +11,8 @@
         background-color: #BBBBBB;
         padding: 0;
         margin: 0;
+        background-image: url(./wallpaper.jpg);
+        background-position: center center;
     }
 
     #rung-bar {
