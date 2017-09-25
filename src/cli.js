@@ -45,6 +45,10 @@ cli(yargs
         describe: 'Display returned data as it is',
         type: 'boolean'
     })
+    .option('preview', {
+        describe: 'Preview alert on browser',
+        type: 'boolean'
+    })
     .option('file', {
         describe: 'File to publish to Rung Store',
         type: 'string'

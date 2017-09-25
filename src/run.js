@@ -18,6 +18,7 @@ import { compileES6 } from './compiler';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
 import { compileModulesFromSource } from './module';
+import preview from './preview';
 
 const user = { name: os.userInfo().username };
 const percentOf = curry((value, percent) => value / 100 * percent);
@@ -57,6 +58,7 @@ export default function run(args) {
                 .then(params => runAndGetAlerts({ name, source },
                     { params, db, locale, user }, strings, modules))))
         .tap(~spinner.stop(true))
+        .tap(when(~args.preview, preview))
         .then(when(~!args.raw, tableView))
         .tap(console.log);
 }
