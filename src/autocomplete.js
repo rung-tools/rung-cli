@@ -60,6 +60,7 @@ export function compileClosure(name, source) {
  * @return {Promise}
  */
 export default ~directory('./autocomplete/')
+    .catch({ code: 'ENOENT' }, ~[])
     .filter(test(/^.*\.js$/))
     .map(file => all([
         take(file.length - 3, file),
