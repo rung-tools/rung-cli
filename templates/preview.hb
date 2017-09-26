@@ -13,6 +13,7 @@
         margin: 0;
         background-image: url(./wallpaper.jpg);
         background-position: center center;
+        font-family: Roboto, sans-serif;
     }
 
     #rung-bar {
@@ -23,6 +24,8 @@
 
     #rung-alerts {
         margin: 40px;
+        width: 100%;
+        max-width: calc(100% - 500px);
     }
 
     .custom-scrollbar::-webkit-scrollbar, textarea::-webkit-scrollbar {
@@ -93,6 +96,119 @@
         right: 65px;
         width: 120px;
     }
+
+    #sidebar-header {
+        background-color: #596ac6;
+    }
+
+    #sidebar {
+        width: 440px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    #sidebar-header {
+        background-color: #596ac6;
+        color: #CCCCCC;
+        height: 64px;
+        padding-left: 30px;
+    }
+
+    #sidebar-fake-line-1 {
+        position: absolute;
+        top: 0;
+    }
+
+    #sidebar-group-name {
+        position: relative;
+        top: 10px;
+        font-size: 20px;
+    }
+
+    #sidebar-card-name {
+        position: relative;
+        top: 8px;
+    }
+
+    #sidebar-body {
+        background-color: #EEEEEE;
+        height: calc(100% - 124px);
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .fake-field {
+        width: 200px;
+        height: 50px;
+        display: inline-table;
+    }
+
+    .fake-indicator {
+        background-color: #BBBBBB;
+        height: 10px;
+        width: 50px;
+    }
+
+    .fake-value {
+        margin-top: 5px;
+        background-color: #BBBBBB;
+        height: 30px;
+        width: 100%;
+    }
+
+    #sidebar-comment-box {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 440px;
+        background: #EEEEEE;
+        height: 50px;
+    }
+
+    #sidebar-comment-input {
+        width: 365px;
+        background-color: #BBBBBB;
+        height: 30px;
+        position: absolute;
+        bottom: 13px;
+        right: 60px;
+    }
+
+    #sidebar-send-button {
+        background-color: #CA2C68;
+        width: 40px;
+        height: 40px;
+        border-radius: 40px;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    #markdown-box {
+        height: 200px;
+        margin: 20px;
+        height: calc(100% - 150px);
+        overflow-y: scroll;
+    }
+
+    #markdown-robot {
+        width: 50px;
+        height: 50px;
+        border-radius: 50px;
+        background-color: #AE7C5B;
+    }
+
+    #markdown-content {
+        position: relative;
+        top: -50px;
+        left: 60px;
+        width: calc(100% - 70px);
+        background-color: #E0E0E0;
+        padding: 5px;
+        text-align: left;
+    }
     </style>
     <body>
         <div id="rung-bar">
@@ -107,6 +223,38 @@
                     {{{content}}}
                 </div>
             {{/each}}
+        </div>
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <div id="sidebar-group-name">Grupinho</div>
+                <div id="sidebar-card-name">Nominho</div>
+            </div>
+            <div id="sidebar-body">
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div id="markdown-box" class="custom-scrollbar">
+                    <div id="markdown-robot"></div>
+                    <div id="markdown-content"></div>
+                </div>
+            </div>
+            <div id="sidebar-comment-box">
+                <div id="sidebar-comment-input"></div>
+                <div id="sidebar-send-button"></div>
+            </div>
         </div>
     </body>
 </html>
