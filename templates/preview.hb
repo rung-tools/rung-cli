@@ -12,6 +12,8 @@
         padding: 0;
         margin: 0;
         background-image: url(./wallpaper.jpg);
+        background-size: 100%;
+        background-attachment: fixed;
         background-position: center center;
         font-family: Roboto, sans-serif;
     }
@@ -53,11 +55,13 @@
         margin: 2px;
         border: 1px solid silver;
         padding: 0 10px;
+        background-color: #ECF0F1;
         padding-top: 10px;
         overflow-x: hidden;
         overflow-y: auto;
         text-align: center;
         font-family: Roboto, sans-serif;
+        transform: rotate(0);
     }
 
     #logo {
