@@ -6,6 +6,7 @@ import { promisify, props } from 'bluebird';
 import {
     has,
     head,
+    join,
     lensProp,
     map,
     mergeAll,
@@ -20,6 +21,22 @@ import { readFile } from './run';
 import { emitInfo } from './input';
 
 const readDirectory = promisify(fs.readdir);
+
+/**
+ * Emits the Rung emoji to the live server ;)
+ *
+ * @return {Promise}
+ */
+function emitRungEmoji() {
+    return [
+        '',
+        '   ___       _  _______',
+        '  / _ \\__ __/ |/ / ___/',
+        ' / , _/ // /    / (_ /',
+        '/_/|_|\\_,_/_/|_/\\___/',
+        ''
+    ] | join('\n') | emitInfo;
+}
 
 /**
  * Returns the source Handlebars template as string
@@ -82,7 +99,8 @@ function startLiveServer(content, port) {
         const listen = promisify(server.listen.bind(server));
         return listen(port);
     })
-    .then(~emitInfo(`hot reloading server listening on http://localhost:${port}/`));
+    .tap(emitRungEmoji)
+    .tap(~emitInfo(`hot reloading server listening on http://localhost:${port}/`));
 }
 
 /**
