@@ -130,6 +130,8 @@
 
     #sidebar-card-name {
         position: relative;
+        overflow: hidden;
+        max-height: 20px;
         top: 8px;
     }
 
@@ -220,7 +222,12 @@
         </div>
         <div id="rung-alerts">
             {{#each alerts}}
-                <div class="card custom-scrollbar" title="{{title}}">
+                <div
+                    class="card custom-scrollbar"
+                    title="{{title}}"
+                    onClick="openAlert(this)">
+                    <textarea class="here-be-dragons-title" style="display: none;">{{title}}</textarea>
+                    <textarea class="here-be-dragons-comment" style="display: none;">{{comment}}</textarea>
                     {{{content}}}
                 </div>
             {{/each}}
@@ -268,9 +275,15 @@
     </body>
     <script type="text/javascript">
         // Here be dragons :)
-        function openAlert(alert) {
-            const cardName = document.querySelector('#sidebar-group-name');
-            cardName.innerHTML = alert.title;
+        function openAlert(context) {
+            const $title = document.querySelector('#sidebar-card-name');
+            const $comment = document.querySelector('#markdown-content');
+
+            const title = context.querySelector('.here-be-dragons-title').value;
+            const comment = context.querySelector('.here-be-dragons-comment').value;
+
+            $title.innerHTML = title;
+            $comment.innerHTML = comment;
         }
     </script>
 </html>
