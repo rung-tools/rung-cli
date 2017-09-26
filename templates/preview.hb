@@ -60,42 +60,9 @@
         font-family: Roboto, sans-serif;
     }
 
-    #user-placeholder {
-        float: right;
-    }
-
     #logo {
         margin-left: 24px;
         height: 64px;
-    }
-
-    #fake-avatar {
-        position: absolute;
-        top: 13px;
-        right: 200px;
-        height: 40px;
-        width: 40px;
-        border-radius: 42px;
-        background-color: #CCCCCC;
-    }
-
-    .fake-line {
-        background-color: #CCCCCC;
-        height: 13px;
-    }
-
-    #fake-line-1 {
-        position: absolute;
-        top: 18px;
-        right: 25px;
-        width: 160px;
-    }
-
-    #fake-line-2 {
-        position: absolute;
-        top: 35px;
-        right: 65px;
-        width: 120px;
     }
 
     #sidebar-header {
@@ -220,9 +187,6 @@
     <body>
         <div id="rung-bar">
             <img src="./rung-logo.png" draggable="false" id="logo" />
-            <div id="fake-avatar"></div>
-            <div id="fake-line-1" class="fake-line"></div>
-            <div id="fake-line-2" class="fake-line"></div>
         </div>
         <div id="rung-alerts">
             {{#each alerts}}
