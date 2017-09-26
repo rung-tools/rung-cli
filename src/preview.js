@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
+import net from 'net';
 import opn from 'opn';
 import { promisify, props } from 'bluebird';
 import {
@@ -77,13 +78,46 @@ const compileAlerts = alerts => {
 };
 
 /**
+ * Starts the stream server using sockets
+ *
+ * @return {Promise}
+ */
+function startStreamServer() {
+    const clients = [];
+    net.createServer(socket => {
+        socket.name = `${socket.remoteAddress}:${socket.remotePort}`;
+        clients.push(socket);
+
+        console.log(socket.header);
+
+        emitInfo(socket.name);
+
+        var instance = 0;
+        const interval = setInterval(() => {
+            emitInfo('foooi');
+            socket.write(JSON.stringify(instance++));
+        }, 500);
+
+        socket.on('end', () => {
+            clients.splice(clients.indexOf(socket), 1);
+            clearInterval(interval);
+        });
+    }).listen(6001);
+}
+
+/**
  * Deploys a Rung CLI live server to stream content and allow hot reloading
  *
+ * @param {Object} alerts
  * @param {String} content
  * @param {Number} port
  * @return {Promise}
  */
-function startLiveServer(content, port) {
+function startLiveServer(alerts, content, port) {
+    // STREAM SERVER
+
+    startStreamServer();
+
     return getResources().then(resources => {
         const server = http.createServer((req, res) => {
             // Provide resource when asked
@@ -91,9 +125,16 @@ function startLiveServer(content, port) {
                 return res.end(resources[req.url]);
             }
 
+            // TODO: refatorar essa gambi
+            if (req.url === '/alerts') {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(alerts), 'utf-8');
+                return;
+            }
+
             // Stream live content
             return emitInfo(req.url)
-                .then(~res.end(content));
+                .then(~res.end(resources['/live.html']));
         });
 
         const listen = promisify(server.listen.bind(server));
@@ -118,6 +159,6 @@ export default ({ alerts }) => getHandlebarsTemplate()
         });
     })
     .then(content => {
-        return startLiveServer(content, 5001)
+        return startLiveServer(alerts, content, 5001)
             .then(~opn('http://localhost:5001/'));
     });
