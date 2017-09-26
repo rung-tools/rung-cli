@@ -212,6 +212,10 @@
         padding: 5px;
         text-align: left;
     }
+
+    #markdown-resources img {
+        width: 100%;
+    }
     </style>
     <body>
         <div id="rung-bar">
@@ -228,6 +232,13 @@
                     onClick="openAlert(this)">
                     <textarea class="here-be-dragons-title" style="display: none;">{{title}}</textarea>
                     <textarea class="here-be-dragons-comment" style="display: none;">{{comment}}</textarea>
+                    <textarea class="here-be-dragons-resources" style="display: none">
+                        <div id="markdown-resources">
+                        {{#each resources}}
+                            <img src="{{this}}" draggable="false" />
+                        {{/each}}
+                        </div>
+                    </textarea>
                     {{{content}}}
                 </div>
             {{/each}}
@@ -263,6 +274,11 @@
                     <div id="markdown-content">
                         {{#if sidebar}}
                             {{{sidebar.comment}}}
+                            <div id="markdown-resources">
+                                {{#each sidebar.resources}}
+                                    <img src="{{this}}" draggable="false" />
+                                {{/each}}
+                            </div>
                         {{/if}}
                     </div>
                 </div>
@@ -281,9 +297,14 @@
 
             const title = context.querySelector('.here-be-dragons-title').value;
             const comment = context.querySelector('.here-be-dragons-comment').value;
+            const resources = context.querySelector('.here-be-dragons-resources').value
+                .split('\n')
+                .map(resource => resource.trim())
+                .filter(resource => resource !== '')
+                .join('');
 
             $title.innerHTML = title;
-            $comment.innerHTML = comment;
+            $comment.innerHTML = comment + resources;
         }
     </script>
 </html>
