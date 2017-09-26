@@ -3,6 +3,7 @@ import path from 'path';
 import temp from 'temp';
 import opn from 'opn';
 import { promisify } from 'bluebird';
+import { head, values } from 'ramda';
 import { compile } from 'handlebars';
 import { readFile } from './run';
 
@@ -72,6 +73,12 @@ const openInBrowser = content => mkDir('rung-preview')
  *
  * @return {Promise}
  */
-export default alerts => getHandlebarsTemplate()
-    .then(generatePreview => generatePreview(alerts))
+export default ({ alerts }) => getHandlebarsTemplate()
+    .then(generatePreview => {
+        const content = values(alerts);
+        return generatePreview({
+            alerts: content,
+            sidebar: head(content)
+        });
+    })
     .then(openInBrowser);

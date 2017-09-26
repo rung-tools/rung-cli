@@ -226,8 +226,12 @@
         </div>
         <div id="sidebar">
             <div id="sidebar-header">
-                <div id="sidebar-group-name">Grupinho</div>
-                <div id="sidebar-card-name">Nominho</div>
+                <div id="sidebar-group-name">Rung Developers</div>
+                <div id="sidebar-card-name">
+                    {{#if sidebar}}
+                        {{sidebar.title}}
+                    {{/if}}
+                </div>
             </div>
             <div id="sidebar-body">
                 <div class="fake-field">
@@ -257,4 +261,11 @@
             </div>
         </div>
     </body>
+    <script type="text/javascript">
+        // Here be dragons :)
+        function openAlert(alert) {
+            const cardName = document.querySelector('#sidebar-group-name');
+            cardName.innerHTML = alert.title;
+        }
+    </script>
 </html>
