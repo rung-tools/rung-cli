@@ -13,10 +13,18 @@ import {
     reduce,
     toPairs
 } from 'ramda';
-import { green, red, yellow } from 'colors/safe';
+import { cyan, green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
 import { validator, filter } from './types';
 import getAutocompleteSources, { compileClosure } from './autocomplete';
+
+/**
+ * Emits an info message to stdout
+ *
+ * @param {String} message
+ * @return {Promise}
+ */
+export const emitInfo = concat(' ℹ Info: ') & cyan & console.log & resolve;
 
 /**
  * Emits a warning to stdout

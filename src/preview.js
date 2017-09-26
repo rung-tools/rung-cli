@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import temp from 'temp';
+import http from 'http';
 import opn from 'opn';
-import { promisify } from 'bluebird';
+import { promisify, props } from 'bluebird';
 import {
     has,
     head,
     lensProp,
     map,
+    mergeAll,
     over,
     replace,
     values,
@@ -16,26 +17,9 @@ import {
 import { compile } from 'handlebars';
 import { Converter } from 'showdown';
 import { readFile } from './run';
+import { emitInfo } from './input';
 
-const mkDir = promisify(temp.mkdir);
-const writeFile = promisify(fs.writeFile);
 const readDirectory = promisify(fs.readdir);
-
-/**
- * Copies a file
- *
- * @param {String} source
- * @param {String} target
- * @return {Promise}
- */
-const copyFile = (source, target) => new Promise((resolve, reject) => {
-    const read = fs.createReadStream(source);
-    read.on('error', reject);
-    const write = fs.createWriteStream(target);
-    write.on('error', reject);
-    write.on('close', resolve);
-    read.pipe(write);
-});
 
 /**
  * Returns the source Handlebars template as string
@@ -48,34 +32,18 @@ function getHandlebarsTemplate() {
 }
 
 /**
- * Copies the resource files to the specified location
+ * Returns an object with resource path and buffer
  *
- * @param {String} target
  * @return {Promise}
  */
-const copyResources = target => {
+const getResources = () => {
     const resources = path.join(__dirname, '../resources/preview');
     return readDirectory(resources)
-        .map(filename => {
-            const sourcePath = path.join(resources, filename);
-            const targetPath = path.join(target, filename);
-            return copyFile(sourcePath, targetPath);
-        });
+        .map(filename => props({
+            [`/${filename}`]: readFile(path.join(resources, filename))
+        }))
+        .then(mergeAll);
 };
-
-/**
- * Writes to a temp file and opens the content on the default browser
- *
- * @param {String} content
- * @return {Promise}
- */
-const openInBrowser = content => mkDir('rung-preview')
-    .tap(copyResources)
-    .then(location => {
-        const index = path.join(location, 'index.html');
-        return writeFile(index, content)
-            .then(~opn(index));
-    });
 
 /**
  * Compiles the content of the alerts to be compatible with HTML
@@ -92,6 +60,32 @@ const compileAlerts = alerts => {
 };
 
 /**
+ * Deploys a Rung CLI live server to stream content and allow hot reloading
+ *
+ * @param {String} content
+ * @param {Number} port
+ * @return {Promise}
+ */
+function startLiveServer(content, port) {
+    return getResources().then(resources => {
+        const server = http.createServer((req, res) => {
+            // Provide resource when asked
+            if (resources[req.url]) {
+                return res.end(resources[req.url]);
+            }
+
+            // Stream live content
+            return emitInfo(req.url)
+                .then(~res.end(content));
+        });
+
+        const listen = promisify(server.listen.bind(server));
+        return listen(port);
+    })
+    .then(~emitInfo(`hot reloading server listening on http://localhost:${port}/`));
+}
+
+/**
  * Generates a HTML file compiled from template showing the alerts as they will
  * be rendered on Rung and opens it in the default browser
  *
@@ -105,4 +99,7 @@ export default ({ alerts }) => getHandlebarsTemplate()
             sidebar: head(content)
         });
     })
-    .then(openInBrowser);
+    .then(content => {
+        return startLiveServer(content, 5001)
+            .then(~opn('http://localhost:5001/'));
+    });

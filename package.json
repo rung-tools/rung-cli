@@ -51,7 +51,6 @@
     "showdown": "1.7.4",
     "superagent": "^3.5.0",
     "superagent-promise": "^1.1.0",
-    "temp": "0.8.3",
     "tracking-correios": "1.1.4",
     "validator": "7.0.0",
     "vm2": "^3.4.6",

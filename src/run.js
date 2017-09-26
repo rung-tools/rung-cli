@@ -60,5 +60,5 @@ export default function run(args) {
         .tap(~spinner.stop(true))
         .tap(when(~args.preview, preview))
         .then(when(~!args.raw, tableView))
-        .tap(console.log);
+        .tap(when(~!args.preview), console.log);
 }
