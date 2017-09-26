@@ -45,6 +45,7 @@
     }
 
     .card {
+        cursor: pointer;
         position: relative;
         width: 145px;
         height: 115px;
@@ -252,7 +253,11 @@
                 </div>
                 <div id="markdown-box" class="custom-scrollbar">
                     <div id="markdown-robot"></div>
-                    <div id="markdown-content"></div>
+                    <div id="markdown-content">
+                        {{#if sidebar}}
+                            {{{sidebar.comment}}}
+                        {{/if}}
+                    </div>
                 </div>
             </div>
             <div id="sidebar-comment-box">

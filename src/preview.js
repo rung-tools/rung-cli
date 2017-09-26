@@ -3,8 +3,18 @@ import path from 'path';
 import temp from 'temp';
 import opn from 'opn';
 import { promisify } from 'bluebird';
-import { head, values } from 'ramda';
+import {
+    has,
+    head,
+    lensProp,
+    map,
+    over,
+    replace,
+    values,
+    when
+} from 'ramda';
 import { compile } from 'handlebars';
+import { Converter } from 'showdown';
 import { readFile } from './run';
 
 const mkDir = promisify(temp.mkdir);
@@ -68,6 +78,20 @@ const openInBrowser = content => mkDir('rung-preview')
     });
 
 /**
+ * Compiles the content of the alerts to be compatible with HTML
+ *
+ * @param {Object} alerts
+ * @return {Object[]}
+ */
+const compileAlerts = alerts => {
+    const converter = new Converter();
+    return alerts
+        | map(when(has('comment'),
+            over(lensProp('comment'), replace(/^[ \t]+/gm, '') & converter.makeHtml)))
+        | values;
+};
+
+/**
  * Generates a HTML file compiled from template showing the alerts as they will
  * be rendered on Rung and opens it in the default browser
  *
@@ -75,7 +99,7 @@ const openInBrowser = content => mkDir('rung-preview')
  */
 export default ({ alerts }) => getHandlebarsTemplate()
     .then(generatePreview => {
-        const content = values(alerts);
+        const content = compileAlerts(alerts);
         return generatePreview({
             alerts: content,
             sidebar: head(content)
