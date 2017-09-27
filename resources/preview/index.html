@@ -60,87 +60,87 @@
         <div id="rung-error"></div>
     </body>
     <script type="text/javascript">
-        const timeline = [];
-        const DOM = {
-            sidebarComment: document.querySelector('#sidebar-comment'),
-            markdownResources: document.querySelector('#markdown-resources'),
-            sidebarCardName: document.querySelector('#sidebar-card-name'),
-            rungAlerts: document.querySelector('#rung-alerts'),
-            loading: document.querySelector('#rung-loading'),
-            error: document.querySelector('#rung-error'),
-            timelinePrev: document.querySelector('#rung-timeline-prev'),
-            timelineNext: document.querySelector('#rung-timeline-next'),
-            timelineCount: document.querySelector('#rung-timeline-count')
-        };
+    const timeline = [];
+    const DOM = {
+        sidebarComment: document.querySelector('#sidebar-comment'),
+        markdownResources: document.querySelector('#markdown-resources'),
+        sidebarCardName: document.querySelector('#sidebar-card-name'),
+        rungAlerts: document.querySelector('#rung-alerts'),
+        loading: document.querySelector('#rung-loading'),
+        error: document.querySelector('#rung-error'),
+        timelinePrev: document.querySelector('#rung-timeline-prev'),
+        timelineNext: document.querySelector('#rung-timeline-next'),
+        timelineCount: document.querySelector('#rung-timeline-count')
+    };
 
-        function openInSidebar(alert) {
-            DOM.sidebarComment.innerHTML = alert.comment;
-            DOM.markdownResources.innerHTML = (alert.resources || []).map(resource =>
-                `<img src="${resource}" draggable="false">`
-            ).join('');
-            DOM.sidebarCardName.innerText = alert.title;
-        }
+    function openInSidebar(alert) {
+        DOM.sidebarComment.innerHTML = alert.comment;
+        DOM.markdownResources.innerHTML = (alert.resources || []).map(resource =>
+            `<img src="${resource}" draggable="false">`
+        ).join('');
+        DOM.sidebarCardName.innerText = alert.title;
+    }
 
-        function render(alerts) {
-            const indexes = Object.keys(alerts);
-            const [first] = indexes;
-            openInSidebar(alerts[first]);
+    function render(alerts) {
+        const indexes = Object.keys(alerts);
+        const [first] = indexes;
+        openInSidebar(alerts[first]);
 
-            DOM.error.style.display = 'none';
-            DOM.rungAlerts.innerHTML = '';
-            indexes.forEach(index => {
-                const alert = alerts[index];
-                const card = document.createElement('div');
-                card.className = 'card custom-scrollbar';
-                card.innerHTML = alert.content;
-                card.onclick = () => openInSidebar(alert);
-                DOM.rungAlerts.appendChild(card);
-            });
-
-            DOM.loading.style.opacity = 0;
-        }
-
-        function updateTimeline() {
-            const { peek } = timeline;
-            DOM.timelineCount.innerText = `${peek}/${timeline.length}`;
-
-            if (peek === 1) {
-                DOM.timelinePrev.setAttribute('disabled', true);
-            } else {
-                DOM.timelinePrev.removeAttribute('disabled');
-            }
-
-            if (peek >= timeline.length) {
-                DOM.timelineNext.setAttribute('disabled', true);
-            } else {
-                DOM.timelineNext.removeAttribute('disabled');
-            }
-        }
-
-        const timeTravel = functor => () => {
-            const { peek } = timeline;
-            const nextState = functor(peek);
-            timeline.peek = nextState;
-            updateTimeline();
-            render(timeline[nextState - 1]);
-        }
-
-        DOM.timelinePrev.onclick = timeTravel(time => time - 1);
-        DOM.timelineNext.onclick = timeTravel(time => time + 1);
-
-        const socket = io.connect('http://localhost:5001');
-        socket.on('update', alerts => {
-            timeline.push(alerts);
-            timeline.peek = timeline.length;
-            render(alerts);
-            updateTimeline();
+        DOM.error.style.display = 'none';
+        DOM.rungAlerts.innerHTML = '';
+        indexes.forEach(index => {
+            const alert = alerts[index];
+            const card = document.createElement('div');
+            card.className = 'card custom-scrollbar';
+            card.innerHTML = alert.content;
+            card.onclick = () => openInSidebar(alert);
+            DOM.rungAlerts.appendChild(card);
         });
-        socket.on('load', () => {
-            DOM.loading.style.opacity = 1;
-        });
-        socket.on('failure', error => {
-            DOM.error.style.display = 'block';
-            DOM.error.innerText = error;
-        });
+
+        DOM.loading.style.opacity = 0;
+    }
+
+    function updateTimeline() {
+        const { peek } = timeline;
+        DOM.timelineCount.innerText = `${peek}/${timeline.length}`;
+
+        if (peek === 1) {
+            DOM.timelinePrev.setAttribute('disabled', true);
+        } else {
+            DOM.timelinePrev.removeAttribute('disabled');
+        }
+
+        if (peek >= timeline.length) {
+            DOM.timelineNext.setAttribute('disabled', true);
+        } else {
+            DOM.timelineNext.removeAttribute('disabled');
+        }
+    }
+
+    const timeTravel = functor => () => {
+        const { peek } = timeline;
+        const nextState = functor(peek);
+        timeline.peek = nextState;
+        updateTimeline();
+        render(timeline[nextState - 1]);
+    };
+
+    DOM.timelinePrev.onclick = timeTravel(time => time - 1);
+    DOM.timelineNext.onclick = timeTravel(time => time + 1);
+
+    const socket = io.connect('http://localhost:5001');
+    socket.on('update', alerts => {
+        timeline.push(alerts);
+        timeline.peek = timeline.length;
+        render(alerts);
+        updateTimeline();
+    });
+    socket.on('load', () => {
+        DOM.loading.style.opacity = 1;
+    });
+    socket.on('failure', error => {
+        DOM.error.style.display = 'block';
+        DOM.error.innerText = error;
+    });
     </script>
 </html>
