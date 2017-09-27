@@ -84,6 +84,12 @@
     function render(alerts) {
         const indexes = Object.keys(alerts);
         const [first] = indexes;
+
+        if (!first) {
+            DOM.loading.style.opacity = 0;
+            return;
+        }
+
         openInSidebar(alerts[first]);
 
         DOM.error.style.display = 'none';
