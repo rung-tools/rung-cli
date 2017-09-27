@@ -1,22 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import http from 'http';
-import net from 'net';
 import opn from 'opn';
-import { promisify, props } from 'bluebird';
+import { listen } from 'socket.io';
+import Promise, { promisify, props } from 'bluebird';
 import {
     has,
-    head,
     join,
     lensProp,
     map,
     mergeAll,
     over,
     replace,
-    values,
     when
 } from 'ramda';
-import { compile } from 'handlebars';
 import { Converter } from 'showdown';
 import { readFile } from './run';
 import { emitInfo } from './input';
@@ -40,16 +37,6 @@ function emitRungEmoji() {
 }
 
 /**
- * Returns the source Handlebars template as string
- *
- * @return {Promise}
- */
-function getHandlebarsTemplate() {
-    return readFile(path.join(__dirname, '../templates/preview.hb'), 'utf-8')
-        .then(compile);
-}
-
-/**
  * Returns an object with resource path and buffer
  *
  * @return {Promise}
@@ -69,79 +56,33 @@ const getResources = () => {
  * @param {Object} alerts
  * @return {Object[]}
  */
-const compileAlerts = alerts => {
+const compileMarkdown = alerts => {
     const converter = new Converter();
     return alerts
         | map(when(has('comment'),
-            over(lensProp('comment'), replace(/^[ \t]+/gm, '') & converter.makeHtml)))
-        | values;
+            over(lensProp('comment'), replace(/^[ \t]+/gm, '') & converter.makeHtml)));
 };
 
 /**
  * Starts the stream server using sockets
  *
- * @return {Promise}
- */
-function startStreamServer() {
-    const clients = [];
-    net.createServer(socket => {
-        socket.name = `${socket.remoteAddress}:${socket.remotePort}`;
-        clients.push(socket);
-
-        console.log(socket.header);
-
-        emitInfo(socket.name);
-
-        var instance = 0;
-        const interval = setInterval(() => {
-            emitInfo('foooi');
-            socket.write(JSON.stringify(instance++));
-        }, 500);
-
-        socket.on('end', () => {
-            clients.splice(clients.indexOf(socket), 1);
-            clearInterval(interval);
-        });
-    }).listen(6001);
-}
-
-/**
- * Deploys a Rung CLI live server to stream content and allow hot reloading
- *
  * @param {Object} alerts
- * @param {String} content
  * @param {Number} port
+ * @param {Object} resources
  * @return {Promise}
  */
-function startLiveServer(alerts, content, port) {
-    // STREAM SERVER
-
-    startStreamServer();
-
-    return getResources().then(resources => {
-        const server = http.createServer((req, res) => {
-            // Provide resource when asked
-            if (resources[req.url]) {
-                return res.end(resources[req.url]);
-            }
-
-            // TODO: refatorar essa gambi
-            if (req.url === '/alerts') {
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify(alerts), 'utf-8');
-                return;
-            }
-
-            // Stream live content
-            return emitInfo(req.url)
-                .then(~res.end(resources['/live.html']));
+function startServer(alerts, port, resources) {
+    const compiledAlerts = compileMarkdown(alerts);
+    const app = http.createServer((req, res) =>
+        res.end(resources[req.url] || resources['/index.html']));
+    const io = listen(app);
+    io.on('connection', socket => {
+        emitInfo(`new session for ${socket.handshake.address}`);
+        socket.on('disconnect', () => {
+            emitInfo(`disconnected session ${socket.handshake.address}`);
         });
-
-        const listen = promisify(server.listen.bind(server));
-        return listen(port);
-    })
-    .tap(emitRungEmoji)
-    .tap(~emitInfo(`hot reloading server listening on http://localhost:${port}/`));
+    });
+    return new Promise(resolve => app.listen(port, emitRungEmoji & resolve));
 }
 
 /**
@@ -150,15 +91,6 @@ function startLiveServer(alerts, content, port) {
  *
  * @return {Promise}
  */
-export default ({ alerts }) => getHandlebarsTemplate()
-    .then(generatePreview => {
-        const content = compileAlerts(alerts);
-        return generatePreview({
-            alerts: content,
-            sidebar: head(content)
-        });
-    })
-    .then(content => {
-        return startLiveServer(alerts, content, 5001)
-            .then(~opn('http://localhost:5001/'));
-    });
+export default ({ alerts }) => getResources()
+    .tap(startServer(alerts, 5001, _))
+    .then(~opn('http://localhost:5001/'));
