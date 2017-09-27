@@ -85,6 +85,7 @@
                 const card = document.createElement('div');
                 card.className = 'card custom-scrollbar';
                 card.innerHTML = alert.content;
+                card.onclick = () => openInSidebar(alert);
                 DOM.rungAlerts.appendChild(card);
             });
 
