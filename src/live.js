@@ -18,7 +18,7 @@ import {
 } from 'ramda';
 import { Converter } from 'showdown';
 import { executeWithParams, readFile } from './run';
-import { emitInfo } from './input';
+import { emitError, emitInfo, emitSuccess } from './input';
 
 const readDirectory = promisify(fs.readdir);
 
@@ -78,9 +78,15 @@ function watchChanges(io, params) {
     return watch(folder, { recursive: true }, () => {
         emitInfo('changes detected. Recompiling...');
         io.sockets.emit('load');
+        const start = new Date().getTime();
         executeWithParams(params)
-            .then(alerts => io.sockets.emit('update', compileMarkdown(alerts)))
+            .tap(alerts => {
+                const ellapsed = new Date().getTime() - start;
+                emitSuccess(`wow! recompiled and executed in ${ellapsed}ms!`);
+                io.sockets.emit('update', compileMarkdown(alerts));
+            })
             .catch(err => {
+                emitError(`hot compilation error, baby: ${err.message}`);
                 io.sockets.emit('failure', err.stack);
             });
     });
