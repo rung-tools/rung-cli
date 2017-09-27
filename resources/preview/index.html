@@ -1,16 +1,83 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>🔥 Rung CLI Hot Server 🔥</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
         <script type="text/javascript" src="./socket.io.slim.js"></script>
         <link rel="stylesheet" type="text/css" href="./live.css" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet">
     </head>
     <body>
-        ...
+        <div id="rung-bar">
+            <img src="./rung-logo.png" draggable="false" id="logo" />
+        </div>
+        <div id="rung-alerts"></div>
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <div id="sidebar-group-name">Rung Developers</div>
+                <div id="sidebar-card-name"></div>
+            </div>
+            <div id="sidebar-body">
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div class="fake-field">
+                    <div class="fake-indicator"></div>
+                    <div class="fake-value"></div>
+                </div>
+                <div id="markdown-box" class="custom-scrollbar">
+                    <div id="markdown-robot"></div>
+                    <div id="markdown-content">
+                        <div id="sidebar-comment"></div>
+                        <div id="markdown-resources"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="sidebar-comment-box">
+                <div id="sidebar-comment-input"></div>
+                <div id="sidebar-send-button"></div>
+            </div>
+        </div>
     </body>
     <script type="text/javascript">
+        const DOM = {
+            sidebarComment: document.querySelector('#sidebar-comment'),
+            markdownResources: document.querySelector('#markdown-resources'),
+            sidebarCardName: document.querySelector('#sidebar-card-name'),
+            rungAlerts: document.querySelector('#rung-alerts')
+        };
+
         const socket = io.connect('http://localhost:5001');
-        socket.on('update', message => {
-            console.log(message);
+        socket.on('start', alerts => {
+            const indexes = Object.keys(alerts);
+            const [first] = indexes;
+
+            DOM.sidebarComment.innerHTML = alerts[first].comment;
+            DOM.markdownResources.innerHTML = (alerts[first].resources || []).map(resource =>
+                `<img src="${resource}" draggable="false">`
+            ).join('');
+            DOM.sidebarCardName.innerText = alerts[first].title;
+
+            indexes.forEach(index => {
+                const alert = alerts[index];
+                const card = document.createElement('div');
+                card.className = 'card custom-scrollbar';
+                card.setAttribute('key', index);
+                card.innerHTML = alert.content;
+                DOM.rungAlerts.appendChild(card);
+            });
+
+            console.log(alerts);
         });
     </script>
 </html>

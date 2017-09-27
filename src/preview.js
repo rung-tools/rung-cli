@@ -78,6 +78,7 @@ function startServer(alerts, port, resources) {
     const io = listen(app);
     io.on('connection', socket => {
         emitInfo(`new session for ${socket.handshake.address}`);
+        socket.emit('start', compiledAlerts);
         socket.on('disconnect', () => {
             emitInfo(`disconnected session ${socket.handshake.address}`);
         });
