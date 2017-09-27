@@ -42,7 +42,7 @@ function emitRungEmoji() {
  * @return {Promise}
  */
 const getResources = () => {
-    const resources = path.join(__dirname, '../resources/preview');
+    const resources = path.join(__dirname, '../resources/live');
     return readDirectory(resources)
         .map(filename => props({
             [`/${filename}`]: readFile(path.join(resources, filename))

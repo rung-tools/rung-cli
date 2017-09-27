@@ -45,8 +45,8 @@ cli(yargs
         describe: 'Display returned data as it is',
         type: 'boolean'
     })
-    .option('preview', {
-        describe: 'Preview alert on browser',
+    .option('live', {
+        describe: 'Live mode',
         type: 'boolean'
     })
     .option('file', {
