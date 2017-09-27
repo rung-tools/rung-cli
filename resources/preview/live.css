@@ -179,6 +179,45 @@ body {
     width: 100%;
 }
 
+#rung-timeline {
+    position: absolute;
+    top: 13px;
+    height: 40px;
+    right: 500px;
+    color: white;
+    font-size: 22px;
+    display: flex;
+}
+
+#rung-timeline-count {
+    line-height: 40px;
+    padding: 0 20px;
+}
+
+.rung-timeline-button {
+    background-color: #0077C0;
+    width: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    border: 0;
+    outline: 0;
+}
+
+.rung-timeline-button:hover {
+    background-color: #0057A0;
+}
+
+.rung-timeline-button:active {
+    background-color: #003780;
+}
+
+.rung-timeline-button:disabled, .rung-timeline-button:disabled:hover {
+    background-color: #EFEFEF;
+    color: gray;
+}
+
 #rung-loading {
     position: absolute;
     top: 13px;

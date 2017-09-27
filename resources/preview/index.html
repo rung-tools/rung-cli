@@ -13,6 +13,11 @@
             <img src="./rung-logo.png" draggable="false" id="logo" />
         </div>
         <div id="rung-alerts"></div>
+        <div id="rung-timeline">
+            <button id="rung-timeline-prev" disabled class="rung-timeline-button">&lt;</button>
+            <div id="rung-timeline-count">0/0</div>
+            <button id="rung-timeline-next" disabled class="rung-timeline-button">&gt;</button>
+        </div>
         <div id="rung-loading">
             <div class="double-bounce-1"></div>
             <div class="double-bounce-2"></div>
@@ -55,13 +60,17 @@
         <div id="rung-error"></div>
     </body>
     <script type="text/javascript">
+        const timeline = [];
         const DOM = {
             sidebarComment: document.querySelector('#sidebar-comment'),
             markdownResources: document.querySelector('#markdown-resources'),
             sidebarCardName: document.querySelector('#sidebar-card-name'),
             rungAlerts: document.querySelector('#rung-alerts'),
             loading: document.querySelector('#rung-loading'),
-            error: document.querySelector('#rung-error')
+            error: document.querySelector('#rung-error'),
+            timelinePrev: document.querySelector('#rung-timeline-prev'),
+            timelineNext: document.querySelector('#rung-timeline-next'),
+            timelineCount: document.querySelector('#rung-timeline-count')
         };
 
         function openInSidebar(alert) {
@@ -72,8 +81,7 @@
             DOM.sidebarCardName.innerText = alert.title;
         }
 
-        const socket = io.connect('http://localhost:5001');
-        socket.on('update', alerts => {
+        function render(alerts) {
             const indexes = Object.keys(alerts);
             const [first] = indexes;
             openInSidebar(alerts[first]);
@@ -90,12 +98,46 @@
             });
 
             DOM.loading.style.opacity = 0;
-        });
+        }
 
+        function updateTimeline() {
+            const { peek } = timeline;
+            DOM.timelineCount.innerText = `${peek}/${timeline.length}`;
+
+            if (peek === 1) {
+                DOM.timelinePrev.setAttribute('disabled', true);
+            } else {
+                DOM.timelinePrev.removeAttribute('disabled');
+            }
+
+            if (peek >= timeline.length) {
+                DOM.timelineNext.setAttribute('disabled', true);
+            } else {
+                DOM.timelineNext.removeAttribute('disabled');
+            }
+        }
+
+        const timeTravel = functor => () => {
+            const { peek } = timeline;
+            const nextState = functor(peek);
+            timeline.peek = nextState;
+            updateTimeline();
+            render(timeline[nextState - 1]);
+        }
+
+        DOM.timelinePrev.onclick = timeTravel(time => time - 1);
+        DOM.timelineNext.onclick = timeTravel(time => time + 1);
+
+        const socket = io.connect('http://localhost:5001');
+        socket.on('update', alerts => {
+            timeline.push(alerts);
+            timeline.peek = timeline.length;
+            render(alerts);
+            updateTimeline();
+        });
         socket.on('load', () => {
             DOM.loading.style.opacity = 1;
         });
-
         socket.on('failure', error => {
             DOM.error.style.display = 'block';
             DOM.error.innerText = error;
