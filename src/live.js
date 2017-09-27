@@ -76,9 +76,13 @@ const compileMarkdown = alerts => {
 function watchChanges(io, params) {
     const folder = process.cwd();
     return watch(folder, { recursive: true }, () => {
+        emitInfo('changes detected. Recompiling...');
         io.sockets.emit('load');
         executeWithParams(params)
-            .then(alerts => io.sockets.emit('update', compileMarkdown(alerts)));
+            .then(alerts => io.sockets.emit('update', compileMarkdown(alerts)))
+            .catch(err => {
+                io.sockets.emit('failure', err.stack);
+            });
     });
 }
 

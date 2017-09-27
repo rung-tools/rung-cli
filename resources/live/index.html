@@ -139,6 +139,7 @@
         DOM.loading.style.opacity = 1;
     });
     socket.on('failure', error => {
+        DOM.loading.style.opacity = 0;
         DOM.error.style.display = 'block';
         DOM.error.innerText = error;
     });
