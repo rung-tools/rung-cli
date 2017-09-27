@@ -6,11 +6,9 @@ import {
     mapObjIndexed,
     mergeAll,
     prop,
-    values,
-    when
+    values
 } from 'ramda';
-import { Spinner } from 'cli-spinner';
-import { green } from 'colors/safe';
+import { State } from 'ramda-fantasy';
 import Table from 'cli-table';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
@@ -25,7 +23,7 @@ const percentOf = curry((value, percent) => value / 100 * percent);
 
 export const readFile = promisify(fs.readFile);
 
-function tableView(data) {
+function tableView(alerts) {
     const valuesFrom = mapObjIndexed(({ title, content = '', comment = '' }, key) =>
         [key, title, content, comment]) & values;
 
@@ -34,7 +32,7 @@ function tableView(data) {
         colWidths: [10, 20, 35, 26].map(percentOf(process.stdout.columns || 100) & Math.round)
     });
 
-    table.push(...valuesFrom(data.alerts));
+    table.push(...valuesFrom(alerts));
     return table.toString();
 }
 
@@ -43,22 +41,24 @@ export function compileSources() {
         .then(index => all([compileES6(index), compileModulesFromSource(index)]));
 }
 
-export default function run(args) {
-    const spinner = new Spinner(green('%s running extension...'));
-    spinner.setSpinnerString(8);
+export const GET_STATE = State.get.chain(state => {
+    console.log(state);
+});
 
-    return readFile('package.json', 'utf-8')
-        .then(JSON.parse)
-        .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
-        .spread((name, db, strings, locale) => compileSources()
-            .spread((source, modules) => getProperties({ name, source }, strings, modules)
-                .then(prop('params') & ask)
-                .then(mergeAll)
-                .tap(~spinner.start())
-                .then(params => runAndGetAlerts({ name, source },
-                    { params, db, locale, user }, strings, modules))))
-        .tap(~spinner.stop(true))
-        .tap(when(~args.live, live))
-        .then(when(~!args.raw, tableView))
-        .tap(when(~!args.live), console.log);
-}
+export default args => readFile('package.json', 'utf-8')
+    .then(JSON.parse)
+    .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
+    .spread((name, db, strings, locale) => compileSources()
+        .spread((source, modules) => getProperties({ name, source }, strings, modules)
+            .then(prop('params') & ask)
+            .then(mergeAll)
+            .then(params => all([
+                runAndGetAlerts({ name, source }, { params, db, locale, user }, strings, modules),
+                params
+            ]))))
+    .spread(({ alerts }, params) => {
+        if (args.live) {
+            return live(alerts, params);
+        }
+        console.log(args.raw ? alerts : tableView(alerts));
+    });

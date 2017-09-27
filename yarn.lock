@@ -1181,10 +1181,6 @@ cli-cursor@^2.1.0:
   dependencies:
     restore-cursor "^2.0.0"
 
-cli-spinner@^0.2.6:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/cli-spinner/-/cli-spinner-0.2.6.tgz#8a59703324e93a908f6e601e4e74f5b85b371e5c"
-
 cli-table@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/cli-table/-/cli-table-0.3.1.tgz#f53b05266a8b1a0b934b3d0821e6e2dc5914ae23"

@@ -67,11 +67,12 @@ const compileMarkdown = alerts => {
  * Starts the stream server using sockets
  *
  * @param {Object} alerts
+ * @param {Object} params
  * @param {Number} port
  * @param {Object} resources
  * @return {Promise}
  */
-function startServer(alerts, port, resources) {
+function startServer(alerts, params, port, resources) {
     const compiledAlerts = compileMarkdown(alerts);
     const app = http.createServer((req, res) =>
         res.end(resources[req.url] || resources['/index.html']));
@@ -92,6 +93,6 @@ function startServer(alerts, port, resources) {
  *
  * @return {Promise}
  */
-export default ({ alerts }) => getResources()
-    .tap(startServer(alerts, 5001, _))
+export default (alerts, params) => getResources()
+    .tap(startServer(alerts, params, 5001, _))
     .then(~opn('http://localhost:5001/'));
