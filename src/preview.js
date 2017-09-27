@@ -4,7 +4,7 @@ import http from 'http';
 import opn from 'opn';
 import { listen } from 'socket.io';
 import Promise, { promisify, props } from 'bluebird';
-import R, {
+import {
     has,
     join,
     lensProp,
@@ -79,13 +79,6 @@ function startServer(alerts, port, resources) {
     io.on('connection', socket => {
         emitInfo(`new session for ${socket.handshake.address}`);
         socket.emit('update', compiledAlerts);
-
-
-        setTimeout(() => {
-            const some = R.toPairs & R.take(5) & R.fromPairs
-            socket.emit('update', some(compiledAlerts));
-        }, 2000);
-
         socket.on('disconnect', () => {
             emitInfo(`disconnected session ${socket.handshake.address}`);
         });
