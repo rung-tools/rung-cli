@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>🔥 Rung CLI Hot Server 🔥</title>
+        <title>🔥 Rung CLI Hot Server</title>
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1">
         <script type="text/javascript" src="./socket.io.slim.js"></script>
@@ -78,7 +78,7 @@
             const [first] = indexes;
             openInSidebar(alerts[first]);
 
-            DOM.error.innerHTML = '';
+            DOM.error.style.display = 'none';
             DOM.rungAlerts.innerHTML = '';
             indexes.forEach(index => {
                 const alert = alerts[index];
@@ -97,6 +97,7 @@
         });
 
         socket.on('failure', error => {
+            DOM.error.style.display = 'block';
             DOM.error.innerText = error;
         });
     </script>
