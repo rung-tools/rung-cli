@@ -13,6 +13,10 @@
             <img src="./rung-logo.png" draggable="false" id="logo" />
         </div>
         <div id="rung-alerts"></div>
+        <div id="rung-loading">
+            <div class="double-bounce-1"></div>
+            <div class="double-bounce-2"></div>
+        </div>
         <div id="sidebar">
             <div id="sidebar-header">
                 <div id="sidebar-group-name">Rung Developers</div>
@@ -54,11 +58,12 @@
             sidebarComment: document.querySelector('#sidebar-comment'),
             markdownResources: document.querySelector('#markdown-resources'),
             sidebarCardName: document.querySelector('#sidebar-card-name'),
-            rungAlerts: document.querySelector('#rung-alerts')
+            rungAlerts: document.querySelector('#rung-alerts'),
+            loading: document.querySelector('#rung-loading')
         };
 
         const socket = io.connect('http://localhost:5001');
-        socket.on('start', alerts => {
+        socket.on('update', alerts => {
             const indexes = Object.keys(alerts);
             const [first] = indexes;
 
@@ -68,6 +73,7 @@
             ).join('');
             DOM.sidebarCardName.innerText = alerts[first].title;
 
+            DOM.rungAlerts.innerHTML = '';
             indexes.forEach(index => {
                 const alert = alerts[index];
                 const card = document.createElement('div');
@@ -77,7 +83,11 @@
                 DOM.rungAlerts.appendChild(card);
             });
 
-            console.log(alerts);
+            DOM.loading.style.opacity = 0;
+        });
+
+        socket.on('load', () => {
+            DOM.loading.style.opacity = 1;
         });
     </script>
 </html>
