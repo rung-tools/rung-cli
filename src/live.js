@@ -1,7 +1,9 @@
 import fs from 'fs';
+import process from 'process';
 import path from 'path';
 import http from 'http';
 import opn from 'opn';
+import watch from 'node-watch';
 import { listen } from 'socket.io';
 import Promise, { promisify, props } from 'bluebird';
 import {
@@ -15,7 +17,7 @@ import {
     when
 } from 'ramda';
 import { Converter } from 'showdown';
-import { readFile } from './run';
+import { executeWithParams, readFile } from './run';
 import { emitInfo } from './input';
 
 const readDirectory = promisify(fs.readdir);
@@ -64,6 +66,23 @@ const compileMarkdown = alerts => {
 };
 
 /**
+ * Watches folder for file changes, hot recompiling everything and notifying
+ * the clients
+ *
+ * @param {SocketIO} io
+ * @param {Object} params
+ * @return {Object}
+ */
+function watchChanges(io, params) {
+    const folder = process.cwd();
+    return watch(folder, { recursive: true }, () => {
+        io.sockets.emit('load');
+        executeWithParams(params)
+            .then(alerts => io.sockets.emit('update', compileMarkdown(alerts)));
+    });
+}
+
+/**
  * Starts the stream server using sockets
  *
  * @param {Object} alerts
@@ -84,7 +103,9 @@ function startServer(alerts, params, port, resources) {
             emitInfo(`disconnected session ${socket.handshake.address}`);
         });
     });
-    return new Promise(resolve => app.listen(port, emitRungEmoji & resolve));
+
+    return new Promise(resolve => app.listen(port, emitRungEmoji & resolve))
+        .then(~watchChanges(io, params));
 }
 
 /**

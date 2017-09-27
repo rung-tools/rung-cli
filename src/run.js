@@ -1,5 +1,4 @@
 import fs from 'fs';
-import os from 'os';
 import { all, promisify } from 'bluebird';
 import {
     curry,
@@ -8,7 +7,6 @@ import {
     prop,
     values
 } from 'ramda';
-import { State } from 'ramda-fantasy';
 import Table from 'cli-table';
 import { runAndGetAlerts, getProperties } from './vm';
 import { ask } from './input';
@@ -18,7 +16,6 @@ import { getLocale, getLocaleStrings } from './i18n';
 import { compileModulesFromSource } from './module';
 import live from './live';
 
-const user = { name: os.userInfo().username };
 const percentOf = curry((value, percent) => value / 100 * percent);
 
 export const readFile = promisify(fs.readFile);
@@ -41,9 +38,18 @@ export function compileSources() {
         .then(index => all([compileES6(index), compileModulesFromSource(index)]));
 }
 
-export const GET_STATE = State.get.chain(state => {
-    console.log(state);
-});
+/**
+ * Executes a function with the provided parameters
+ *
+ * @param {Object} params
+ */
+export const executeWithParams = params => readFile('package.json', 'utf-8')
+    .then(JSON.parse)
+    .then(({ name }) => all([name, read(name), getLocaleStrings(), getLocale()]))
+    .spread((name, db, strings, locale) => compileSources()
+        .spread((source, modules) => runAndGetAlerts(
+            { name, source }, { params, db, locale }, strings, modules)))
+    .get('alerts');
 
 export default args => readFile('package.json', 'utf-8')
     .then(JSON.parse)
@@ -53,7 +59,7 @@ export default args => readFile('package.json', 'utf-8')
             .then(prop('params') & ask)
             .then(mergeAll)
             .then(params => all([
-                runAndGetAlerts({ name, source }, { params, db, locale, user }, strings, modules),
+                runAndGetAlerts({ name, source }, { params, db, locale }, strings, modules),
                 params
             ]))))
     .spread(({ alerts }, params) => {
