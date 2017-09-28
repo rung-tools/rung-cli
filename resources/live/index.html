@@ -128,7 +128,7 @@
     DOM.timelinePrev.onclick = timeTravel(time => time - 1);
     DOM.timelineNext.onclick = timeTravel(time => time + 1);
 
-    const socket = io.connect('http://localhost:5001');
+    const socket = io.connect(`${location.origin}:5001${location.pathname}`);
     socket.on('update', alerts => {
         timeline.push(alerts);
         timeline.peek = timeline.length;

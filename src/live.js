@@ -126,4 +126,10 @@ function startServer(alerts, params, port, resources) {
  */
 export default (alerts, params) => getResources()
     .tap(startServer(alerts, params, 5001, _))
-    .then(~opn('http://localhost:5001/'));
+    .tap(() => {
+        try {
+            opn('http://localhost:5001/');
+        } catch (err) {
+            // Skip
+        }
+    });
