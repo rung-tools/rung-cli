@@ -1,20 +1,7 @@
 import process from 'process';
+import http from 'http';
 import { expect } from 'chai';
-import {
-    complement,
-    contains,
-    find,
-    identity,
-    isNil,
-    match,
-    nth,
-    split,
-    tryCatch,
-    when
-} from 'ramda';
-import { Maybe } from 'ramda-fantasy';
 import Promise from 'bluebird';
-import jsonServer from 'json-server';
 import work, { keepCalm, keyboard } from './salete';
 
 const FAKE_SERVER_PORT = 3666;
@@ -34,39 +21,22 @@ const publish = (args = [], env = {}) => ({
  * Prepares and starts a fake server to publication
  */
 function prepareRungServer() {
-    const server = jsonServer.create();
-    const middlewares = jsonServer.defaults({
-        logger: false
+    const server = http.createServer((req, res) => {
+        if (req.method !== 'POST') {
+            res.writeHead(404);
+            return res.end();
+        }
+
+        const routes = {
+            '/login': ~res.writeHead(200),
+            '/metaExtensions': ~res.writeHead(201)
+        };
+
+        routes[req.url]();
+        return res.end();
     });
 
-    server.use(middlewares);
-    server.post('/login', (req, res) => {
-        res.sendStatus(200);
-    });
-    server.post('/metaExtensions', (req, res) => {
-        res.sendStatus(201);
-    });
     return new Promise(server.listen(FAKE_SERVER_PORT, _));
-}
-
-/**
- * Finds the running fake server pid and kills it
- */
-function killRungServer() {
-    if (!/linux/.test(process.platform)) {
-        return;
-    }
-
-    return work({ runs: ['/bin/netstat', '-anp'] })
-        .then(output => {
-            const pid = output
-                | split('\n')
-                | find(contains(`:${FAKE_SERVER_PORT}`))
-                | when(complement(isNil), match(/(\d+)\/nodejs/) & nth(1))
-                | Maybe.of;
-
-            pid.chain(tryCatch(parseInt(_, 10) & process.kill, identity));
-        });
 }
 
 export default () => {
@@ -108,8 +78,5 @@ export default () => {
             });
     }).timeout(keepCalm(120));
 
-    after(() => {
-        process.chdir('..');
-        return killRungServer();
-    });
+    after(~process.chdir('..'));
 };

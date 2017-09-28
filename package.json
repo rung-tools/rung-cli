@@ -68,7 +68,6 @@
     "chai-json-schema": "1.5.0",
     "codecov": "^2.2.0",
     "concat-stream": "1.6.0",
-    "json-server": "^0.12.0",
     "mocha": "^3.4.2",
     "nyc": "^11.0.3",
     "xo": "^0.18.2"
