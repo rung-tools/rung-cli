@@ -29,7 +29,7 @@ function prepareRungServer() {
 
         const routes = {
             '/login': ~res.writeHead(200),
-            '/metaExtensions': ~res.writeHead(201)
+            '/metaExtensions/draft': ~res.writeHead(201)
         };
 
         routes[req.url]();
@@ -56,7 +56,7 @@ export default () => {
 
     it('should at least try to reference a *.rung binary to upload to another api', () => {
         return work(
-            publish(['--file=salete-hello-world.rung', '--private']), {
+            publish(['--file=salete-hello-world.rung']), {
                 RUNG_API: 'http://35.165.157.18/api'
             })
             .then(output => {
