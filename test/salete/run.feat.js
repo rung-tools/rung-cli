@@ -23,10 +23,9 @@ export default () => {
             .then(output => {
                 expect(output).to.contain('What is your name?');
                 expect(output).to.contain([
-                    'alerts: ',
-                    '   [ { title: \'Welcome\',',
-                    '       content: \'<b>Hello Salete</b>\',',
-                    '       resources: [] } ]'
+                    '[ { title: \'Welcome\',',
+                    '    content: \'<b>Hello Salete</b>\',',
+                    '    resources: [] } ]'
                 ] | join('\n'));
             });
     }).timeout(keepCalm(20));
