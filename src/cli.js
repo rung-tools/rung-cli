@@ -37,12 +37,12 @@ cli(yargs
         describe: 'Where to save the built package',
         type: 'string'
     })
-    .option('private', {
-        describe: 'If it is a private extension',
-        type: 'boolean'
-    })
     .option('raw', {
         describe: 'Display returned data as it is',
+        type: 'boolean'
+    })
+    .option('live', {
+        describe: 'Live mode',
         type: 'boolean'
     })
     .option('file', {

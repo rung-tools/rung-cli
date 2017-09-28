@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { compileClosure } from '../../src/autocomplete';
+import { keys } from 'ramda';
+import getAutocompleteSources, { compileClosure } from '../../src/autocomplete';
 
 const sourceLogic = `lib
     .request.get('https://raw.githubusercontent.com/BrunnerLivio/PokemonDataGraber/master/output.json')
@@ -25,6 +26,14 @@ export default function ({ input, lib }, done) {
 `;
 
 export default () => {
+    it('should return empty object when there is no autocomplete folder', () => {
+        return getAutocompleteSources()
+            .then(object => {
+                expect(object).to.be.an('object');
+                expect(keys(object)).have.lengthOf(0);
+            });
+    });
+
     it('should refuse compiling a non-function', () => {
         expect(~compileClosure('failure', 'export default 1;')).to.throw(TypeError);
     });

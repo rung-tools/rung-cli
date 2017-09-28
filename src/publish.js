@@ -35,12 +35,11 @@ function fetchRungApi() {
  * Publishes a Rung package from a file
  *
  * @param {String} api
- * @param {Boolean} isPrivate
  * @param {String} filename
  * @return {Promise}
  */
-const publishFile = curry((api, isPrivate, filename) =>
-    request.post(`${api}/metaExtensions${isPrivate ? '/private' : ''}`)
+const publishFile = curry((api, filename) =>
+    request.post(`${api}/metaExtensions/draft`)
         .attach('metaExtension', filename)
         .then(~rm(filename)));
 
@@ -69,7 +68,7 @@ export default function publish(args) {
         { name: 'password', type: 'password', message: 'Rung password' }])
         .then(payload => payload | request.post(`${api}/login`).send)
         .then(~resolveInputFile(args))
-        .then(publishFile(api, args.private))
+        .then(publishFile(api))
         .catch(err => {
             emitError(err.message);
         });

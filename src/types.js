@@ -1,6 +1,6 @@
 import {
-    __,
     T,
+    __,
     all,
     allPass,
     clamp,
@@ -10,6 +10,7 @@ import {
     evolve,
     gte,
     identity,
+    is,
     length,
     lte,
     map,
@@ -20,6 +21,7 @@ import {
     take,
     tryCatch,
     unary,
+    unless,
     values
 } from 'ramda';
 import { isEmail, isHexColor, isURL } from 'validator';
@@ -83,6 +85,6 @@ export const filter = {
     Char: take,
     Double: parseFloat,
     Integer: parseInt(_, 10),
-    IntegerMultiRange: split(' ') & map(parseInt(_, 10)),
+    IntegerMultiRange: unless(is(Array), split(' ') & map(parseInt(_, 10))),
     Money: tryCatch(replace(',', '.') & parseFloat, ~NaN)
 };

@@ -16,8 +16,7 @@ import {
     multiply,
     remove as removeAt,
     split,
-    takeWhile,
-    when
+    takeWhile
 } from 'ramda';
 
 export const request = promisifyAgent(agent, Promise);
@@ -114,7 +113,8 @@ export default function salete({
         task.stdin.end();
     };
 
-    eventLoop(does);
-    return new Promise(concatStream & task.stdout.pipe)
-        .then(when(~clear, clearAnsiEscapes));
+    return new Promise(resolve => {
+        eventLoop(does);
+        return resolve | concatStream | task.stdout.pipe;
+    });
 }
