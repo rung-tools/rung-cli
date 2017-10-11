@@ -29,7 +29,7 @@ function prepareRungServer() {
 
         const routes = {
             '/login': ~res.writeHead(200),
-            '/metaExtensions/draft': ~res.writeHead(201)
+            '/metaExtensions/drafts': ~res.writeHead(201)
         };
 
         routes[req.url]();
