@@ -41,7 +41,7 @@ This will make the command `rung` available globally.
 | `build`       | Generate a .rung package |
 | `run`         | Execute the current extension |
 | `publish`     | Publish extension to store |
-| `boilerplate` | Generat boilerplate code for the extension |
+| `boilerplate` | Generate boilerplate code for the extension |
 | `readme`      | Generate the README.md file to publish |
 | `db read`     | Read from extension database |
 | `db clear`    | Drop extension database |
