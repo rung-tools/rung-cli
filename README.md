@@ -20,7 +20,7 @@ This will make the command `rung` available globally.
 
 ## Documentation
 
-You can checkout the last docs in [this link](http://rung.readthedocs.io/en/latest/)
+You can checkout the last docs in [this link](http://rung.readthedocs.io/en/latest/)!
 
 ## Features
 
