@@ -18,6 +18,10 @@ Command line tools for Rung
 
 This will make the command `rung` available globally.
 
+## Documentation
+
+You can checkout the last docs in [this link](http://rung.readthedocs.io/en/latest/)!
+
 ## Features
 
 - Create blank extensions
@@ -26,6 +30,8 @@ This will make the command `rung` available globally.
 - Publish extensions to Rung Store (public and private)
 - Generate boilerplate code for extension
 - Generate README.md file to publish
+- Test autocomplete directly in the terminal
+- Hot reloading and live development
 
 ## Usage
 
@@ -38,9 +44,9 @@ This will make the command `rung` available globally.
 |---------------|-------------|
 | `build`       | Generate a .rung package |
 | `run`         | Execute the current extension |
-| `publish`     | Publishes extension to store |
-| `boilerplate` | Generates boilerplate code for the extension |
-| `readme`      | Generates the README.md file to publish |
+| `publish`     | Publish extension to store |
+| `boilerplate` | Generate boilerplate code for the extension |
+| `readme`      | Generate the README.md file to publish |
 | `db read`     | Read from extension database |
 | `db clear`    | Drop extension database |
 
@@ -52,3 +58,4 @@ This will make the command `rung` available globally.
 | `--version`      | Displays versions |
 | `--private`      | If set, extension is published for current user only |
 | `--raw`          | Displays returned alerts outside a table |
+| `--live`         | With `run`, starts hot compiling and preview on browser |

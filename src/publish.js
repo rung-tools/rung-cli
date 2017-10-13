@@ -39,7 +39,7 @@ function fetchRungApi() {
  * @return {Promise}
  */
 const publishFile = curry((api, filename) =>
-    request.post(`${api}/metaExtensions/draft`)
+    request.post(`${api}/metaExtensions/drafts`)
         .attach('metaExtension', filename)
         .then(~rm(filename)));
 
