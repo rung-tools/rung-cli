@@ -148,10 +148,10 @@ const readFile = promisify(fs.readFile);
  * @param {Object} answers
  * @return {Promise}
  */
-const openFiles = curry((fields, answers) => answers
-    | mapObjIndexed((value, key) => value
+const openFiles = fields =>
+    mapObjIndexed((value, key) => value
         | when(~contains(key, fields), concat(process.cwd() + '/') & readFile))
-    | props);
+    & props;
 
 /**
  * Returns the pure JS values from received questions that will be answered
