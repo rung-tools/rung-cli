@@ -150,9 +150,7 @@ const readFile = promisify(fs.readFile);
  */
 const openFiles = curry((fields, answers) => answers
     | mapObjIndexed((value, key) => value
-        | when(~contains(key, fields), filePath => filePath
-            | concat(process.cwd() + '/')
-            | readFile))
+        | when(~contains(key, fields), concat(process.cwd() + '/') & readFile))
     | props);
 
 /**
