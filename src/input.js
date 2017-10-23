@@ -149,8 +149,8 @@ const readFile = promisify(fs.readFile);
  * @return {Promise}
  */
 const openFiles = fields =>
-    mapObjIndexed((value, key) => value
-        | when(~contains(key, fields), concat(process.cwd() + '/') & readFile))
+    mapObjIndexed((value, param) => value
+        | when(~contains(param, fields), concat(process.cwd() + '/') & readFile))
     & props;
 
 /**
