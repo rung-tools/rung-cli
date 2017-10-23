@@ -46,6 +46,7 @@ export const AutoComplete = { name: 'AutoComplete' };
 export const Location = { name: 'Location' };
 export const SelectBox = values => ({ name: 'SelectBox', values });
 export const MultiSelectBox = values => ({ name: 'MultiSelectBox', values });
+export const File = ({ name: 'File' });
 
 /**
  * Returns the human-readable name of a type

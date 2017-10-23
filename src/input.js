@@ -1,3 +1,4 @@
+import process from 'process';
 import { resolve } from 'bluebird';
 import {
     T,
@@ -91,7 +92,8 @@ const components = {
         choices: objectToChoices(values) }),
     MultiSelectBox: ({ values }) => ({
         type: 'checkbox',
-        choices: objectToChoices(values) })
+        choices: objectToChoices(values) }),
+    File: ~{ type: 'filePath', basePath: process.cwd() }
 };
 
 /**
@@ -142,11 +144,13 @@ export function ask(questions) {
     const DatePickerPrompt = require('inquirer-datepicker-prompt');
     const ChalkPipe = require('inquirer-chalk-pipe');
     const AutocompletePrompt = require('inquirer-autocomplete-prompt');
+    const FilePath = require('inquirer-file-path');
 
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
     prompt.registerPrompt('autocomplete', AutocompletePrompt);
+    prompt.registerPrompt('filePath', FilePath);
     return getAutocompleteSources()
         .then(autocompleteSources => questions
             | toPairs
