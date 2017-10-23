@@ -1,17 +1,24 @@
-import { resolve } from 'bluebird';
+import process from 'process';
+import fs from 'fs';
+import { promisify, props, resolve } from 'bluebird';
 import {
     T,
     __,
     assoc,
     concat,
     cond,
+    contains,
     curry,
+    filter as filterWhere,
     has,
     keys,
     map,
+    mapObjIndexed,
     merge,
+    pathEq,
     reduce,
-    toPairs
+    toPairs,
+    when
 } from 'ramda';
 import { cyan, green, red, yellow } from 'colors/safe';
 import { createPromptModule } from 'inquirer';
@@ -91,7 +98,8 @@ const components = {
         choices: objectToChoices(values) }),
     MultiSelectBox: ({ values }) => ({
         type: 'checkbox',
-        choices: objectToChoices(values) })
+        choices: objectToChoices(values) }),
+    File: ~{ type: 'filePath', basePath: process.cwd() }
 };
 
 /**
@@ -131,6 +139,20 @@ const toInquirerQuestion = curry((sources, [name, config]) => {
         | merge(__, { name }), component(config.type));
 });
 
+const readFile = promisify(fs.readFile);
+
+/**
+ * Opens the provided files and returns them as node buffers
+ *
+ * @param {String[]} fields
+ * @param {Object} answers
+ * @return {Promise}
+ */
+const openFiles = fields =>
+    mapObjIndexed((value, param) => value
+        | when(~contains(param, fields), concat(process.cwd() + '/') & readFile))
+    & props;
+
 /**
  * Returns the pure JS values from received questions that will be answered
  *
@@ -142,14 +164,20 @@ export function ask(questions) {
     const DatePickerPrompt = require('inquirer-datepicker-prompt');
     const ChalkPipe = require('inquirer-chalk-pipe');
     const AutocompletePrompt = require('inquirer-autocomplete-prompt');
+    const FilePath = require('inquirer-file-path');
+    const fileFields = questions
+        | filterWhere(pathEq(['type', 'name'], 'File'))
+        | keys;
 
     const prompt = createPromptModule();
     prompt.registerPrompt('datetime', DatePickerPrompt);
     prompt.registerPrompt('chalk-pipe', ChalkPipe);
     prompt.registerPrompt('autocomplete', AutocompletePrompt);
+    prompt.registerPrompt('filePath', FilePath);
     return getAutocompleteSources()
         .then(autocompleteSources => questions
             | toPairs
             | map(toInquirerQuestion(autocompleteSources))
-            | prompt);
+            | prompt)
+        .then(openFiles(fileFields));
 }
