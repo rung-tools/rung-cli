@@ -50,3 +50,6 @@ coverage.lcov
 
 # Salete tests
 salete-hello-world
+
+# Eslint cache
+.eslintcache
