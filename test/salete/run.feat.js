@@ -50,7 +50,7 @@ export default () => {
         const deadline = delay(20000);
 
         return race([deadline, work(run(['--live']))])
-            .then(result => request.get('http://localhost:5001'))
+            .then(~request.get('http://localhost:5001'))
             .then(({ text }) => {
                 expect(text).to.contain('Rung CLI Hot Server');
             });
