@@ -7,7 +7,13 @@
     "rung": "./dist/cli.js"
   },
   "repository": "https://github.com/nginformatica/rung-cli.git",
-  "author": "Marcelo Camargo <marcelocamargo@linuxmail.org>",
+  "author": "Rung team <developer@rung.com.br>",
+  "contributors": [
+    "Larissa Thaís de Farias <larissathasdefar@gmail.com>",
+    "Marcelo Camargo <marcelocamargo@linuxmail.org>",
+    "Paulo Henrique Cuchi <paulo.cuchi@gmail.com>",
+    "William Rozin Gaspar <williamrozingaspar@gmail.com>"
+  ],
   "license": "MIT",
   "scripts": {
     "start": "node ./dist/index.js",
