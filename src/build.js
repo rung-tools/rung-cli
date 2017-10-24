@@ -234,10 +234,11 @@ const createZip = curry((dir, files) => {
 function resolveOutputTarget(customPath, filename) {
     const realPath = path.resolve('.', customPath);
 
-    const getPath = tryCatch(realPath => fs.lstatSync(realPath).isDirectory()
-        ? path.join(realPath, filename)
-        : realPath
-    , identity);
+    const getPath = tryCatch(
+        realPath => fs.lstatSync(realPath).isDirectory()
+            ? path.join(realPath, filename)
+            : realPath,
+        identity);
 
     return getPath(realPath);
 }
