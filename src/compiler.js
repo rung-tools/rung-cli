@@ -1,15 +1,11 @@
 import dasherize from 'dasherize';
 import {
-    T,
-    always,
-    cond,
+    __,
     contains,
     equals,
-    identity,
     ifElse,
     join,
     map,
-    pipe,
     toPairs,
     type,
     unary,
@@ -23,12 +19,10 @@ import { transform } from 'babel-core';
  * @param {Object} obj
  * @return {String}
  */
-const compileCSS = pipe(
-    toPairs,
-    map(([key, value]) => `${dasherize(key)}:${value}`),
-    join(';'),
-    JSON.stringify
-);
+const compileCSS = toPairs
+    & map(([key, value]) => `${dasherize(key)}:${value}`)
+    & join(';')
+    & JSON.stringify;
 
 /**
  * Generates HTML string for element properties
@@ -37,16 +31,14 @@ const compileCSS = pipe(
  * @return {String}
  */
 function compileProps(props) {
-    const transformKey = when(equals('className'), always('class'));
-    const transformValue = ifElse(item => type(item) === 'Object',
+    const transformKey = when(equals('className'), ~'class');
+    const transformValue = ifElse(type & equals('Object'),
         compileCSS, unary(JSON.stringify));
 
-    const stringify = pipe(
-        toPairs,
-        map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`),
-        join(' ')
-    );
-    const result = stringify(props);
+    const result = props
+        | toPairs
+        | map(([key, value]) => `${transformKey(key)}=${transformValue(value)}`)
+        | join(' ');
 
     return result.length === 0 ? '' : ` ${result}`;
 }
@@ -75,17 +67,8 @@ function compileSelfClosingTag(tag, props) {
  * @return {String}
  */
 export function compileHTML(tag, props, ...children) {
-    const filteredTag = cond([
-        [equals('script'), always('span')],
-        [equals('style'), always('span')],
-        [T, identity]
-    ])(tag);
-
-    const render = cond([
-        [item => type(item) === 'Array', join('')],
-        [T, identity]
-    ]);
-
+    const filteredTag = tag | when(contains(__, ['style', 'script']), ~'span');
+    const render = when(type & equals('Array'), join(''));
     return children.length === 0
         ? compileSelfClosingTag(filteredTag, props)
         : `<${filteredTag}${compileProps(props)}>${children.map(render).join('')}</${filteredTag}>`;

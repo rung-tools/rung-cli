@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { __require, getProperties, runAndGetAlerts } from '../src/vm';
+import { getProperties, runAndGetAlerts } from '../../src/vm';
 
-describe('vm.js', () => {
+export default () => {
     describe('Virtual machine runtime', () => {
         it('should get the config of an extension', () => {
             const source = `module.exports = { default:
@@ -10,12 +10,12 @@ describe('vm.js', () => {
 
             return getProperties({ name: 'test-config', source })
                 .then(result => {
-                    expect(result).property('primaryKey').to.be.true;
+                    void expect(result).property('primaryKey').to.be.true;
                 });
         });
 
         it('should get the alerts of a synchronous extension', () => {
-            const source = 'module.exports = { extension: ctx => ([`Hello, ${ctx.name}!`]) };';
+            const source = 'module.exports = { extension: ctx => ([\'Hello, \' + ctx.name + \'!\']) };';
 
             return runAndGetAlerts({ name: 'test-alerts', source }, { name: 'Marcelo' })
                 .then(alerts => {
@@ -58,7 +58,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-process-exit', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {
@@ -78,7 +78,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-filesystem-access', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {
@@ -94,7 +94,7 @@ describe('vm.js', () => {
             `;
 
             return runAndGetAlerts({ name: 'test-ext-type', source }, {})
-                .then(alerts => {
+                .then(() => {
                     throw new Error('Should not fall here');
                 })
                 .catch(err => {
@@ -102,4 +102,4 @@ describe('vm.js', () => {
                 });
         });
     });
-});
+};

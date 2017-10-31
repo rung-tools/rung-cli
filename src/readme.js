@@ -47,10 +47,11 @@ function dependenciesToArray(dependencies) {
  * @return {Array}
  */
 function parametersToArray(parameters) {
-    return zipWith((name, { type, description }) => ({
-        name,
-        type: getTypeName(type),
-        description }),
+    return zipWith(
+        (name, { type, description }) => ({
+            name,
+            type: getTypeName(type),
+            description }),
         keys(parameters),
         values(parameters));
 }
@@ -64,13 +65,14 @@ function parametersToArray(parameters) {
 export default function readme() {
     return readFile('package.json', 'utf-8')
         .then(JSON.parse)
-        .then(({ name, version, author, dependencies }) => all([{
-            rungCliVersion,
-            name,
-            version,
-            author,
-            escapedName: replace(/-/g, '--', name),
-            dependencies: dependenciesToArray(dependencies) },
+        .then(({ name, version, author, dependencies }) =>
+            all([{
+                rungCliVersion,
+                name,
+                version,
+                author,
+                escapedName: replace(/-/g, '--', name),
+                dependencies: dependenciesToArray(dependencies) },
             compileSources()
                 .spread((source, modules) =>
                     getProperties({ name: 'pre-compile', source: compileES6(source) }, {}, modules))]))
@@ -81,6 +83,6 @@ export default function readme() {
         }))
         .then(context => all([context, getHandlebarsTemplate()]))
         .spread((context, generateReadme) => generateReadme(context))
-        .then(content => createFile('README.md', content))
-        .tap(() => emitSuccess('generated README.md'));
+        .then(createFile('README.md', _))
+        .tap(~emitSuccess('generated README.md'));
 }

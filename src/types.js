@@ -1,15 +1,29 @@
 import {
     T,
-    any,
+    __,
+    all,
+    allPass,
+    clamp,
+    complement,
     cond,
-    contains,
-    prop,
+    equals,
+    evolve,
+    gte,
+    identity,
+    is,
+    length,
+    lte,
+    map,
+    none,
     propEq,
     replace,
     split,
-    take
+    take,
+    tryCatch,
+    unary,
+    unless,
+    values
 } from 'ramda';
-import { Just, Nothing } from 'data.maybe';
 import { isEmail, isHexColor, isURL } from 'validator';
 
 export const Integer = { name: 'Integer' };
@@ -29,6 +43,10 @@ export const Url = { name: 'Url' };
 export const IntegerMultiRange = (from, to) => ({ name: 'IntegerMultiRange', from, to });
 export const Calendar = { name: 'Calendar' };
 export const AutoComplete = { name: 'AutoComplete' };
+export const Location = { name: 'Location' };
+export const SelectBox = values => ({ name: 'SelectBox', values });
+export const MultiSelectBox = values => ({ name: 'MultiSelectBox', values });
+export const File = ({ name: 'File' });
 
 /**
  * Returns the human-readable name of a type
@@ -42,77 +60,32 @@ export const getTypeName = cond([
     [propEq('name', 'IntegerRange'), t => `IntegerRange(${t.from}, ${t.to})`],
     [propEq('name', 'DoubleRange'), t => `DoubleRange(${t.from}, ${t.to})`],
     [propEq('name', 'OneOf'), t => `OneOf([${t.values.join(', ')}])`],
-    [T, prop('name')]
+    [propEq('name', 'SelectBox'), t => `SelectBox(${JSON.stringify(t.values)})`],
+    [propEq('name', 'IntegerMultiRange'), t => `IntegerMultiRange(${t.from}, ${t.to})`],
+    [propEq('name', 'MultiSelectBox'), t => `MultiSelectBox(${JSON.stringify(t.values)})`],
+    [T, _.name]
 ]);
 
-// Type validators
-export const valueOrNothing = {
-    Integer: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) ? Nothing() : Just(intValue);
-    },
-    Double: input => {
-        const doubleValue = parseFloat(input);
-        return isNaN(doubleValue) ? Nothing() : Just(doubleValue);
-    },
-    DateTime: input => {
-        const date = new Date(input);
-        return isNaN(date.getMilliseconds()) ? Nothing() : Just(date);
-    },
-    Natural: input => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) || intValue < 0 ? Nothing() : Just(intValue);
-    },
-    Char: (input, { length }) => {
-        return Just(take(length, input));
-    },
-    IntegerRange: (input, { from, to }) => {
-        const intValue = parseInt(input, 10);
-        return isNaN(intValue) || intValue < from || intValue > to ? Nothing() : Just(intValue);
-    },
-    DoubleRange: (input, { from, to }) => {
-        const doubleValue = parseFloat(input);
-        return isNaN(doubleValue) || doubleValue < from || doubleValue > to ? Nothing() : Just(doubleValue);
-    },
-    Money: input => {
-        const money = parseFloat(replace(',', '.', input));
-        return isNaN(money) ? Nothing() : Just(money);
-    },
-    String: Just,
-    AutoComplete: Just,
-    Color: input => isHexColor(input) ? Just(input) : Nothing(),
-    Email: input => isEmail(input) ? Just(input) : Nothing(),
-    Checkbox: input => {
-        const lowerCaseInput = input.toLowerCase();
-        return contains(lowerCaseInput, ['y', 'n']) ? Just(lowerCaseInput === 'y') : Nothing();
-    },
-    OneOf: (input, { values }) => contains(input, values) ? Just(input) : Nothing(),
-    Url: input => isURL(input) ? Just(input) : Nothing(),
-    IntegerMultiRange: (input, { from, to }) => {
-        const [left, right] = split(' ', input).map(item => parseInt(item, 10));
-        if (any(isNaN, [left, right]) || left < from || right > to || left > right) {
-            return Nothing();
-        }
-
-        return Just([left, right]);
-    },
-    Calendar: input => {
-        // Default JS date constructor because MomentJS sucks for validation
-        const date = new Date(input);
-        return date.toString() === 'Invalid Date'
-            ? Nothing()
-            : Just(date);
-    }
+export const validator = {
+    Color: isHexColor,
+    Double: complement(isNaN),
+    Email: unary(isEmail),
+    Integer: complement(isNaN),
+    IntegerMultiRange: (from, to) => allPass([
+        length & equals(2),
+        none(isNaN),
+        evolve([gte(__, from), lte(__, to)]) & values & all(identity)]),
+    Money: complement(isNaN),
+    Natural: lte(0),
+    Range: (from, to) => clamp(from, to, _) === _,
+    Url: unary(isURL)
 };
 
-/**
- * Returns the literal value by receiving the string input, the type and the
- * default value
- *
- * @author Marcelo Haskell Camargo
- * @param {String} input - The original string value
- * @param {Object} type - Type of the value to be casted
- * @param {Mixed} def - The value that may be taken in case of error. Null on error
- */
-export const cast = (input, type) =>
-    valueOrNothing[type.name](input, type).getOrElse(null);
+export const filter = {
+    Calendar: date => new Date(date),
+    Char: take,
+    Double: parseFloat,
+    Integer: parseInt(_, 10),
+    IntegerMultiRange: unless(is(Array), split(' ') & map(parseInt(_, 10))),
+    Money: tryCatch(replace(',', '.') & parseFloat, ~NaN)
+};

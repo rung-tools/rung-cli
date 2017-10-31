@@ -1,30 +1,25 @@
 #!/usr/bin/env node
-
 import yargs from 'yargs';
-import { head, pipe, cond, equals, prop } from 'ramda';
-import { emitError } from './input';
-import build from './build';
-import run from './run';
-import publish from './publish';
-import boilerplate from './boilerplate';
-import readme from './readme';
-import db from './db';
+import { concat, memoize } from 'ramda';
 
-const commandEquals = value => pipe(prop('_'), head, equals(value));
+/**
+ * Lazy loading and cache of an internal ES6 module
+ *
+ * @param {String} module - Module to evaluate
+ * @return {*}
+ */
+const getModule = memoize(concat('./') & require);
 
-const executeCommand = cond([
-    [commandEquals('build'), build],
-    [commandEquals('run'), run],
-    [commandEquals('publish'), publish],
-    [commandEquals('boilerplate'), boilerplate],
-    [commandEquals('readme'), readme],
-    [commandEquals('db'), db]
-]);
-
+/**
+ * Entry point of Rung CLI
+ *
+ * @param {Object} args
+ */
 function cli(args) {
-    executeCommand(args)
+    const { _: [command] } = args;
+    return getModule(command).default(args)
         .catch(err => {
-            emitError(err.message);
+            getModule('input').emitError(err.message);
             process.exit(1);
         });
 }
@@ -42,13 +37,17 @@ cli(yargs
         describe: 'Where to save the built package',
         type: 'string'
     })
-    .option('private', {
-        describe: 'If it is a private extension',
-        type: 'boolean'
-    })
     .option('raw', {
         describe: 'Display returned data as it is',
         type: 'boolean'
+    })
+    .option('live', {
+        describe: 'Live mode',
+        type: 'boolean'
+    })
+    .option('file', {
+        describe: 'File to publish to Rung Store',
+        type: 'string'
     })
     .strict()
     .demandCommand(1)

@@ -1,21 +1,37 @@
-import readline from 'readline';
-import Promise, { resolve, promisify } from 'bluebird';
+import process from 'process';
+import fs from 'fs';
+import { promisify, props, resolve } from 'bluebird';
 import {
-    both,
+    T,
+    __,
+    assoc,
     concat,
+    cond,
+    contains,
     curry,
+    filter as filterWhere,
     has,
-    is,
-    isNil,
     keys,
+    map,
     mapObjIndexed,
-    pipe,
-    propEq,
-    toPairs
+    merge,
+    pathEq,
+    reduce,
+    toPairs,
+    when
 } from 'ramda';
-import { blue, green, red, yellow } from 'colors/safe';
-import read from 'read';
-import { getTypeName, cast } from './types';
+import { cyan, green, red, yellow } from 'colors/safe';
+import { createPromptModule } from 'inquirer';
+import { validator, filter } from './types';
+import getAutocompleteSources, { compileClosure } from './autocomplete';
+
+/**
+ * Emits an info message to stdout
+ *
+ * @param {String} message
+ * @return {Promise}
+ */
+export const emitInfo = concat(' ℹ Info: ') & cyan & console.log & resolve;
 
 /**
  * Emits a warning to stdout
@@ -23,10 +39,7 @@ import { getTypeName, cast } from './types';
  * @param {String} message
  * @return {Promise}
  */
-export function emitWarning(message) {
-    console.log(yellow(` ⚠ Warning: ${message}`));
-    return resolve();
-}
+export const emitWarning = concat(' ⚠ Warning: ') & yellow & console.log & resolve;
 
 /**
  * Emits an error to stdout
@@ -34,10 +47,7 @@ export function emitWarning(message) {
  * @param {String} message
  * @return {Promise}
  */
-export function emitError(message) {
-    console.log(red(` ✗ Error: ${message}`));
-    return resolve();
-}
+export const emitError = concat(' ✗ Error: ') & red & console.log & resolve;
 
 /**
  * Emits a success message
@@ -45,76 +55,103 @@ export function emitError(message) {
  * @param {String} message
  * @return {Promise}
  */
-export function emitSuccess(message) {
-    console.log(green(` ✔ Success: ${message}`));
-    return resolve();
-}
+export const emitSuccess = concat(' ✔ Success: ') & green & console.log & resolve;
 
 /**
- * Returns an IO object that promisifies everything that is necessary and exposes
- * a clear API
+ * Renames the keys of an object
  *
- * @author Marcelo Haskell Camargo
- * @return {Object}
+ * @sig {a: b} -> {a: *} -> {b: *}
  */
-export function IO() {
-    const io = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
+const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
+    assoc(keysMap[key] || key, obj[key], acc), {}, keys(obj)));
 
-    return {
-        read: promisify((text, callback) => {
-            io.question(`${text}: `, callback.bind(null, null));
-        }),
-        close: io.close.bind(io),
-        password: promisify((text, callback) => {
-            io.close();
-            read({ prompt: `${text}: `, silent: true, replace: '*' }, callback);
-        })
-    };
-}
+const objectToChoices = toPairs & map(([value, name]) => ({ name, value }));
+
+const components = {
+    Calendar: ~{
+        type: 'datetime',
+        format: ['m', '/', 'd', '/', 'yy'],
+        filter: filter.Calendar },
+    Char: ({ length }) => ({ filter: filter.Char(length) }),
+    Checkbox: ~{ type: 'confirm' },
+    Color: ~{ type: 'chalk-pipe' },
+    DoubleRange: ({ from, to }) => ({
+        filter: filter.Double,
+        validate: validator.Range(from, to) }),
+    DateTime: ~{ type: 'datetime' },
+    Double: ~{ validate: validator.Double, filter: filter.Double },
+    Email: ~{ validate: validator.Email },
+    Integer: ~{ validate: validator.Integer, filter: filter.Integer },
+    IntegerRange: ({ from, to }) => ({
+        filter: filter.Integer,
+        validate: validator.Range(from, to) }),
+    IntegerMultiRange: ({ from, to }) => ({
+        filter: filter.IntegerMultiRange,
+        validate: validator.IntegerMultiRange(from, to) }),
+    Natural: ~{ validate: validator.Natural, filter: filter.Integer },
+    OneOf: ({ values }) => ({ type: 'list', choices: values }),
+    String: ~{ type: 'input' },
+    Url: ~{ validate: validator.Url },
+    Money: ~{ validate: validator.Money, filter: filter.Money },
+    SelectBox: ({ values }) => ({
+        type: 'list',
+        choices: objectToChoices(values) }),
+    MultiSelectBox: ({ values }) => ({
+        type: 'checkbox',
+        choices: objectToChoices(values) }),
+    File: ~{ type: 'filePath', basePath: process.cwd() }
+};
 
 /**
- * Triggers the warnings related to bad coding practices
+ * Custom autocomplete component
  *
- * @param {IO} io
- * @param {Object} questions
+ * @param {String} name
+ * @param {String} source
+ * @return {Function}
  */
-export function triggerWarnings(io, questions) {
-    const getFieldWarnings = pipe(
-        mapObjIndexed(both(has('default'), propEq('required', true))),
-        toPairs);
-
-    const triggerLanguageWarnings = () => has('language', questions)
-        ? emitWarning('don\'t use context.params.language. Prefer context.locale')
-        : resolve();
-
-    return getFieldWarnings(questions).reduce((promise, [key, hasWarning]) =>
-        promise.then(() => hasWarning
-            ? emitWarning(`using both 'required' and 'default' fields is a very bad practice! on (${key})`)
-            : resolve()), resolve())
-            .then(triggerLanguageWarnings);
-}
-
-/**
- * Returns the resolved value, based on required properties and default values
- *
- * @param {String} text
- * @param {Object} type
- * @param {Mixed} def
- * @param {Boolean} required
- */
-export function resolveValue(text, type, def, required) {
-    if (required && text.trim() === '') {
-        return null;
+const getAutocompleteComponent = (name, source) => {
+    if (!source) {
+        throw new Error(`aren't you missing 'autocomplete/${name}.js'?`);
     }
 
-    const nativeValue = cast(text, type);
-    const isEmptyString = value => is(String, value) && value.trim() === '';
+    return ~{ type: 'autocomplete', source: compileClosure(name, source) };
+};
 
-    return nativeValue === null || isEmptyString(nativeValue) ? def : nativeValue;
-}
+/**
+ * Converts a Rung CLI question object to an Inquirer question object
+ *
+ * @author Marcelo Haskell Camargo
+ * @param {String[]} sources
+ * @param {String} name
+ * @param {Object} config
+ * @return {Object}
+ */
+const toInquirerQuestion = curry((sources, [name, config]) => {
+    const component = components
+        | cond([
+            [~(config.type.name === 'AutoComplete'), ~getAutocompleteComponent(name, sources[name])],
+            [has(config.type.name), _[config.type.name]],
+            [T, _.String]
+        ]);
+
+    return merge(config
+        | renameKeys({ description: 'message' })
+        | merge(__, { name }), component(config.type));
+});
+
+const readFile = promisify(fs.readFile);
+
+/**
+ * Opens the provided files and returns them as node buffers
+ *
+ * @param {String[]} fields
+ * @param {Object} answers
+ * @return {Promise}
+ */
+const openFiles = fields =>
+    mapObjIndexed((value, param) => value
+        | when(~contains(param, fields), concat(process.cwd() + '/') & readFile))
+    & props;
 
 /**
  * Returns the pure JS values from received questions that will be answered
@@ -124,27 +161,23 @@ export function resolveValue(text, type, def, required) {
  * @return {Promise} answers for the questions by key
  */
 export function ask(questions) {
-    const io = IO();
-    const recur = curry((remaining, answered, callback) => {
-        if (remaining.length > 0) {
-            const [head, ...tail] = remaining;
-            const { description, type, default: def, required } = questions[head];
+    const DatePickerPrompt = require('inquirer-datepicker-prompt');
+    const ChalkPipe = require('inquirer-chalk-pipe');
+    const AutocompletePrompt = require('inquirer-autocomplete-prompt');
+    const FilePath = require('inquirer-file-path');
+    const fileFields = questions
+        | filterWhere(pathEq(['type', 'name'], 'File'))
+        | keys;
 
-            io.read(`${red.bold(getTypeName(type))}> ${blue(description)}`).done(answer => {
-                const value = resolveValue(answer, type, def, required);
-
-                const args = isNil(value)
-                    ? [remaining, answered, callback]
-                    : [tail, concat(answered, [{ [head]: value }]), callback];
-
-                return recur(...args);
-            });
-        } else {
-            io.close();
-            return callback(answered);
-        }
-    });
-
-    return triggerWarnings(io, questions)
-        .then(() => new Promise(recur(keys(questions), [])));
+    const prompt = createPromptModule();
+    prompt.registerPrompt('datetime', DatePickerPrompt);
+    prompt.registerPrompt('chalk-pipe', ChalkPipe);
+    prompt.registerPrompt('autocomplete', AutocompletePrompt);
+    prompt.registerPrompt('filePath', FilePath);
+    return getAutocompleteSources()
+        .then(autocompleteSources => questions
+            | toPairs
+            | map(toInquirerQuestion(autocompleteSources))
+            | prompt)
+        .then(openFiles(fileFields));
 }

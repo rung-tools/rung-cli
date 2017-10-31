@@ -1,9 +1,10 @@
 import path from 'path';
-import { all, promisifyAll, resolve } from 'bluebird';
+import fs from 'fs';
+import { promisify, resolve } from 'bluebird';
 import osLocale from 'os-locale';
 import { curry, propOr, replace } from 'ramda';
 
-const fs = promisifyAll(require('fs'));
+const readFile = promisify(fs.readFile);
 
 /**
  * Returns the user locale. Firstly consider the env variable and, if it
@@ -40,12 +41,7 @@ export const translator = curry((map, key, params = {}) => {
  */
 export function getLocaleStrings() {
     return getLocale()
-        .then(locale => {
-            const localePath = path.join('locales', `${locale}.json`);
-            return all([fs.lstatAsync(localePath), localePath]);
-        })
-        .spread((lstat, localePath) => lstat.isFile()
-            ? fs.readFileAsync(localePath).then(JSON.parse)
-            : {})
+        .then(locale => readFile(path.join('locales', `${locale}.json`)))
+        .then(JSON.parse)
         .catchReturn({});
 }

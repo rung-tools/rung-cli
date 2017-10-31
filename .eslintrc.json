@@ -1,0 +1,21 @@
+{
+  "extends": "rung",
+  "globals": {
+    "_": false
+  },
+  "rules": {
+    "no-console": ["off"],
+    "new-cap": ["off"]
+  },
+  "overrides": [{
+    "files": "test/**/*.js",
+    "rules": {
+      "no-void": ["off"]
+    }
+  }, {
+    "files": "test/salete/build.feat.js",
+    "rules": {
+      "camelcase": ["off"]
+    }
+  }]
+}

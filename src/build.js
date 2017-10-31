@@ -1,6 +1,6 @@
 import path from 'path';
 import Zip from 'jszip';
-import Promise, { all, promisifyAll, resolve } from 'bluebird';
+import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
 import {
     complement,
     concat,
@@ -20,8 +20,6 @@ import {
     mapObjIndexed,
     merge,
     over,
-    pipe,
-    prop,
     propEq,
     replace,
     sort,
@@ -44,11 +42,9 @@ const fs = promisifyAll(require('fs'));
 const defaultFileOptions = { date: new Date(1149562800000) };
 const requiredFiles = ['package.json', 'index.js'];
 
-const localeByFile = pipe(
-    drop(8),
-    takeWhile(complement(equals('.'))),
-    join('')
-);
+const localeByFile = drop(8)
+    & takeWhile(complement(equals('.')))
+    & join('');
 
 /**
  * Converts a list of locale files to pairs containing locale string and content
@@ -114,7 +110,7 @@ function precompile({ code, files }) {
         .then(localesToPairs)
         .then(runInAllLocales(code))
         .then(createMetaFile)
-        .thenReturn(['.meta', ...files]);
+        .return(['.meta', ...files]);
 }
 
 /**
@@ -127,15 +123,14 @@ function precompile({ code, files }) {
  */
 function filterFiles(files) {
     const clearModule = replace(/^\.\//, '');
-    const missingFiles = without(files, requiredFiles);
-    const hasIcon = contains('icon.png', files);
-    const resources = hasIcon ? ['icon.png'] : [];
+    const resources = files | filter(test(/^((icon\.png)|(README(\.\w+)?\.md))$/));
+    const missing = without(files, requiredFiles);
 
-    if (missingFiles.length > 0) {
-        throw new Error(`missing ${missingFiles.join(', ')} from the project`);
+    if (missing.length > 0) {
+        return reject(Error(`missing ${missing.join(', ')} from the project`));
     }
 
-    if (!hasIcon) {
+    if (!contains('icon.png', files)) {
         emitWarning('compiling extension without providing an icon.png file');
     }
 
@@ -166,7 +161,7 @@ function listFiles(directory) {
  */
 function linkAutoComplete() {
     return listFiles('autocomplete')
-        .then(pipe(filter(endsWith('.js')), map(file => path.join('autocomplete', file))))
+        .then(filter(endsWith('.js')) & map(path.join('autocomplete', _)))
         .tap(files => all(files.map(file => fs.readFileAsync(file)
             .then(ensureNoImports(file)))));
 }
@@ -178,11 +173,9 @@ function linkAutoComplete() {
  */
 function linkLocales() {
     return listFiles('locales')
-        .then(pipe(
-            filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)),
-            map(file => path.join('locales', file))))
+        .then(filter(test(/^[a-z]{2}(_[A-Z]{2,3})?\.json$/)) & map(path.join('locales', _)))
         .filter(location => fs.readFileAsync(location)
-            .then(pipe(JSON.parse, is(Object)))
+            .then(JSON.parse & is(Object))
             .catchReturn(false))
         .catchReturn([]);
 }
@@ -199,7 +192,7 @@ function linkLocales() {
 function linkFiles({ code, files }) {
     return all([linkLocales(), linkAutoComplete()])
         .spread(union)
-        .then(pipe(union(files), sort(subtract), files => ({ code, files })));
+        .then(union(files) & sort(subtract) & (files => ({ code, files })));
 }
 
 /**
@@ -211,7 +204,7 @@ function linkFiles({ code, files }) {
  */
 function getProjectName(dir) {
     return fs.readFileAsync(path.join(dir, 'package.json'))
-        .then(pipe(JSON.parse, prop('name')))
+        .then(JSON.parse & _.name)
         .catchThrow(new Error('Failed to parse package.json from the project'));
 }
 
@@ -224,7 +217,9 @@ function getProjectName(dir) {
  */
 const createZip = curry((dir, files) => {
     const zip = new Zip();
-    files.forEach(filename => addToZip(zip, dir, filename));
+    files.forEach(filename => {
+        zip.file(filename, fs.readFileSync(path.join(dir, filename)), defaultFileOptions);
+    });
     return zip;
 });
 
@@ -239,10 +234,11 @@ const createZip = curry((dir, files) => {
 function resolveOutputTarget(customPath, filename) {
     const realPath = path.resolve('.', customPath);
 
-    const getPath = tryCatch(realPath => fs.lstatSync(realPath).isDirectory()
-        ? path.join(realPath, filename)
-        : realPath
-    , identity);
+    const getPath = tryCatch(
+        realPath => fs.lstatSync(realPath).isDirectory()
+            ? path.join(realPath, filename)
+            : realPath,
+        identity);
 
     return getPath(realPath);
 }
@@ -261,32 +257,9 @@ const saveZip = curry((dir, zip, name) => {
         zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
             .pipe(fs.createWriteStream(target))
             .on('error', reject)
-            .on('finish', () => resolve(target));
+            .on('finish', ~resolve(target));
     });
 });
-
-/**
- * Appends a file or folder to the zip buffer
- *
- * @param {Zip} zip
- * @param {String} dir
- * @param {String} filename
- */
-function addToZip(zip, dir, filename) {
-    const filePath = path.join(dir, filename);
-    const lstat = fs.lstatSync(filePath);
-
-    if (lstat.isFile()) {
-        return zip.file(filename, fs.readFileSync(filePath), defaultFileOptions);
-    }
-
-    if (lstat.isDirectory()) {
-        return map(file => addToZip(zip.folder(filename), filePath, file),
-            fs.readdirSync(filePath));
-    }
-
-    throw new Error(`Invalid file type for ${filePath}`);
-}
 
 /**
  * Precompiles an extension and generates a .rung package
@@ -303,5 +276,5 @@ export default function build(args) {
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
         .spread(saveZip(args.output || '.'))
-        .tap(() => emitSuccess('Rung extension compilation'));
+        .tap(~emitSuccess('Rung extension compilation'));
 }
