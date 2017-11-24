@@ -81,6 +81,7 @@ function askQuestions() {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
+        .then(createFolder(`${answers.name}/info`))
         .catch(~reject(new Error(`Unable to create folder ${answers.name}`)))
         .return(answers);
 }
@@ -131,9 +132,10 @@ function getReadMeMetaFile(answers) {
 function getInfoFiles(answers) {
     const content = '';
 
-    return [{ filename: path.join(answers.name, '/info/EN.md'), content },
-        { filename: path.join(answers.name, '/info/ES.md'), content },
-        { filename: path.join(answers.name, '/info/PT_BR.md'), content }];
+    return [
+        { filename: path.join(answers.name, 'info/EN.md'), content },
+        { filename: path.join(answers.name, 'info/ES.md'), content },
+        { filename: path.join(answers.name, 'info/PT_BR.md'), content }];
 }
 
 /**
@@ -190,6 +192,7 @@ export default function boilerplate() {
     return askQuestions()
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile, getInfoFiles]))
-        .then(map(({ filename, content }) => createFile(filename, content)) & flatten & all)
+        .then(flatten)
+        .then(map(({ filename, content }) => createFile(filename, content)) & all)
         .then(~emitSuccess('project generated'));
 }
