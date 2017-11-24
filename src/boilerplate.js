@@ -190,6 +190,6 @@ export default function boilerplate() {
     return askQuestions()
         .then(createBoilerplateFolder)
         .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile, getInfoFiles]))
-        .then(flatten & map(({ filename, content }) => createFile(filename, content)) & all)
+        .then(map(({ filename, content }) => createFile(filename, content)) & flatten & all)
         .then(~emitSuccess('project generated'));
 }
