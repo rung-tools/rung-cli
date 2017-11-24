@@ -4,6 +4,10 @@
         "function-composition",
         "implicit-function",
         "pipe-operator-curry",
-        "transform-scala-lambda"
+        "transform-scala-lambda",
+        "transform-async-to-bluebird",
+        ["transform-runtime", {
+            "regenerator": true
+        }]
     ]
 }

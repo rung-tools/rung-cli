@@ -46,6 +46,10 @@ export default () => {
             })
             .then(files => {
                 expect(files).to.contain('README.md');
+                expect(files).to.contain('info/');
+                expect(files).to.contain('info/en.md');
+                expect(files).to.contain('info/es.md');
+                expect(files).to.contain('info/pt_BR.md');
             });
     }).timeout(keepCalm(90));
 

@@ -8,6 +8,7 @@ import {
     cond,
     dropWhile,
     equals,
+    flatten,
     join,
     juxt,
     last,
@@ -80,6 +81,7 @@ function askQuestions() {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
+        .tap(createFolder(`${answers.name}/info`))
         .catch(~reject(new Error(`Unable to create folder ${answers.name}`)))
         .return(answers);
 }
@@ -119,6 +121,18 @@ function getReadMeMetaFile(answers) {
     `);
 
     return { filename: path.join(answers.name, 'README.md'), content };
+}
+
+/**
+ * Content about info files
+ *
+ * @param {Object} answers
+ * @return {Object}
+ */
+function getInfoFiles(answers) {
+    const locales = ['en', 'es', 'pt_BR'];
+    return locales
+        | map(locale => ({ filename: path.join(answers.name, `info/${locale}.md`), content: '' }));
 }
 
 /**
@@ -174,7 +188,8 @@ function getIndexFile(answers) {
 export default function boilerplate() {
     return askQuestions()
         .then(createBoilerplateFolder)
-        .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
+        .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile, getInfoFiles]))
+        .then(flatten)
         .then(map(({ filename, content }) => createFile(filename, content)) & all)
         .then(~emitSuccess('project generated'));
 }

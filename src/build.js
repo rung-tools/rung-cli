@@ -3,7 +3,6 @@ import Zip from 'jszip';
 import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
 import {
     complement,
-    concat,
     contains,
     curry,
     drop,
@@ -121,7 +120,7 @@ function precompile({ code, files }) {
  * @param {String[]} files
  * @return {Promise}
  */
-function filterFiles(files) {
+async function filterFiles(files) {
     const clearModule = replace(/^\.\//, '');
     const resources = files | filter(test(/^((icon\.png)|(README(\.\w+)?\.md))$/));
     const missing = without(files, requiredFiles);
@@ -134,11 +133,18 @@ function filterFiles(files) {
         emitWarning('compiling extension without providing an icon.png file');
     }
 
+    const infoFiles = await listFiles('info')
+        | filter(test(/[a-z]{2}(_[A-Z]{2,3})?\.md/))
+        | map(path.join('info/', _));
+
     return fs.readFileAsync('index.js', 'utf-8')
         .then(inspect)
         .then(over(lensProp('modules'), filter(startsWith('./'))))
         .then(({ code, modules }) => ({
-            code, files: union(modules.map(clearModule), concat(resources, requiredFiles)) }));
+            code,
+            files: union(modules.map(clearModule),
+                [...resources, ...requiredFiles, ...infoFiles])
+        }));
 }
 
 /**
