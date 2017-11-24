@@ -130,12 +130,10 @@ function getReadMeMetaFile(answers) {
  * @return {Object}
  */
 function getInfoFiles(answers) {
-    const content = '';
-
     return [
-        { filename: path.join(answers.name, 'info/en.md'), content },
-        { filename: path.join(answers.name, 'info/es.md'), content },
-        { filename: path.join(answers.name, 'info/pt_BR.md'), content }];
+        { filename: path.join(answers.name, 'info/en.md'), content: '' },
+        { filename: path.join(answers.name, 'info/es.md'), content: '' },
+        { filename: path.join(answers.name, 'info/pt_BR.md'), content: '' }];
 }
 
 /**
