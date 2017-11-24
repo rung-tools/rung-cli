@@ -8,6 +8,7 @@ import {
     cond,
     dropWhile,
     equals,
+    flatten,
     join,
     juxt,
     last,
@@ -122,6 +123,20 @@ function getReadMeMetaFile(answers) {
 }
 
 /**
+ * Content about info files
+ *
+ * @param {Object} answers
+ * @return {Object}
+ */
+function getInfoFiles(answers) {
+    const content = '';
+
+    return [{ filename: path.join(answers.name, '/info/EN.md'), content },
+        { filename: path.join(answers.name, '/info/ES.md'), content },
+        { filename: path.join(answers.name, '/info/PT_BR.md'), content }];
+}
+
+/**
  * Content about index.js file
  *
  * @param {Object} answers
@@ -174,7 +189,7 @@ function getIndexFile(answers) {
 export default function boilerplate() {
     return askQuestions()
         .then(createBoilerplateFolder)
-        .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile]))
-        .then(map(({ filename, content }) => createFile(filename, content)) & all)
+        .then(juxt([getPackageMetaFile, getReadMeMetaFile, getIndexFile, getInfoFiles]))
+        .then(flatten & map(({ filename, content }) => createFile(filename, content)) & all)
         .then(~emitSuccess('project generated'));
 }
