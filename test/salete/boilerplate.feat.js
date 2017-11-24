@@ -23,7 +23,8 @@ export default () => {
                 expect(output).to.contain('project generated');
                 expect('salete-hello-world').to.be.a.directory()
                     .with.files(['README.md', 'index.js', 'package.json']);
-                expect('salete-hello-world/info').to.be.a.directory();
+                expect('salete-hello-world/info').to.be.a.directory()
+                    .with.files(['en.md', 'es.md', 'pt_BR.md']);
             });
     }).timeout(keepCalm(60));
 

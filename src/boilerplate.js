@@ -81,7 +81,7 @@ function askQuestions() {
  */
 function createBoilerplateFolder(answers) {
     return createFolder(answers.name)
-        .then(createFolder(`${answers.name}/info`))
+        .tap(createFolder(`${answers.name}/info`))
         .catch(~reject(new Error(`Unable to create folder ${answers.name}`)))
         .return(answers);
 }
@@ -130,10 +130,9 @@ function getReadMeMetaFile(answers) {
  * @return {Object}
  */
 function getInfoFiles(answers) {
-    return [
-        { filename: path.join(answers.name, 'info/en.md'), content: '' },
-        { filename: path.join(answers.name, 'info/es.md'), content: '' },
-        { filename: path.join(answers.name, 'info/pt_BR.md'), content: '' }];
+    const locales = ['en', 'es', 'pt_BR'];
+    return locales
+        | map(locale => ({ filename: path.join(answers.name, `info/${locale}.md`), content: '' }));
 }
 
 /**
