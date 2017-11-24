@@ -3,7 +3,6 @@ import Zip from 'jszip';
 import Promise, { all, promisifyAll, reject, resolve } from 'bluebird';
 import {
     complement,
-    concat,
     contains,
     curry,
     drop,
