@@ -60,7 +60,7 @@
     "socket.io": "2.0.3",
     "superagent": "^3.5.0",
     "superagent-promise": "^1.1.0",
-    "tracking-correios": "1.1.4",
+    "tracking-correios": "1.1.5",
     "validator": "7.0.0",
     "vm2": "^3.4.6",
     "yargs": "^8.0.1"
