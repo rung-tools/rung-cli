@@ -67,14 +67,16 @@ const renameKeys = curry((keysMap, obj) => reduce((acc, key) =>
 
 const objectToChoices = toPairs & map(([value, name]) => ({ name, value }));
 
-const components = {
+export const components = {
     Calendar: ~{
         type: 'datetime',
         format: ['m', '/', 'd', '/', 'yy'],
         filter: filter.Calendar },
     Char: ({ length }) => ({ filter: filter.Char(length) }),
     Checkbox: ~{ type: 'confirm' },
-    Color: ~{ type: 'chalk-pipe' },
+    Color: ~{
+        type: 'chalk-pipe',
+        validate: validator.Color },
     DoubleRange: ({ from, to }) => ({
         filter: filter.Double,
         validate: validator.Range(from, to) }),
@@ -89,7 +91,10 @@ const components = {
         filter: filter.IntegerMultiRange,
         validate: validator.IntegerMultiRange(from, to) }),
     Natural: ~{ validate: validator.Natural, filter: filter.Integer },
-    OneOf: ({ values }) => ({ type: 'list', choices: values }),
+    OneOf: ({ values }) => ({
+        type: 'list',
+        choices: values,
+        validate: validator.OneOf(values) }),
     String: ~{ type: 'input' },
     Url: ~{ validate: validator.Url },
     Money: ~{ validate: validator.Money, filter: filter.Money },
