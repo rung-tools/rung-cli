@@ -52,7 +52,7 @@
     "opn": "5.1.0",
     "os-locale": "^2.0.0",
     "prettyjson": "^1.2.1",
-    "ramda": "^0.24.1",
+    "ramda": "0.25.0",
     "ramda-fantasy": "0.8.0",
     "rimraf": "2.6.1",
     "semver": "5.4.1",

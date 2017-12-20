@@ -3,11 +3,15 @@ import {
     __,
     all,
     allPass,
+    applyTo,
     clamp,
     complement,
     cond,
+    contains,
+    curry,
     equals,
     evolve,
+    flip,
     gte,
     identity,
     is,
@@ -15,7 +19,9 @@ import {
     lte,
     map,
     none,
+    prop,
     propEq,
+    propOr,
     replace,
     split,
     take,
@@ -25,6 +31,7 @@ import {
     values
 } from 'ramda';
 import { isEmail, isHexColor, isURL } from 'validator';
+import { components } from './input';
 
 export const Integer = { name: 'Integer' };
 export const Double = { name: 'Double' };
@@ -77,9 +84,17 @@ export const validator = {
         evolve([gte(__, from), lte(__, to)]) & values & all(identity)]),
     Money: complement(isNaN),
     Natural: lte(0),
+    OneOf: flip(contains),
     Range: (from, to) => clamp(from, to, _) === _,
     Url: unary(isURL)
 };
+
+export const validate = curry((type, value) => {
+    return prop(type.name, components)
+        | applyTo(type)
+        | propOr(~true, 'validate')
+        | applyTo(value);
+});
 
 export const filter = {
     Calendar: date => new Date(date),
