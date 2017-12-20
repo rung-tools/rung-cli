@@ -13,7 +13,6 @@ import {
     identity,
     ifElse,
     is,
-    join,
     lensProp,
     map,
     mapObjIndexed,
@@ -42,8 +41,7 @@ const defaultFileOptions = { date: new Date(1149562800000) };
 const requiredFiles = ['package.json', 'index.js'];
 
 const localeByFile = drop(8)
-    & takeWhile(complement(equals('.')))
-    & join('');
+    & takeWhile(complement(equals('.')));
 
 /**
  * Converts a list of locale files to pairs containing locale string and content
