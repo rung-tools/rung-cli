@@ -19,7 +19,6 @@ import {
     lte,
     map,
     none,
-    prop,
     propEq,
     propOr,
     replace,
