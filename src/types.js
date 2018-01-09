@@ -89,12 +89,11 @@ export const validator = {
     Url: unary(isURL)
 };
 
-export const validate = curry((type, value) => {
-    return prop(type.name, components)
+export const validate = curry((type, value) =>
+    propOr(~{}, type.name, components)
         | applyTo(type)
         | propOr(~true, 'validate')
-        | applyTo(value);
-});
+        | applyTo(value));
 
 export const filter = {
     Calendar: date => new Date(date),

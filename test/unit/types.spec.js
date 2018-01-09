@@ -52,5 +52,6 @@ export default () => {
         expect(v(t.String, NaN)).to.be.true;
         expect(v(t.String, null)).to.be.true;
         expect(v(t.String, undefined)).to.be.true;
+        expect(v(t.Location, 'Joinville')).to.be.true;
     });
 };
