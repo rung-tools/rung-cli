@@ -86,7 +86,7 @@ export function compileES6(source) {
     const result = transform(source, {
         comments: false,
         compact: true,
-        presets: ['es2015', 'react'],
+        presets: ['env', 'react'],
         plugins: [
             ['transform-react-jsx', { pragma: '__render__' }]
         ]
