@@ -42,11 +42,11 @@ export function createVM(strings) {
 }
 
 /**
- * Runs an extension on a virtualized environment and returns its result as
+ * Runs an app on a virtualized environment and returns its result as
  * native JS data
  *
  * @author Marcelo Haskell Camargo
- * @param {String} name - The unique identifier to track the extension
+ * @param {String} name - The unique identifier to track the app
  * @param {String} source - ES6 source to run
  * @param {Object} strings - Object containing the strings to translate
  * @param {String[][]} modules - Map of modules with [filename, source]
@@ -82,7 +82,7 @@ export function getProperties(extension, strings, modules) {
 }
 
 /**
- * Runs an extension with a context (with parameters) and gets the alerts.
+ * Runs an app with a context (with parameters) and gets the cards.
  * The result may be a string, a nullable value, an array...
  *
  * @author Marcelo Haskell Camargo

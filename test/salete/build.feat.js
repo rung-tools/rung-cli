@@ -39,8 +39,8 @@ export default () => {
             })
             .then(output => {
                 const [warning, success] = output | split('\n');
-                expect(warning).to.contain('compiling extension without providing an icon.png file');
-                expect(success).to.contain('Rung extension compilation');
+                expect(warning).to.contain('compiling app without providing an icon.png file');
+                expect(success).to.contain('Rung app compilation');
                 expect('salete-hello-world.rung').to.be.a.file();
                 return zipInfo('./salete-hello-world.rung');
             })
@@ -61,8 +61,8 @@ export default () => {
             .tap(putSomeIcon)
             .then(~work(compile))
             .then(output => {
-                expect(output).to.not.contain('compiling extension without providing an icon.png file');
-                expect(output).to.contain('Rung extension compilation');
+                expect(output).to.not.contain('compiling app without providing an icon.png file');
+                expect(output).to.contain('Rung app compilation');
                 expect('.meta').to.be.a.file().with.json.using.schema({
                     type: 'object',
                     required: ['title', 'description', 'preview', 'params'],

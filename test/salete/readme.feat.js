@@ -10,7 +10,7 @@ const readme = {
 export default () => {
     before(~process.chdir('salete-hello-world'));
 
-    it('should generate a README from Salete\'s extension', () => {
+    it('should generate a README from Salete\'s app', () => {
         return work(readme)
             .then(output => {
                 expect(output).to.contain('generated README.md');

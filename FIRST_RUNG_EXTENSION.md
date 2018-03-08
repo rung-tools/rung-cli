@@ -2,9 +2,9 @@
 
 Nesse documento, estaremos cobrindo os passos para desenvolvimento de uma
 extensão capaz de obter a cotação do dólar e avisar quando ele estiver abaixo
-do valor informado. Estaremos usando uma API de um terceiro para obter os valores. 
-Vamos nomear nossa extensão como `dollar-quotation`. O objetivo será gerar 
-alertas para quando a primeira moeda estiver valendo **menos** que o valor que especificarmos.
+do valor informado. Estaremos usando uma API de um terceiro para obter os valores.
+Vamos nomear nossa extensão como `dollar-quotation`. O objetivo será gerar
+cartões para quando a primeira moeda estiver valendo **menos** que o valor que especificarmos.
 
 ## Como funcionam as extensões
 
@@ -12,7 +12,7 @@ O Rung suporta o desenvolvimento de extensões usando JavaScript, mais
 especificamente, EcmaScript 6 e tudo que for suportado pelo NodeJS 6.*.
 As extensões rodam dentro do Rung em um contexto seguro de máquina virtual (V8)
 e os resultados de saída, que podem ser de retorno ou através de chamadas de
-funções, são passados para a inteligência do Rung para a geração de alertas.
+funções, são passados para a inteligência do Rung para a geração de cartões.
 Nós escrevemos uma ferramenta que permite a você testar a execução de sua extensão
 sem ter que conhecer diretamente o funcionamento do Rung.
 
@@ -127,7 +127,7 @@ para mostrar como sua extensão deve ser exibida com base nos parâmetros recebi
 é usado para definir as strings da sua aplicação, já que depois precisaremos internacionalizá-la!
 
 A função `main` é responsável por ser a função principal, o ponto de entrada. Ela vai ter acesso
-aos parâmetros que o usuário informou e é responsável por buscar os dados e gerar os alertas.
+aos parâmetros que o usuário informou e é responsável por buscar os dados e gerar os cartões.
 
 No final, o `export default` permite que a extensão seja acessível pelo nosso `rung-cli`, e informamos
 mais algumas configurações, como qual será o título da nossa extensão, sua descrição e reaproveitamos a
@@ -156,7 +156,7 @@ const params = {
 };
 ```
 
-Com isso, dizemos que vamos receber o valor do dólar para comparar e podermos trabalhar. 
+Com isso, dizemos que vamos receber o valor do dólar para comparar e podermos trabalhar.
 Agora vamos trabalhar dentro da função `main`, a começar por substituir `{ name }` por `{ price }`,
 que vai conter o valor em `double` do que queremos. Vamos antes adicionar alguns `import` que
 precisaremos e definir nosso objeto responsável por acessar um site externo (API):

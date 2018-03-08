@@ -53,7 +53,7 @@ const getResources = () => {
 };
 
 /**
- * Compiles the content of the alerts to be compatible with HTML
+ * Compiles the content of the cards to be compatible with HTML
  *
  * @param {Object} alerts
  * @return {Object[]}
@@ -119,7 +119,7 @@ function startServer(alerts, params, port, resources) {
 }
 
 /**
- * Generates a HTML file compiled from template showing the alerts as they will
+ * Generates a HTML file compiled from template showing the cards as they will
  * be rendered on Rung and opens it in the default browser
  *
  * @return {Promise}
