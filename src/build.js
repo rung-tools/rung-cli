@@ -71,7 +71,7 @@ const project = curry((locale, config) => ({
 }));
 
 /**
- * Lazily runs the extension using all possible listed locales and extracts
+ * Lazily runs the app using all possible listed locales and extracts
  * the meta-data.
  *
  * @param {String} source
@@ -113,7 +113,7 @@ function precompile({ code, files }) {
 /**
  * Ensures there are missing no files in order to a allow a basic compilation
  * and filter the used modules. It also warns about possible improvements in the
- * extensions
+ * apps
  *
  * @param {String[]} files
  * @return {Promise}
@@ -128,7 +128,7 @@ async function filterFiles(files) {
     }
 
     if (!contains('icon.png', files)) {
-        emitWarning('compiling extension without providing an icon.png file');
+        emitWarning('compiling app without providing an icon.png file');
     }
 
     const infoFiles = await listFiles('info')
@@ -266,7 +266,7 @@ const saveZip = curry((dir, zip, name) => {
 });
 
 /**
- * Precompiles an extension and generates a .rung package
+ * Precompiles an app and generates a .rung package
  *
  * @param {Object} args
  */
@@ -280,5 +280,5 @@ export default function build(args) {
         .then(createZip(dir))
         .then(zip => all([zip, getProjectName(dir)]))
         .spread(saveZip(args.output || '.'))
-        .tap(~emitSuccess('Rung extension compilation'));
+        .tap(~emitSuccess('Rung app compilation'));
 }

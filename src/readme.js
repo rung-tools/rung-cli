@@ -58,7 +58,7 @@ function parametersToArray(parameters) {
 
 /**
  * Generates a full README in Markdown with documentation about input parameters
- * and the business rules of the extension
+ * and the business rules of the app
  *
  * @return {Promise}
  */

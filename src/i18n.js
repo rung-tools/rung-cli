@@ -20,7 +20,7 @@ export function getLocale() {
 /**
  * Translates a string or fallback to the key
  *
- * @param {Object} map - Object containing extension strings
+ * @param {Object} map - Object containing app strings
  * @param {String} key - Key to search in hashmap
  * @return {String}
  */

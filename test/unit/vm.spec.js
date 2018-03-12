@@ -3,7 +3,7 @@ import { getProperties, runAndGetAlerts } from '../../src/vm';
 
 export default () => {
     describe('Virtual machine runtime', () => {
-        it('should get the config of an extension', () => {
+        it('should get the config of an app', () => {
             const source = `module.exports = { default:
                 { extension: () => {}, config: { primaryKey: true } }
             }`;
@@ -14,7 +14,7 @@ export default () => {
                 });
         });
 
-        it('should get the alerts of a synchronous extension', () => {
+        it('should get the cards of a synchronous app', () => {
             const source = 'module.exports = { extension: ctx => ([\'Hello, \' + ctx.name + \'!\']) };';
 
             return runAndGetAlerts({ name: 'test-alerts', source }, { name: 'Marcelo' })
@@ -24,7 +24,7 @@ export default () => {
                 });
         });
 
-        it('should get the alerts of a asynchronous extension', () => {
+        it('should get the cards of a asynchronous app', () => {
             const source = `
                 const { delay } = require('bluebird');
 
@@ -86,7 +86,7 @@ export default () => {
                 });
         });
 
-        it('should refuse extension when it is not a function', () => {
+        it('should refuse app when it is not a function', () => {
             const source = `
                 module.exports = {
                     extension: 1

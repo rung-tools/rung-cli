@@ -24,11 +24,11 @@ You can checkout the last docs in [this link](https://developers.rung.com.br/doc
 
 ## Features
 
-- Create blank extensions
+- Create blank apps
 - Generate `.rung` packages
-- Run extensions locally in CLI mode
-- Publish extensions to Rung Store (public and private)
-- Generate boilerplate code for extension
+- Run apps locally in CLI mode
+- Publish apps to Rung Store (public and private)
+- Generate boilerplate code for app
 - Generate README.md file to publish
 - Test autocomplete directly in the terminal
 - Hot reloading and live development
@@ -43,12 +43,12 @@ You can checkout the last docs in [this link](https://developers.rung.com.br/doc
 | Command       | Description |
 |---------------|-------------|
 | `build`       | Generate a .rung package |
-| `run`         | Execute the current extension |
-| `publish`     | Publish extension to store |
-| `boilerplate` | Generate boilerplate code for the extension |
+| `run`         | Execute the current app |
+| `publish`     | Publish app to store |
+| `boilerplate` | Generate boilerplate code for the app |
 | `readme`      | Generate the README.md file to publish |
-| `db read`     | Read from extension database |
-| `db clear`    | Drop extension database |
+| `db read`     | Read from app database |
+| `db clear`    | Drop app database |
 
 ### Options
 
@@ -56,6 +56,6 @@ You can checkout the last docs in [this link](https://developers.rung.com.br/doc
 |------------------|-------------|
 | `-o`, `--output` | Where to save the built package |
 | `--version`      | Displays versions |
-| `--private`      | If set, extension is published for current user only |
-| `--raw`          | Displays returned alerts outside a table |
+| `--private`      | If set, app is published for current user only |
+| `--raw`          | Displays returned cards outside a table |
 | `--live`         | With `run`, starts hot compiling and preview on browser |

@@ -27,11 +27,11 @@ function cli(args) {
 cli(yargs
     .usage('Usage: $0 [build|run|publish|readme|db]')
     .command('build', 'Generate a .rung package')
-    .command('publish [file]', 'Publishes the extension to the Rung store')
-    .command('run', 'Execute the current extension')
-    .command('boilerplate', 'Generates the boilerplate files for your extension')
+    .command('publish [file]', 'Publishes the app to the Rung store')
+    .command('run', 'Execute the current app')
+    .command('boilerplate', 'Generates the boilerplate files for your app')
     .command('readme', 'Generates the README.md file to publish')
-    .command('db [option]', '[read|clear] Read or clear db for extension')
+    .command('db [option]', '[read|clear] Read or clear db for app')
     .option('o', {
         alias: 'output',
         describe: 'Where to save the built package',

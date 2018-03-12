@@ -55,7 +55,7 @@ function resolveInputFile(args) {
 }
 
 /**
- * Authenticates and publishes the extension
+ * Authenticates and publishes the app
  *
  * @param {Object} args
  * @return {Promise}
