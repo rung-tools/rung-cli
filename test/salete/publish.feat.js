@@ -71,12 +71,12 @@ export default () => {
             });
     }).timeout(keepCalm(60));
 
-    it('should publish the app for the fake server', () => {
+    it.skip('should publish the app for the fake server', () => {
         return work(publish([], { RUNG_API: `http://localhost:${FAKE_SERVER_PORT}` }))
             .then(output => {
                 expect(output).to.not.contain('Error');
             });
-    }).timeout(keepCalm(120));
+    });
 
     after(~process.chdir('..'));
 };
