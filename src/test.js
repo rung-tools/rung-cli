@@ -5,7 +5,7 @@ import { emitError } from './input';
 export const readFile = promisify(fs.readFile);
 
 export default async () =>
-    readFile('test/indexs.js', 'utf-8')
+    readFile('test/index.js', 'utf-8')
         .then(content => {
             console.log(content);
         })
