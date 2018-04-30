@@ -1,12 +1,21 @@
 import fs from 'fs';
 import { promisify } from 'bluebird';
-import { emitError } from './input';
+import { read } from './db';
+import { getLocale, getLocaleStrings } from './i18n';
+import { compileSources } from './run';
+import { getProperties } from './vm';
 
 export const readFile = promisify(fs.readFile);
 
-export default async () =>
-    readFile('test/index.js', 'utf-8')
-        .then(content => {
-            console.log('OK, GOOD BOY');
-        })
-        .catch(~emitError('No tests to run. [test/index.js] not found'));
+export default async () => {
+    const test = await readFile('test/index.js', 'utf-8');
+    const { name } = await readFile('package.json', 'utf-8')
+        | JSON.parse;
+    const db = await read(name);
+    const locale = await getLocale();
+    const strings = await getLocaleStrings();
+    const [source, modules] = await compileSources();
+    const properties = await getProperties({ name, source }, strings, modules);
+
+    console.log(properties);
+};
