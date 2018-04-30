@@ -52,7 +52,7 @@ export function createVM(strings) {
  * @param {String[][]} modules - Map of modules with [filename, source]
  * @return {Promise}
  */
-function runInSandbox(name, source, strings = {}, modules = []) {
+export function runInSandbox(name, source, strings = {}, modules = []) {
     const evaluate = tryCatch(() => {
         const vm = createVM(strings);
 

@@ -3,7 +3,7 @@ import { promisify } from 'bluebird';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
 import { compileSources } from './run';
-import { getProperties } from './vm';
+import { getProperties, runInSandbox } from './vm';
 
 export const readFile = promisify(fs.readFile);
 
@@ -16,6 +16,6 @@ export default async () => {
     const strings = await getLocaleStrings();
     const [source, modules] = await compileSources();
     const properties = await getProperties({ name, source }, strings, modules);
-
-    console.log(properties);
+    const app = await runInSandbox(name, source, strings, modules);
+    console.log(app)
 };
