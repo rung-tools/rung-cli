@@ -1,21 +1,39 @@
 import fs from 'fs';
-import { promisify } from 'bluebird';
+import { promisify, reject } from 'bluebird';
 import { read } from './db';
 import { getLocale, getLocaleStrings } from './i18n';
 import { compileSources } from './run';
-import { getProperties, runInSandbox } from './vm';
+import { createVM, runInSandbox } from './vm';
 
 export const readFile = promisify(fs.readFile);
 
+/**
+ * Creates a VM for testing purposes, with access to an `app` object containing
+ * `extension` closure and `config` object.
+ *
+ * @param {Object} app - containing `extension` and `config`
+ * @return {NodeVM}
+ */
+function createTestVM(app) {
+    // TODO: Compile test file to ES5
+    // TODO: Allow to require inner modules
+    const vm = createVM();
+    vm.freeze('app', app);
+    return vm;
+}
+
 export default async () => {
-    const test = await readFile('test/index.js', 'utf-8');
+    if (!fs.existsSync('test/index.js')) {
+        return reject(new Error('no tests to run. [test/index.js] not found'));
+    }
+
     const { name } = await readFile('package.json', 'utf-8')
         | JSON.parse;
-    const db = await read(name);
-    const locale = await getLocale();
     const strings = await getLocaleStrings();
     const [source, modules] = await compileSources();
-    const properties = await getProperties({ name, source }, strings, modules);
-    const app = await runInSandbox(name, source, strings, modules);
-    console.log(app)
+    const vm = await runInSandbox(name, source, strings, modules)
+        | createTestVM;
+    const tests = await readFile('test/index.js', 'utf-8');
+    const result = vm.run(tests, 'test/index.js');
+    console.log(result);
 };
