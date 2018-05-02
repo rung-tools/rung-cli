@@ -70,7 +70,7 @@ function runTests(tests, failed = 0) {
 
     // Asynchronous extension, callback parameter
     return new Promise(resolve => {
-        setTimeout(() => console.log('rodano'), 3000);
+        implementation(resolve);
     });
 }
 
