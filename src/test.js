@@ -56,15 +56,26 @@ export default () => compileApp()
         vm.run(source, 'test/index.js');
 
         await emitInfo(`${results.length} test cases found`);
-        const run = async tests => {
+        const run = async (tests, failed = 0) => {
             if (tests.length === 0) {
-                return emitInfo('Done');
+                return failed;
             }
 
             const [[description, implementation], ...rest] = tests;
-            await emitInfo(description);
-            return run(rest);
+            try {
+                implementation();
+                await emitSuccess(description);
+                return run(rest, failed);
+            } catch (err) {
+                await emitError(`${description}: ${err.message}\n${err.stack}`);
+                return run(rest, failed + 1);
+            }
         };
 
-        return run(results);
+        const failures = await run(results);
+        if (failures > 0) {
+            throw new Error(`${failures} tests failing`);
+        }
+
+        return emitSuccess('Done!');
     });
