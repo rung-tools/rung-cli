@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Promise, { promisify, reject } from 'bluebird';
+import Promise, { all, promisify, reject } from 'bluebird';
 import {
     either,
     filter,
@@ -29,6 +29,25 @@ async function compileApp() {
     return runInSandbox(name, source, strings, modules);
 }
 
+/**
+ * Compiles the test source.
+ *
+ * @return {Promise}
+ */
+async function compileTest() {
+    const source = await readFile('test/index.js', 'utf-8')
+        | compileES6;
+    const localTestModules = inspect(source).modules
+        | filter(either(startsWith('./'), startsWith('../')));
+
+    if (localTestModules.length > 0) {
+        return reject(new Error('Only external modules can be required in testsuite. Found '
+            + localTestModules.join(', ')));
+    }
+
+    return source;
+}
+
 function runTests(tests, failed = 0) {
     if (tests.length === 0) {
         return failed;
@@ -36,6 +55,7 @@ function runTests(tests, failed = 0) {
 
     const [[description, implementation], ...rest] = tests;
 
+    /*
     // Synchronous extension
     if (implementation.length === 0) {
         try {
@@ -46,11 +66,11 @@ function runTests(tests, failed = 0) {
             return emitError(`${description}\n${err.message}\n${err.stack}`)
                 .then(~runTests(rest, failed + 1));
         }
-    }
+    }*/
 
     // Asynchronous extension, callback parameter
     return new Promise(resolve => {
-        console.log('rodano');
+        setTimeout(() => console.log('rodano'), 3000);
     });
 }
 
@@ -60,18 +80,8 @@ function runTests(tests, failed = 0) {
  *
  * @return {Promise}
  */
-export default () => compileApp()
-    .then(async app => {
-        const source = await readFile('test/index.js', 'utf-8')
-            | compileES6;
-        const localTestModules = inspect(source).modules
-            | filter(either(startsWith('./'), startsWith('../')));
-
-        if (localTestModules.length > 0) {
-            return reject(new Error('Only external modules can be required in testsuite. Found '
-                + localTestModules.join(', ')));
-        }
-
+export default () => all([compileTest(), compileApp()])
+    .spread((source, app) => {
         // Compile test cases to V8 safe closures
         const results = [];
         const vm = createVM();
