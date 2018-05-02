@@ -1,8 +1,10 @@
 import fs from 'fs';
-import { promisify, reject } from 'bluebird';
+import Promise, { promisify, reject } from 'bluebird';
 import {
     either,
     filter,
+    ifElse,
+    lt,
     startsWith
 } from 'ramda';
 import { compileES6 } from './compiler';
@@ -25,6 +27,31 @@ async function compileApp() {
     const [source, modules] = await compileSources();
     const strings = await getLocaleStrings();
     return runInSandbox(name, source, strings, modules);
+}
+
+function runTests(tests, failed = 0) {
+    if (tests.length === 0) {
+        return failed;
+    }
+
+    const [[description, implementation], ...rest] = tests;
+
+    // Synchronous extension
+    if (implementation.length === 0) {
+        try {
+            implementation();
+            return emitSuccess(description)
+                .then(~runTests(rest, failed));
+        } catch (err) {
+            return emitError(`${description}\n${err.message}\n${err.stack}`)
+                .then(~runTests(rest, failed + 1));
+        }
+    }
+
+    // Asynchronous extension, callback parameter
+    return new Promise(resolve => {
+        console.log('rodano');
+    });
 }
 
 /**
@@ -55,27 +82,9 @@ export default () => compileApp()
         vm.freeze(test, 'test');
         vm.run(source, 'test/index.js');
 
-        await emitInfo(`${results.length} test cases found`);
-        const run = async (tests, failed = 0) => {
-            if (tests.length === 0) {
-                return failed;
-            }
-
-            const [[description, implementation], ...rest] = tests;
-            try {
-                implementation();
-                await emitSuccess(description);
-                return run(rest, failed);
-            } catch (err) {
-                await emitError(`${description}: ${err.message}\n${err.stack}`);
-                return run(rest, failed + 1);
-            }
-        };
-
-        const failures = await run(results);
-        if (failures > 0) {
-            throw new Error(`${failures} tests failing`);
-        }
-
-        return emitSuccess('Done!');
+        return emitInfo(`${results.length} test case(s) found`)
+            .then(~runTests(results))
+            .then(ifElse(lt(0),
+                (failures => reject(new Error(`${failures} test(s) failing`))),
+                ~emitSuccess('Done!')));
     });
