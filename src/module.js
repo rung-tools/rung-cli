@@ -49,7 +49,7 @@ export function compileModulesFromSource(source) {
  * @param {String} module
  * @return {Promise}
  */
-function compileModule(module) {
+export function compileModule(module) {
     const extensionIs = extension => ~endsWith(extension, module);
 
     return readFile(module, 'utf-8')
