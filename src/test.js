@@ -1,18 +1,14 @@
 import fs from 'fs';
-import { all, promisify, reject } from 'bluebird';
+import { promisify, reject } from 'bluebird';
 import {
-    concat,
-    cond,
-    drop,
     either,
     filter,
-    map,
     startsWith
 } from 'ramda';
 import { compileES6 } from './compiler';
-import { read } from './db';
-import { getLocale, getLocaleStrings } from './i18n';
-import { compileModule, compileModulesFromSource, evaluateModules, inspect } from './module';
+import { getLocaleStrings } from './i18n';
+import { emitError, emitInfo, emitSuccess } from './input';
+import { inspect } from './module';
 import { compileSources } from './run';
 import { createVM, runInSandbox } from './vm';
 
@@ -39,24 +35,36 @@ async function compileApp() {
  */
 export default () => compileApp()
     .then(async app => {
-        const test = await readFile('test/index.js', 'utf-8')
+        const source = await readFile('test/index.js', 'utf-8')
             | compileES6;
-        const modules = await (inspect(test).modules
-            | filter(either(startsWith('./'), startsWith('../')))
-            | map(cond([
-                [startsWith('./'), drop(2) & concat('./test/')],
-                [startsWith('../'), drop(1)]
-            ]))
-            | map(compileModule)
-            | all);
+        const localTestModules = inspect(source).modules
+            | filter(either(startsWith('./'), startsWith('../')));
 
-        console.log(modules);
+        if (localTestModules.length > 0) {
+            return reject(new Error('Only external modules can be required in testsuite. Found '
+                + localTestModules.join(', ')));
+        }
+
+        // Compile test cases to V8 safe closures
+        const results = [];
+        const vm = createVM();
+        const test = (description, implementation) => {
+            results.push([description, implementation]);
+        };
+        vm.freeze(app, 'app');
+        vm.freeze(test, 'test');
+        vm.run(source, 'test/index.js');
+
+        await emitInfo(`${results.length} test cases found`);
+        const run = async tests => {
+            if (tests.length === 0) {
+                return emitInfo('Done');
+            }
+
+            const [[description, implementation], ...rest] = tests;
+            await emitInfo(description);
+            return run(rest);
+        };
+
+        return run(results);
     });
-    /*
-     * all([compileTests(), compileApp()])
-    .spread(async (test, app) => {
-        // Make `app` available to the tests
-        test.vm.freeze(app, 'app');
-        test.vm.options.require.mock = evaluateModules(test.vm, test.modules);
-    });
-    */
