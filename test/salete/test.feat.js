@@ -67,6 +67,7 @@ export default () => {
                 expect(output).to.contain('Success: This should pass');
                 expect(output).to.contain('Error: This should break');
                 expect(output).to.contain('AssertionError');
+                expect(output).to.contain('0 passing, 1 failing');
             });
     });
 
