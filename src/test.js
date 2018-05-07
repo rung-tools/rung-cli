@@ -1,32 +1,34 @@
 import fs from 'fs';
-import Promise, { all, promisify, reject } from 'bluebird';
+import { all, promisify, reject, resolve } from 'bluebird';
 import {
     either,
+    evolve,
     filter,
-    ifElse,
-    lt,
-    startsWith
+    inc,
+    startsWith,
+    tryCatch
 } from 'ramda';
 import { compileES6 } from './compiler';
 import { getLocaleStrings } from './i18n';
 import { emitError, emitInfo, emitSuccess } from './input';
 import { inspect } from './module';
 import { compileSources } from './run';
-import { createVM, runInSandbox } from './vm';
+import { createVM, runAndGetAlerts } from './vm';
 
-export const readFile = promisify(fs.readFile);
+const readFile = promisify(fs.readFile);
 
 /**
  * Compiles the app files and returns an instance of a V8 object.
  *
- * @return {Promise}
+ * @return {Promise<Object => Promise>}
  */
 async function compileApp() {
     const { name } = await readFile('package.json', 'utf-8')
         | JSON.parse;
     const [source, modules] = await compileSources();
     const strings = await getLocaleStrings();
-    return runInSandbox(name, source, strings, modules);
+    return context =>
+        runAndGetAlerts({ name, source }, context, strings, modules);
 }
 
 /**
@@ -48,30 +50,41 @@ async function compileTest() {
     return source;
 }
 
-function runTests(tests, failed = 0) {
+/**
+ * Executes the tests and returns a promise with computed results.
+ * @param {Object => Promise} runWithContext - Pre-compiled application
+ * @param {(String, Function)[]} tests - The test cases
+ * @return {Promise}
+ */
+async function runTests(runWithContext, tests) {
     if (tests.length === 0) {
-        return failed;
+        return emitInfo('No tests to run');
     }
 
-    const [[description, implementation], ...rest] = tests;
+    const loop = async ([test, ...rest], report = { passing: 0, failing: 0 }) => {
+        if (!test) {
+            const message = `${report.passing} passing, ${report.failing} failing`;
+            if (report.failing > 0) {
+                return reject(new Error(message));
+            }
 
-    /*
-    // Synchronous extension
-    if (implementation.length === 0) {
-        try {
-            implementation();
-            return emitSuccess(description)
-                .then(~runTests(rest, failed));
-        } catch (err) {
-            return emitError(`${description}\n${err.message}\n${err.stack}`)
-                .then(~runTests(rest, failed + 1));
+            return emitSuccess(message);
         }
-    }*/
 
-    // Asynchronous extension, callback parameter
-    return new Promise(resolve => {
-        implementation(resolve);
-    });
+        const [description, implementation] = test;
+        return runWithContext
+            | tryCatch(implementation & resolve, reject)
+            | (future => future
+                .then(~emitSuccess(description)
+                    .return(report | evolve({ passing: inc })))
+                .catch(err =>
+                    emitError(`${description}:\n${err.stack}\n`)
+                        .return(report | evolve({ failing: inc })))
+                .then(loop(rest, _)));
+    };
+
+    await emitInfo(`${tests.length} test case(s) found`);
+    return loop(tests);
 }
 
 /**
@@ -80,21 +93,12 @@ function runTests(tests, failed = 0) {
  *
  * @return {Promise}
  */
-export default () => all([compileTest(), compileApp()])
-    .spread((source, app) => {
-        // Compile test cases to V8 safe closures
-        const results = [];
-        const vm = createVM();
-        const test = (description, implementation) => {
-            results.push([description, implementation]);
-        };
-        vm.freeze(app, 'app');
-        vm.freeze(test, 'test');
-        vm.run(source, 'test/index.js');
-
-        return emitInfo(`${results.length} test case(s) found`)
-            .then(~runTests(results))
-            .then(ifElse(lt(0),
-                (failures => reject(new Error(`${failures} test(s) failing`))),
-                ~emitSuccess('Done!')));
-    });
+export default async () => {
+    const [source, runWithContext] = await all([compileTest(), compileApp()]);
+    const tests = [];
+    const vm = createVM();
+    const test = (...args) => tests.push(args);
+    vm.freeze(test, 'test');
+    vm.run(source, 'test/index.js');
+    return runTests(runWithContext, tests);
+};
