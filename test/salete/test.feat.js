@@ -30,7 +30,15 @@ const saletest = {
         '});'
     ].join('\n'),
     passing: [
-
+        'import { expect } from "chai";',
+        '',
+        'test("I promise it will pass", app => {',
+        '   return app({ params: { name: "Judith" } })',
+        '       .then(result => {',
+        '           expect(result).to.be.an("object");',
+        '           expect(result).to.have.property("alerts")',
+        '       });',
+        '});'
     ].join('\n')
 };
 
@@ -86,7 +94,15 @@ export default () => {
             });
     });
 
-    it('should pass all tests');
+    it('should pass all tests', () => {
+        return remove('test/index.js')
+            .then(~createFile('test/index.js', saletest.passing))
+            .then(~work(test))
+            .then(output => {
+                expect(output).to.contain('Success: I promise it will pass');
+                expect(output).to.contain('1 passing, 0 failing');
+            })
+    });
 
     after(~process.chdir('..'));
 };
