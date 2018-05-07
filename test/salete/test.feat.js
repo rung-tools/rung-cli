@@ -22,7 +22,12 @@ const saletest = {
         '});'
     ].join('\n'),
     breakingAsynchronous: [
-
+        'import { expect } from "chai";',
+        '',
+        'test("Breaking after running the app", app => {',
+        '   return app({ params: { name: "Judith" } })',
+        '       .then(result => expect(result).to.be.a("string"));',
+        '});'
     ].join('\n'),
     passing: [
 
@@ -67,11 +72,19 @@ export default () => {
                 expect(output).to.contain('Success: This should pass');
                 expect(output).to.contain('Error: This should break');
                 expect(output).to.contain('AssertionError');
-                expect(output).to.contain('0 passing, 1 failing');
+                expect(output).to.contain('1 passing, 1 failing');
             });
     });
 
-    it('should report breaking asynchronous test');
+    it('should report breaking asynchronous test', () => {
+        return remove('test/index.js')
+            .then(~createFile('test/index.js', saletest.breakingAsynchronous))
+            .then(~work(test))
+            .then(output => {
+                expect(output).to.contain('Breaking after running the app');
+                expect(output).to.contain('0 passing, 1 failing');
+            });
+    });
 
     it('should pass all tests');
 
