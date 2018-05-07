@@ -37,13 +37,14 @@ async function compileApp() {
  * @return {Promise}
  */
 async function compileTest() {
-    const source = await readFile('test/index.js', 'utf-8')
+    const source = await (readFile('test/index.js', 'utf-8')
+        .catchThrow(new Error('no tests provided')))
         | compileES6;
     const localTestModules = inspect(source).modules
         | filter(either(startsWith('./'), startsWith('../')));
 
     if (localTestModules.length > 0) {
-        return reject(new Error('Only external modules can be required in testsuite. Found '
+        return reject(new Error('only external modules can be required in testsuite. Found '
             + localTestModules.join(', ')));
     }
 
@@ -58,7 +59,7 @@ async function compileTest() {
  */
 async function runTests(runWithContext, tests) {
     if (tests.length === 0) {
-        return emitInfo('No tests to run');
+        return emitInfo('no tests to run');
     }
 
     const loop = async ([test, ...rest], report = { passing: 0, failing: 0 }) => {

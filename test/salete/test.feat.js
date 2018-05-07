@@ -12,10 +12,11 @@ export default () => {
             runs: ['node', '../dist/cli.js', 'test'],
             does: [keepCalm(20)] })
             .then(output => {
-                expect(output).to.contain('Error: No tests to run. [test/index.js] not found');
+                expect(output).to.contain('Error: no tests provided');
             });
     }).timeout(keepCalm(40));
 
+    /*
     it('should create a static test file and run it successfully', () => {
         return createFolder('test')
             .then(~createFile('test/index.js', [
@@ -25,7 +26,7 @@ export default () => {
                 '  expect(1).to.be.equal(1)',
                 '})'
             ].join('\n')));
-    });
+    });*/
 
     after(~process.chdir('..'));
 };
