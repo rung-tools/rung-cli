@@ -19,6 +19,7 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "compile": "babel ./src -d ./dist --source-maps",
+    "watch": "babel ./src -w -d ./dist --source-maps",
     "lint": "eslint src --cache",
     "lint:tests": "eslint test --cache",
     "fix-lint": "eslint src --cache --fix",
