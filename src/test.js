@@ -62,7 +62,7 @@ async function runTests(runWithContext, tests) {
         return emitInfo('no tests to run');
     }
 
-    const loop = async ([test, ...rest], report = { passing: 0, failing: 0 }) => {
+    const loop = ([test, ...rest], report = { passing: 0, failing: 0 }) => {
         if (!test) {
             const message = `${report.passing} passing, ${report.failing} failing`;
             if (report.failing > 0) {
