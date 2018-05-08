@@ -28,7 +28,7 @@ export const runInBrowser = curry((sandbox, code) =>
  * @param {Object} translator - Map of strings to translate
  * @return {NodeVM}
  */
-export function createVM(strings) {
+export function createVM(strings = []) {
     const vm = new NodeVM({
         require: {
             external: true
@@ -52,7 +52,7 @@ export function createVM(strings) {
  * @param {String[][]} modules - Map of modules with [filename, source]
  * @return {Promise}
  */
-function runInSandbox(name, source, strings = {}, modules = []) {
+export function runInSandbox(name, source, strings = {}, modules = []) {
     const evaluate = tryCatch(() => {
         const vm = createVM(strings);
 

@@ -32,6 +32,7 @@ cli(yargs
     .command('boilerplate', 'Generates the boilerplate files for your app')
     .command('readme', 'Generates the README.md file to publish')
     .command('db [option]', '[read|clear] Read or clear db for app')
+    .command('test', 'Executes the tests written for your app')
     .option('o', {
         alias: 'output',
         describe: 'Where to save the built package',

@@ -11,6 +11,7 @@ import build from './build.feat';
 import readme from './readme.feat';
 import db from './db.feat';
 import run from './run.feat';
+import test from './test.feat';
 import input from './input.feat';
 import publish from './publish.feat';
 
@@ -29,6 +30,7 @@ describe('Human tests', () => {
     describe('readme.feat', readme);
     describe('db.feat', db);
     describe('run.feat', run);
+    describe('test.feat', test);
     describe('input.feat', input);
     describe('publish.feat', publish);
 });
