@@ -61,7 +61,7 @@ export default () => {
             .then(output => {
                 expect(output).to.contain('Error: only external modules can be required in testsuite');
             });
-    });
+    }).timeout(keepCalm(40));
 
     it('should tell when the test file exists, but there are no tests to run', () => {
         return remove('test/index.js')
@@ -70,7 +70,7 @@ export default () => {
             .then(output => {
                 expect(output).to.contain('Info: no tests to run');
             });
-    });
+    }).timeout(keepCalm(40));
 
     it('should report breaking synchronous test', () => {
         return remove('test/index.js')
@@ -82,7 +82,7 @@ export default () => {
                 expect(output).to.contain('AssertionError');
                 expect(output).to.contain('1 passing, 1 failing');
             });
-    });
+    }).timeout(keepCalm(40));
 
     it('should report breaking asynchronous test', () => {
         return remove('test/index.js')
@@ -92,7 +92,7 @@ export default () => {
                 expect(output).to.contain('Breaking after running the app');
                 expect(output).to.contain('0 passing, 1 failing');
             });
-    });
+    }).timeout(keepCalm(40));
 
     it('should pass all tests', () => {
         return remove('test/index.js')
@@ -102,7 +102,7 @@ export default () => {
                 expect(output).to.contain('Success: I promise it will pass');
                 expect(output).to.contain('1 passing, 0 failing');
             })
-    });
+    }).timeout(keepCalm(40));
 
     after(~process.chdir('..'));
 };
