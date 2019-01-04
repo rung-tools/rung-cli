@@ -59,7 +59,7 @@
     "semver": "5.4.1",
     "showdown": "1.7.4",
     "socket.io": "2.0.3",
-    "superagent": "^3.5.0",
+    "superagent": "^3.5.2",
     "superagent-promise": "^1.1.0",
     "tracking-correios": "1.1.5",
     "validator": "7.0.0",
